@@ -64,8 +64,8 @@ export function BottomNav() {
 
     return (
         <>
-            <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-5 xl:hidden pointer-events-none flex justify-center">
-                <div className="max-w-[400px] w-full pointer-events-auto flex items-center justify-between gap-1 p-1.5 rounded-[2rem] bg-white/80 backdrop-blur-2xl border border-white shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
+            <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-6 xl:hidden pointer-events-none flex justify-center">
+                <div className="max-w-[400px] w-full pointer-events-auto flex items-center justify-between gap-1 p-2 rounded-full bg-white/90 backdrop-blur-3xl border border-white shadow-[0_8px_32px_rgba(0,0,0,0.08)]">
                     {visibleItems.map((item, index) => {
                         const isActive = item.path === '/'
                             ? pathname === '/'
@@ -75,21 +75,6 @@ export function BottomNav() {
 
                         return (
                             <div key={item.name} className="flex-1 flex items-center justify-center">
-                                {index === 2 && (
-                                    <button
-                                        onClick={handlePostClick}
-                                        className="relative -top-3 w-12 h-12 flex items-center justify-center rounded-2xl bg-white shadow-[0_12px_24px_rgba(0,0,0,0.12)] active:scale-95 transition-all group overflow-hidden border border-slate-100"
-                                        style={{ WebkitTapHighlightColor: "transparent" }}
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-tr from-slate-50 to-white" />
-                                        <div className="relative z-10">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-slate-800 group-hover:scale-110 transition-transform">
-                                                <path d="M12 5V19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                                <path d="M5 12H19" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                        </div>
-                                    </button>
-                                )}
                                 <Link
                                     href={item.path}
                                     className="relative flex items-center justify-center shrink-0 outline-none w-full h-full p-1"

@@ -124,7 +124,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${orbitron.variable} font-sans antialiased text-gray-900 bg-[#F5F7FA] relative min-h-[100svh] overflow-x-hidden`}
+        className={`${inter.variable} ${orbitron.variable} font-sans antialiased text-gray-900 bg-[#F5F7FA] relative min-h-[100svh]`}
       >
         <NextTopLoader
           color="#4F46E5"
@@ -137,7 +137,7 @@ export default function RootLayout({
           speed={200}
           shadow="0 0 10px #4F46E5,0 0 5px #4F46E5"
         />
-        <div className="relative z-10">
+        <div className="relative z-10 overflow-x-hidden">
           <LayoutWrapper>{children}</LayoutWrapper>
           <Footer />
         </div>

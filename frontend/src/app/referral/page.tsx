@@ -93,11 +93,11 @@ export default function ReferralPage() {
     );
 
     const treeLevels = [
-        { label: 'Direct referrals', value: stats?.stats.level1 || 0, reward: '₹25', color: 'bg-indigo-600' },
-        { label: 'Grandchildren', value: stats?.stats.level2 || 0, reward: '₹5', color: 'bg-indigo-500' },
-        { label: 'Level 3 Network', value: stats?.stats.level3 || 0, reward: '₹2', color: 'bg-indigo-400' },
-        { label: 'Level 4 Network', value: stats?.stats.level4 || 0, reward: '₹2', color: 'bg-indigo-300' },
-        { label: 'Global Reach', value: stats?.stats.level5 || 0, reward: '₹1', color: 'bg-indigo-200' },
+        { label: 'Direct referrals', value: stats?.stats?.level1 || 0, reward: '₹25', color: 'bg-indigo-600' },
+        { label: 'Grandchildren', value: stats?.stats?.level2 || 0, reward: '₹5', color: 'bg-indigo-500' },
+        { label: 'Level 3 Network', value: stats?.stats?.level3 || 0, reward: '₹2', color: 'bg-indigo-400' },
+        { label: 'Level 4 Network', value: stats?.stats?.level4 || 0, reward: '₹2', color: 'bg-indigo-300' },
+        { label: 'Global Reach', value: stats?.stats?.level5 || 0, reward: '₹1', color: 'bg-indigo-200' },
     ];
 
     return (
@@ -211,7 +211,7 @@ export default function ReferralPage() {
                             </div>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-5xl font-black text-slate-900 tracking-tighter leading-none">
-                                    {stats?.stats.total || 0}
+                                    {stats?.stats?.total || 0}
                                 </span>
                                 <span className="text-[11px] font-black text-indigo-500 uppercase tracking-widest">Active Members</span>
                             </div>

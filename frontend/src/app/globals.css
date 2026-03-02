@@ -86,21 +86,31 @@
   &::-webkit-scrollbar {
     height: 4px;
   }
+
   &::-webkit-scrollbar-track {
     background: transparent;
     border-radius: 4px;
   }
+
   &::-webkit-scrollbar-thumb {
-    background: #c7d2fe; /* indigo-200 */
+    background: #c7d2fe;
+    /* indigo-200 */
     border-radius: 4px;
   }
+
   &::-webkit-scrollbar-thumb:hover {
-    background: #818cf8; /* indigo-400 */
+    background: #818cf8;
+    /* indigo-400 */
   }
 }
 
 /* Custom Global Scrollbar */
 @layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -154,10 +164,19 @@
 @utility animation-delay-4000 {
   animation-delay: 4s;
 }
+
 .animate-bounce-slow {
   animation: bounce-slow 3s infinite;
 }
+
 @keyframes bounce-slow {
-  0%, 100% { transform: translateY(-8px); }
-  50% { transform: translateY(0); }
+
+  0%,
+  100% {
+    transform: translateY(-8px);
+  }
+
+  50% {
+    transform: translateY(0);
+  }
 }
