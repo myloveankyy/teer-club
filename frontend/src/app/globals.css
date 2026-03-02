@@ -79,6 +79,26 @@
   }
 }
 
+@utility custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c7d2fe; /* indigo-200 */
+    border-radius: 4px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #818cf8; /* indigo-400 */
+  }
+}
+
 /* Custom Global Scrollbar */
 @layer base {
   ::-webkit-scrollbar {

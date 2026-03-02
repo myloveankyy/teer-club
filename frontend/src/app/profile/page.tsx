@@ -402,7 +402,7 @@ export default function ProfilePage() {
                         </div>
 
                         {/* Sub-Navigation Tabs */}
-                        <div className="flex items-center gap-2 mb-8 bg-white/50 p-1.5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto no-scrollbar">
+                        <div className="flex items-center gap-2 mb-8 bg-white/50 p-1.5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto custom-scrollbar pb-2">
                             {[
                                 { id: 'posts', label: 'My Activity', icon: Grid },
                                 { id: 'library', label: 'Saved Library', icon: Bookmark },
@@ -587,7 +587,7 @@ export default function ProfilePage() {
                                                                             <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center">
                                                                                 {conn.profilePicture ? (
                                                                                     <img
-                                                                                        src={conn.profilePicture.startsWith('http') ? conn.profilePicture : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${conn.profilePicture}`}
+                                                                                        src={getAvatarUrl(conn.profilePicture)}
                                                                                         alt={conn.username}
                                                                                         className="w-full h-full object-cover"
                                                                                     />
