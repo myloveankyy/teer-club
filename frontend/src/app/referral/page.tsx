@@ -107,7 +107,7 @@ export default function ReferralPage() {
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
                 <img
                     src="/teer-history-bg.png"
-                    className="w-full h-full object-cover brightness-[0.98] opacity-[0.12] saturate-[0.8] scale-110 blur-[80px]"
+                    className="w-full h-full object-cover brightness-[0.98] opacity-[0.05] saturate-[0.8] scale-110 blur-xl"
                     alt="Background Heritage"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 via-white/80 to-slate-50/50" />

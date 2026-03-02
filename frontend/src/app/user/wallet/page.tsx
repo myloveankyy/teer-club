@@ -108,8 +108,8 @@ export default function WalletDashboard() {
 
             {/* Ambient Background Elements (Desktop Optimized) */}
             <div className="fixed inset-0 z-0 pointer-events-none opacity-40">
-                <div className="absolute top-[5%] right-[10%] w-[30%] h-[30%] bg-indigo-50 rounded-full blur-[120px]" />
-                <div className="absolute bottom-[5%] left-[5%] w-[25%] h-[40%] bg-purple-50 rounded-full blur-[120px]" />
+                <div className="absolute top-[5%] right-[10%] w-[30%] h-[30%] rounded-full z-0" style={{ background: 'radial-gradient(circle, rgba(238, 242, 255, 1) 0%, rgba(238, 242, 255, 0) 70%)' }} />
+                <div className="absolute bottom-[5%] left-[5%] w-[25%] h-[40%] rounded-full z-0" style={{ background: 'radial-gradient(circle, rgba(250, 245, 255, 1) 0%, rgba(250, 245, 255, 0) 70%)' }} />
             </div>
 
             {/* Responsive "Perfect" Header */}
@@ -155,7 +155,7 @@ export default function WalletDashboard() {
                             animate={{ opacity: 1, x: 0 }}
                             className="bg-slate-900 rounded-[36px] p-8 text-white relative overflow-hidden shadow-[0_32px_64px_-12px_rgba(0,0,0,0.15)] transform-gpu lg:sticky lg:top-24"
                         >
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-[40px] -mr-16 -mt-16" />
+                            <div className="absolute top-0 right-0 w-32 h-32 rounded-full -mr-16 -mt-16 z-0" style={{ background: 'radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0) 70%)' }} />
 
                             <div className="relative z-10">
                                 <div className="flex justify-between items-center mb-10">

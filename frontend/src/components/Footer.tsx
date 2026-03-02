@@ -50,8 +50,8 @@ export default function Footer() {
     return (
         <footer className="bg-slate-50 pt-24 pb-12 relative overflow-hidden border-t border-slate-200/60 transition-colors duration-500">
             {/* Ambient background mesh gradients for a premium light feel */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-200/20 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-rose-200/20 blur-[100px] rounded-full translate-y-1/3 -translate-x-1/4 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(199, 210, 254, 0.25) 0%, rgba(199, 210, 254, 0) 70%)' }} />
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full translate-y-1/3 -translate-x-1/4 pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(254, 205, 211, 0.25) 0%, rgba(254, 205, 211, 0) 70%)' }} />
 
             <div className="max-w-[1600px] mx-auto px-4 md:px-8 relative z-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 mb-20">

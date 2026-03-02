@@ -108,7 +108,7 @@ export default function HistoryClient() {
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
                 <div className="relative w-full h-full">
                     <Image src="/teer-history-bg.png" alt="Shillong Teer archery heritage background" fill
-                        className="object-cover brightness-[0.98] opacity-[0.15] saturate-[0.8] scale-110 blur-[80px]"
+                        className="object-cover brightness-[0.98] opacity-[0.05] saturate-[0.8] scale-110 blur-xl"
                         sizes="100vw" priority={false} quality={40} />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 via-white/80 to-slate-50/50" />

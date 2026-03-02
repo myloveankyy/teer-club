@@ -118,9 +118,8 @@ export function CommonNumbersCard({ initialRecords = [] }: { initialRecords?: Co
 
     return (
         <div className="w-full bg-slate-50/20 rounded-[32px] md:rounded-[48px] p-1.5 md:p-2.5 border border-slate-100 shadow-[0_15px_45px_rgba(0,0,0,0.02)] relative group transition-all duration-1000">
-            {/* Ambient Aura Backgrounds */}
-            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-indigo-100/10 blur-[100px] rounded-full -mr-32 -mt-32 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-rose-100/5 blur-[80px] rounded-full -ml-24 -mb-24 pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full -mr-32 -mt-32 pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(224, 231, 255, 0.15) 0%, rgba(224, 231, 255, 0) 70%)' }} />
+            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full -ml-24 -mb-24 pointer-events-none z-0" style={{ background: 'radial-gradient(circle, rgba(255, 228, 230, 0.1) 0%, rgba(255, 228, 230, 0) 70%)' }} />
 
             <div className="relative bg-white/90 backdrop-blur-2xl rounded-[28px] md:rounded-[42px] border border-white shadow-[0_5px_20px_rgba(0,0,0,0.01)] overflow-hidden">
 
