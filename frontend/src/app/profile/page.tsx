@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { MENU_ITEMS } from '@/lib/constants';
@@ -16,6 +16,7 @@ import {
     Grid,
     Target,
     ArrowLeft,
+    ChevronLeft,
     ChevronRight,
     CheckCircle2,
     Clock,
@@ -98,6 +99,17 @@ export default function ProfilePage() {
     const [banks, setBanks] = useState<BankAccount[]>([]);
     const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
     const [connections, setConnections] = useState<any>(null);
+    const tabsContainerRef = useRef<HTMLDivElement>(null);
+
+    const scrollTabs = (direction: 'left' | 'right') => {
+        if (tabsContainerRef.current) {
+            const scrollAmount = 200;
+            tabsContainerRef.current.scrollBy({
+                left: direction === 'left' ? -scrollAmount : scrollAmount,
+                behavior: 'smooth'
+            });
+        }
+    };
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [isAddingBank, setIsAddingBank] = useState(false);
@@ -401,30 +413,55 @@ export default function ProfilePage() {
                             </button>
                         </div>
 
-                        {/* Sub-Navigation Tabs */}
-                        <div className="flex items-center gap-2 mb-8 bg-white/50 p-1.5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto custom-scrollbar pb-2">
-                            {[
-                                { id: 'posts', label: 'My Activity', icon: Grid },
-                                { id: 'library', label: 'Saved Library', icon: Bookmark },
-                                { id: 'connections', label: 'Connections', icon: Users },
-                                { id: 'finance', label: 'Wallet & Bank', icon: Wallet },
-                                { id: 'explore', label: 'Explore Tools', icon: Compass },
-                                { id: 'settings', label: 'Settings', icon: Settings }
-                            ].map(tab => (
+                        <div className="relative mb-8">
+                            {/* Left Scroll Gradient & Button */}
+                            <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[#F0F2F5] to-transparent z-10 pointer-events-none flex items-center justify-start pl-1 hidden md:flex">
                                 <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id as any)}
-                                    className={cn(
-                                        "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap",
-                                        activeTab === tab.id
-                                            ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
-                                            : "text-slate-500 hover:bg-slate-50"
-                                    )}
+                                    onClick={() => scrollTabs('left')}
+                                    className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:shadow-md transition-all pointer-events-auto active:scale-95"
                                 >
-                                    <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-indigo-400" : "text-slate-400")} />
-                                    {tab.label}
+                                    <ChevronLeft className="w-4 h-4" />
                                 </button>
-                            ))}
+                            </div>
+
+                            {/* Sub-Navigation Tabs */}
+                            <div
+                                ref={tabsContainerRef}
+                                className="flex items-center gap-2 bg-white/50 p-1.5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto scrollbar-hide md:px-10"
+                            >
+                                {[
+                                    { id: 'posts', label: 'My Activity', icon: Grid },
+                                    { id: 'library', label: 'Saved Library', icon: Bookmark },
+                                    { id: 'connections', label: 'Connections', icon: Users },
+                                    { id: 'finance', label: 'Wallet & Bank', icon: Wallet },
+                                    { id: 'explore', label: 'Explore Tools', icon: Compass },
+                                    { id: 'settings', label: 'Settings', icon: Settings }
+                                ].map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id as any)}
+                                        className={cn(
+                                            "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap",
+                                            activeTab === tab.id
+                                                ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
+                                                : "text-slate-500 hover:bg-slate-50"
+                                        )}
+                                    >
+                                        <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-indigo-400" : "text-slate-400")} />
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Right Scroll Gradient & Button */}
+                            <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-[#F0F2F5] to-transparent z-10 pointer-events-none flex items-center justify-end pr-1 hidden md:flex">
+                                <button
+                                    onClick={() => scrollTabs('right')}
+                                    className="w-8 h-8 rounded-full bg-white border border-slate-200 shadow-sm flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:shadow-md transition-all pointer-events-auto active:scale-95"
+                                >
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
 
                         {/* Content Area */}
