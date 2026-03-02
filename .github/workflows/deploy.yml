@@ -54,7 +54,7 @@ jobs:
             echo "Starting/Restarting Apps via PM2..."
             cd /var/www/teer.club/backend
             pm2 delete api || true
-            pm2 start index.js --name "api"
+            pm2 start index.js --name "api" --node-args="-r dotenv/config"
             
             cd /var/www/teer.club/frontend
             pm2 delete frontend || true
