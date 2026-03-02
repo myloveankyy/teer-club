@@ -1,0 +1,51 @@
+name: Deploy to DigitalOcean
+run-name: Deploying to ${{ github.sha }}
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          password: ${{ secrets.DO_PASSWORD }}
+          script: |
+            cd /var/www/teer.club
+            
+            # Pull latest changes
+            echo "Pulling latest code from GitHub..."
+            git pull origin main
+            
+            # Backend Setup
+            echo "Installing Backend Dependencies..."
+            cd backend
+            npm install
+            cd ..
+            
+            # Frontend Setup
+            echo "Installing and Building Frontend..."
+            cd frontend
+            npm install
+            npm run build
+            cd ..
+            
+            # Admin Panel Setup
+            echo "Installing and Building Admin Panel..."
+            cd admin-panel
+            npm install
+            npm run build
+            cd ..
+            
+            # Restart Apps
+            echo "Restarting PM2 processes..."
+            pm2 restart all
+            
+            echo "Deployment Complete!"

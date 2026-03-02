@@ -1,0 +1,47 @@
+[
+    {
+        "id": "shillong_official",
+        "name": "Shillong Teer Official",
+        "members": 15420,
+        "description": "The official community for daily Shillong Teer results and updates.",
+        "isPrivate": false,
+        "category": "Official",
+        "image": "shillong"
+    },
+    {
+        "id": "khanapara_archers",
+        "name": "Khanapara Archers",
+        "members": 8940,
+        "description": "Exclusive predictions and discussions for Khanapara Teer enthusiasts.",
+        "isPrivate": false,
+        "category": "Club",
+        "image": "khanapara"
+    },
+    {
+        "id": "night_teer_vip",
+        "name": "Night Teer VIP",
+        "members": 3200,
+        "description": "Late night results and analysis. Serious players only.",
+        "isPrivate": true,
+        "category": "VIP",
+        "image": "night"
+    },
+    {
+        "id": "juwai_common",
+        "name": "Juwai Common Numbers",
+        "members": 5600,
+        "description": "Crowdsourced common numbers for Juwai and Ladrymbai.",
+        "isPrivate": false,
+        "category": "Analysis",
+        "image": "juwai"
+    },
+    {
+        "id": "dream_interpreters",
+        "name": "Dream Interpreters Guild",
+        "members": 12500,
+        "description": "Expert dream analysis and number correlation discussions.",
+        "isPrivate": false,
+        "category": "Dreams",
+        "image": "dreams"
+    }
+]

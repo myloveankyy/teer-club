@@ -1,0 +1,302 @@
+[
+    {
+        "dream": "Snake",
+        "numbers": [
+            "09",
+            "17",
+            "37"
+        ],
+        "category": "Animals",
+        "description": "A symbol of transformation and hidden knowledge. Seeing a snake suggests imminent change or a secret being revealed."
+    },
+    {
+        "dream": "Water",
+        "numbers": [
+            "00",
+            "01",
+            "70"
+        ],
+        "category": "Nature",
+        "description": "Represents emotions and flow. Calm water brings peace, while turbulent water suggests emotional change."
+    },
+    {
+        "dream": "Fire",
+        "numbers": [
+            "02",
+            "12",
+            "92"
+        ],
+        "category": "Nature",
+        "description": "Energy, passion, and purification. Fire indicates a new beginning or a strong desire manifesting."
+    },
+    {
+        "dream": "Dead Person",
+        "numbers": [
+            "04",
+            "14",
+            "94"
+        ],
+        "category": "Events",
+        "description": "Seeing the deceased is often a message from the past or a sign of longevity for the living."
+    },
+    {
+        "dream": "Fishing",
+        "numbers": [
+            "08",
+            "18",
+            "28"
+        ],
+        "category": "Activities",
+        "description": "A sign of patience and reward. You are searching for something valuable in your waking life."
+    },
+    {
+        "dream": "Money",
+        "numbers": [
+            "00",
+            "10",
+            "80"
+        ],
+        "category": "Objects",
+        "description": "Found money indicates unexpected gain or self-worth. Lost money suggests a fear of losing control."
+    },
+    {
+        "dream": "Dog",
+        "numbers": [
+            "04",
+            "14",
+            "24"
+        ],
+        "category": "Animals",
+        "description": "Loyalty and protection. A friendly dog brings help from a friend; an angry one warns of betrayal."
+    },
+    {
+        "dream": "Cat",
+        "numbers": [
+            "05",
+            "15",
+            "25"
+        ],
+        "category": "Animals",
+        "description": "Intuition and independence. A cat signifies flexibility and hidden magic in your life."
+    },
+    {
+        "dream": "Flying",
+        "numbers": [
+            "06",
+            "16",
+            "26"
+        ],
+        "category": "Activities",
+        "description": "Freedom and perspective. You are rising above obstacles and gaining a new view of your path."
+    },
+    {
+        "dream": "Fighting",
+        "numbers": [
+            "07",
+            "17",
+            "27"
+        ],
+        "category": "Events",
+        "description": "Internal struggle or conflict. It suggests you are battling to resolve a difficult situation."
+    },
+    {
+        "dream": "Eating",
+        "numbers": [
+            "01",
+            "11",
+            "21"
+        ],
+        "category": "Activities",
+        "description": "Nourishment and satisfaction. A hunger for knowledge, success, or connection is being fulfilled."
+    },
+    {
+        "dream": "Swimming",
+        "numbers": [
+            "03",
+            "13",
+            "33"
+        ],
+        "category": "Activities",
+        "description": "Navigating emotions. Swimming with ease means emotional balance; struggling warns of overwhelming feelings."
+    },
+    {
+        "dream": "Climbing",
+        "numbers": [
+            "02",
+            "12",
+            "22"
+        ],
+        "category": "Activities",
+        "description": "Progress and ambition. You are working hard to reach a higher level in life/career."
+    },
+    {
+        "dream": "Running",
+        "numbers": [
+            "09",
+            "19",
+            "29"
+        ],
+        "category": "Activities",
+        "description": "Escaping or pursuing. Are you running towards a goal or away from a fear?"
+    },
+    {
+        "dream": "Crying",
+        "numbers": [
+            "05",
+            "15",
+            "35"
+        ],
+        "category": "Emotions",
+        "description": "Release of tension. Crying in a dream often leads to emotional healing in reality."
+    },
+    {
+        "dream": "Laughing",
+        "numbers": [
+            "04",
+            "14",
+            "34"
+        ],
+        "category": "Emotions",
+        "description": "Joy and release. A sign that a stressful burden will soon be lifted."
+    },
+    {
+        "dream": "Wedding",
+        "numbers": [
+            "06",
+            "16",
+            "36"
+        ],
+        "category": "Events",
+        "description": "Union and partnership. A new phase of life or a new commitment is on the horizon."
+    },
+    {
+        "dream": "Funeral",
+        "numbers": [
+            "00",
+            "10",
+            "40"
+        ],
+        "category": "Events",
+        "description": "Endings and new beginnings. Something old is passing away to make room for the new."
+    },
+    {
+        "dream": "Baby",
+        "numbers": [
+            "01",
+            "11",
+            "51"
+        ],
+        "category": "People",
+        "description": "Innocence and new potential. A new idea, project, or chapter is being born."
+    },
+    {
+        "dream": "Old Man",
+        "numbers": [
+            "09",
+            "19",
+            "69"
+        ],
+        "category": "People",
+        "description": "Wisdom and guidance. Listen closely to advice given in the dream."
+    },
+    {
+        "dream": "Police",
+        "numbers": [
+            "07",
+            "17",
+            "57"
+        ],
+        "category": "People",
+        "description": "Authority and conscience. You may be feeling guilty or seeking order in chaos."
+    },
+    {
+        "dream": "Ghost",
+        "numbers": [
+            "00",
+            "08",
+            "88"
+        ],
+        "category": "Supernatural",
+        "description": "Unresolved business. Something from the past is haunting your present thoughts."
+    },
+    {
+        "dream": "Car",
+        "numbers": [
+            "04",
+            "14",
+            "44"
+        ],
+        "category": "Objects",
+        "description": "Your life's journey. Use the car's condition to judge your current path and control."
+    },
+    {
+        "dream": "House",
+        "numbers": [
+            "05",
+            "15",
+            "55"
+        ],
+        "category": "Objects",
+        "description": "The self. Different rooms represent different aspects of your personality."
+    },
+    {
+        "dream": "Tree",
+        "numbers": [
+            "03",
+            "13",
+            "63"
+        ],
+        "category": "Nature",
+        "description": "Growth and stability. Deep roots suggest a strong foundation during times of change."
+    },
+    {
+        "dream": "Flower",
+        "numbers": [
+            "02",
+            "12",
+            "72"
+        ],
+        "category": "Nature",
+        "description": "Beauty and unfolding. A talent or situation is blossoming perfectly."
+    },
+    {
+        "dream": "Bird",
+        "numbers": [
+            "06",
+            "16",
+            "56"
+        ],
+        "category": "Animals",
+        "description": "Messages and freedom. High flying birds bring news from afar or spiritual insight."
+    },
+    {
+        "dream": "Elephant",
+        "numbers": [
+            "09",
+            "19",
+            "79"
+        ],
+        "category": "Animals",
+        "description": "Strength and memory. A powerful obstacle can be overcome with patience."
+    },
+    {
+        "dream": "Horse",
+        "numbers": [
+            "08",
+            "18",
+            "68"
+        ],
+        "category": "Animals",
+        "description": "Power and freedom. A wild horse suggests untamed energy; a tame one, harnessed power."
+    },
+    {
+        "dream": "Tiger",
+        "numbers": [
+            "07",
+            "17",
+            "47"
+        ],
+        "category": "Animals",
+        "description": "Raw power and aggression. You need to tap into your primal instincts to succeed."
+    }
+]

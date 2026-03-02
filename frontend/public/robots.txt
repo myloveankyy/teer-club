@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /history
+Allow: /predictions
+Allow: /blog
+Allow: /tools
+Allow: /dreams
+Allow: /winners
+
+Disallow: /dashboard
+Disallow: /referral
+Disallow: /profile
+Disallow: /notifications
+Disallow: /invite
+Disallow: /api/
+
+Sitemap: https://teer.club/sitemap.xml
