@@ -61,17 +61,15 @@ export const slideUpModalVariants: Variants = {
     }
 };
 
-// Modal Backdrop Dim & Blur
+// Modal Backdrop Dim (Removed Blur for Performance)
 export const backdropVariants: Variants = {
-    hidden: { opacity: 0, backdropFilter: "blur(0px)" },
+    hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        backdropFilter: "blur(8px)",
         transition: TRANSITIONS.base
     },
     exit: {
         opacity: 0,
-        backdropFilter: "blur(0px)",
         transition: TRANSITIONS.base
     }
 };

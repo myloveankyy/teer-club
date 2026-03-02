@@ -173,12 +173,13 @@ export function CommonNumbersCard({ initialRecords = [] }: { initialRecords?: Co
                 </div>
 
                 {/* Main Data Content - Restored Old Style Grid */}
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                     <motion.div
                         key={activeGame}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.15 }}
                         className="px-8 md:px-12 pt-10 md:pt-14 pb-12 grid grid-cols-1 lg:grid-cols-2 gap-10 md:gap-16"
                     >
                         {currentRecord ? (
@@ -213,13 +214,13 @@ export function CommonNumbersCard({ initialRecords = [] }: { initialRecords?: Co
                                                         i === 0 ? "from-indigo-400 to-indigo-700 opacity-100" : "from-slate-50 to-white opacity-0 group-hover/box:opacity-100"
                                                     )} />
                                                     <span className={cn(
-                                                        "text-2xl md:text-3xl font-bold tracking-tight relative z-10 leading-none",
+                                                        "text-xl md:text-2xl lg:text-3xl font-bold tracking-tight relative z-10 leading-none",
                                                         i === 0 ? "text-white" : "text-slate-900"
                                                     )}>
                                                         {num.trim()}
                                                     </span>
                                                     <div className={cn(
-                                                        "px-2 py-0.5 rounded-full text-[8px] md:text-[9px] font-bold uppercase tracking-wider relative z-10",
+                                                        "px-1.5 md:px-2 py-0.5 rounded-full text-[7px] md:text-[8px] lg:text-[9px] font-bold uppercase tracking-wider relative z-10 whitespace-nowrap",
                                                         i === 0 ? "bg-white/20 text-white" : "bg-white text-slate-400 group-hover/box:bg-indigo-50 group-hover/box:text-indigo-600"
                                                     )}>
                                                         {i === 0 ? 'High Prob' : 'Strong'}
@@ -268,13 +269,13 @@ export function CommonNumbersCard({ initialRecords = [] }: { initialRecords?: Co
                                                         i < currentRecord.house.split(',').length ? "from-rose-400 to-rose-700 opacity-100" : "from-slate-50 to-white opacity-0 group-hover/box:opacity-100"
                                                     )} />
                                                     <span className={cn(
-                                                        "text-2xl md:text-3xl font-bold tracking-tight relative z-10 leading-none",
+                                                        "text-xl md:text-2xl lg:text-3xl font-bold tracking-tight relative z-10 leading-none",
                                                         i < currentRecord.house.split(',').length ? "text-white" : "text-slate-900"
                                                     )}>
                                                         {num.trim()}
                                                     </span>
                                                     <div className={cn(
-                                                        "px-2 py-0.5 rounded-full text-[8px] md:text-[9px] font-bold uppercase tracking-wider relative z-10",
+                                                        "px-1.5 md:px-2 py-0.5 rounded-full text-[7px] md:text-[8px] lg:text-[9px] font-bold uppercase tracking-wider relative z-10 whitespace-nowrap",
                                                         i < currentRecord.house.split(',').length ? "bg-white/20 text-white" : "bg-white text-slate-400 group-hover/box:bg-rose-50 group-hover/box:text-rose-600"
                                                     )}>
                                                         {i < currentRecord.house.split(',').length ? 'House' : 'Ending'}

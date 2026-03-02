@@ -300,10 +300,10 @@ export default function ProfilePage() {
             {/* Immersive Header Top Blur */}
             <div className="fixed top-0 left-0 w-full h-40 bg-gradient-to-b from-white via-white/80 to-transparent pointer-events-none z-0" />
 
-            <div className="relative z-10 px-4 md:px-6 max-w-[600px] mx-auto pt-8">
+            <div className="relative z-10 px-4 md:px-6 max-w-[1200px] mx-auto pt-8">
 
-                {/* Simple Header */}
-                <div className="flex items-center justify-between mb-10">
+                {/* Simple Header - Mobile Only */}
+                <div className="flex lg:hidden items-center justify-between mb-8">
                     <button onClick={() => router.back()} className="p-2.5 rounded-xl bg-white border border-slate-100 shadow-sm text-slate-400 hover:text-slate-600 active:scale-95 transition-all">
                         <ArrowLeft className="w-5 h-5" />
                     </button>
@@ -318,670 +318,693 @@ export default function ProfilePage() {
                     </button>
                 </div>
 
-                {/* Profile Identity Card */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 mb-8 relative overflow-hidden"
-                >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -mr-10 -mt-10" />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12">
 
-                    <div className="flex flex-col items-center text-center relative z-10">
-                        <div className="relative mb-6">
-                            <div className="w-24 h-24 rounded-[32px] overflow-hidden bg-slate-50 border-2 border-white shadow-xl ring-1 ring-slate-100 flex items-center justify-center">
-                                <img
-                                    src={getAvatarUrl(user.profile_picture)}
-                                    alt={user.username}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => { (e.target as HTMLImageElement).src = '/default-avatar.png'; }}
-                                />
-                            </div>
-                            <label
-                                className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl bg-indigo-600 text-white shadow-lg flex items-center justify-center hover:bg-indigo-700 transition-colors cursor-pointer disabled:opacity-50"
+                    {/* Left Sidebar - Profile Card */}
+                    <div className="lg:col-span-4 xl:col-span-4">
+                        <div className="lg:sticky lg:top-[100px]">
+
+                            {/* Profile Identity Card */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="bg-white rounded-xl border border-slate-200 shadow-sm p-8 mb-8 relative overflow-hidden"
                             >
-                                {uploading ? (
-                                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                ) : (
-                                    <Camera className="w-4 h-4" />
-                                )}
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    accept="image/*"
-                                    onChange={handleProfilePictureUpload}
-                                    disabled={uploading}
-                                />
-                            </label>
-                        </div>
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -mr-10 -mt-10" />
 
-                        <h2 className="text-2xl font-bold font-sans text-slate-900 mb-1">{user.username}</h2>
-                        <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-4">Resident Expert</p>
-
-                        <p className="text-slate-500 text-[15px] leading-relaxed max-w-sm mb-6">
-                            {user.bio || "No professional bio set yet. Share your Teer philosophy with the club."}
-                        </p>
-
-                        <div className="flex items-center gap-8 w-full pt-6 border-t border-slate-50">
-                            <div className="flex-1 text-center">
-                                <p className="text-xl font-bold text-slate-900">{posts.length}</p>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Predictions</p>
-                            </div>
-                            <div className="w-px h-8 bg-slate-100" />
-                            <div className="flex-1 text-center">
-                                <p className="text-xl font-bold text-slate-900">{user.reputation}</p>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rank</p>
-                            </div>
-                            <div className="w-px h-8 bg-slate-100" />
-                            <div className="flex-1 text-center">
-                                <p className="text-xl font-bold text-emerald-600">₹{parseFloat(user.wallet_balance.toString()).toLocaleString()}</p>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Balance</p>
-                            </div>
-                        </div>
-                    </div>
-                </motion.div>
-
-                {/* Sub-Navigation Tabs */}
-                <div className="flex items-center gap-2 mb-8 bg-white/50 p-1.5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto no-scrollbar">
-                    {[
-                        { id: 'posts', label: 'My Activity', icon: Grid },
-                        { id: 'library', label: 'Saved Library', icon: Bookmark },
-                        { id: 'connections', label: 'Connections', icon: Users },
-                        { id: 'finance', label: 'Wallet & Bank', icon: Wallet },
-                        { id: 'explore', label: 'Explore Tools', icon: Compass },
-                        { id: 'settings', label: 'Settings', icon: Settings }
-                    ].map(tab => (
-                        <button
-                            key={tab.id}
-                            onClick={() => setActiveTab(tab.id as any)}
-                            className={cn(
-                                "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap",
-                                activeTab === tab.id
-                                    ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
-                                    : "text-slate-500 hover:bg-slate-50"
-                            )}
-                        >
-                            <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-indigo-400" : "text-slate-400")} />
-                            {tab.label}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Content Area */}
-                <AnimatePresence mode="wait">
-                    {activeTab === 'posts' && (
-                        <motion.div
-                            key="posts"
-                            variants={staggerContainer}
-                            initial="hidden"
-                            animate="visible"
-                            className="space-y-4"
-                        >
-                            {posts.length === 0 ? (
-                                <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-200">
-                                    <Edit3 className="w-10 h-10 text-slate-200 mx-auto mb-4" />
-                                    <p className="text-slate-400 font-bold text-sm">No predictions posted yet.</p>
-                                    <p className="text-xs text-slate-300 mt-1">Your strategy starts here.</p>
-                                </div>
-                            ) : (
-                                posts.map((post) => (
-                                    <motion.div
-                                        key={post.id}
-                                        variants={fadeUpItem}
-                                        className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:border-indigo-200 transition-colors"
-                                    >
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
-                                                    <Target className="w-4 h-4 text-indigo-500" />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[13px] font-bold text-slate-900">{post.game_type}</p>
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{post.round}</p>
-                                                </div>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 mb-1">Number</p>
-                                                <span className="text-xl font-bold text-slate-900">{post.number}</span>
-                                            </div>
+                                <div className="flex flex-col items-center text-center relative z-10">
+                                    <div className="relative mb-6">
+                                        <div className="w-24 h-24 rounded-[32px] overflow-hidden bg-slate-50 border-2 border-white shadow-xl ring-1 ring-slate-100 flex items-center justify-center">
+                                            <img
+                                                src={getAvatarUrl(user.profile_picture)}
+                                                alt={user.username}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => { (e.target as HTMLImageElement).src = '/default-avatar.png'; }}
+                                            />
                                         </div>
-                                        <div className="bg-slate-50/80 rounded-lg p-3 flex items-center justify-between">
-                                            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500">
-                                                <Clock className="w-3.5 h-3.5" />
-                                                {new Date(post.created_at).toLocaleDateString()}
-                                            </div>
-                                            <span className="text-[11px] font-bold text-indigo-600">Stake: ₹{post.amount}</span>
-                                        </div>
-                                    </motion.div>
-                                ))
-                            )}
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'library' && (
-                        <motion.div
-                            key="library"
-                            variants={staggerContainer}
-                            initial="hidden"
-                            animate="visible"
-                            className="space-y-4"
-                        >
-                            {savedNumbers.length === 0 ? (
-                                <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-200">
-                                    <Bookmark className="w-10 h-10 text-slate-200 mx-auto mb-4" />
-                                    <p className="text-slate-400 font-bold text-sm">Your library is empty.</p>
-                                    <p className="text-xs text-slate-300 mt-1">Save target cards to track your guesses.</p>
-                                </div>
-                            ) : (
-                                savedNumbers.map((record) => (
-                                    <motion.div
-                                        key={record.id}
-                                        variants={fadeUpItem}
-                                        className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 hover:border-indigo-200 transition-all group/card"
-                                    >
-                                        <div className="flex justify-between items-center mb-8 border-b border-slate-50 pb-4">
-                                            <div className="flex items-center gap-3">
-                                                <Target className="w-5 h-5 text-indigo-500" />
-                                                <span className="text-sm font-black text-slate-900 uppercase tracking-widest">{record.game} Target</span>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mb-1">Generated Date</p>
-                                                <span className="text-xs font-bold text-slate-500">
-                                                    {new Date(record.target_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                                            {/* Target Digits */}
-                                            <div className="space-y-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Common Numbers</p>
-                                                <div className="flex flex-wrap gap-3">
-                                                    {record.direct_numbers.split(',').map((num: string, i: number) => (
-                                                        <div key={i} className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-slate-200">
-                                                            {num.trim()}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            {/* House & Ending */}
-                                            <div className="space-y-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">House & Ending</p>
-                                                <div className="flex flex-wrap gap-3">
-                                                    {[...record.house.split(','), ...record.ending.split(',')].map((num: string, i: number) => (
-                                                        <div key={i} className={cn(
-                                                            "w-12 h-12 rounded-2xl flex flex-col items-center justify-center gap-0.5",
-                                                            i < record.house.split(',').length ? "bg-rose-600 text-white" : "bg-indigo-50 text-indigo-600 border border-indigo-100"
-                                                        )}>
-                                                            <span className="font-bold text-lg leading-none">{num.trim()}</span>
-                                                            <span className="text-[7px] font-black uppercase">{i < record.house.split(',').length ? 'H' : 'E'}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-                                ))
-                            )}
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'connections' && (
-                        <motion.div
-                            key="connections"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="space-y-6"
-                        >
-                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6">
-                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">Network Growth</h3>
-
-                                <div className="space-y-6">
-                                    {/* Levels Summary */}
-                                    <div className="grid grid-cols-5 gap-2">
-                                        {[1, 2, 3, 4, 5].map((lvl) => (
-                                            <div key={lvl} className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mb-1">LVL {lvl}</p>
-                                                <p className="text-sm font-bold text-slate-900">{connections?.[`level${lvl}`]?.length || 0}</p>
-                                            </div>
-                                        ))}
+                                        <label
+                                            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl bg-indigo-600 text-white shadow-lg flex items-center justify-center hover:bg-indigo-700 transition-colors cursor-pointer disabled:opacity-50"
+                                        >
+                                            {uploading ? (
+                                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            ) : (
+                                                <Camera className="w-4 h-4" />
+                                            )}
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                accept="image/*"
+                                                onChange={handleProfilePictureUpload}
+                                                disabled={uploading}
+                                            />
+                                        </label>
                                     </div>
 
-                                    {/* Detailed List */}
-                                    <div className="space-y-6">
-                                        {[1, 2, 3, 4, 5].map((lvl) => {
-                                            const levelUsers = connections?.[`level${lvl}`] || [];
-                                            if (levelUsers.length === 0) return null;
+                                    <h2 className="text-2xl font-bold font-sans text-slate-900 mb-1">{user.username}</h2>
+                                    <p className="text-sm font-semibold text-indigo-600 uppercase tracking-widest mb-4">Resident Expert</p>
 
-                                            return (
-                                                <div key={lvl} className="space-y-3">
+                                    <p className="text-slate-500 text-[15px] leading-relaxed max-w-sm mb-6">
+                                        {user.bio || "No professional bio set yet. Share your Teer philosophy with the club."}
+                                    </p>
+
+                                    <div className="flex items-center gap-8 w-full pt-6 border-t border-slate-50">
+                                        <div className="flex-1 text-center">
+                                            <p className="text-xl font-bold text-slate-900">{posts.length}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Predictions</p>
+                                        </div>
+                                        <div className="w-px h-8 bg-slate-100" />
+                                        <div className="flex-1 text-center">
+                                            <p className="text-xl font-bold text-slate-900">{user.reputation}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Rank</p>
+                                        </div>
+                                        <div className="w-px h-8 bg-slate-100" />
+                                        <div className="flex-1 text-center">
+                                            <p className="text-xl font-bold text-emerald-600">₹{parseFloat(user.wallet_balance.toString()).toLocaleString()}</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Balance</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
+                    </div>
+                    {/* Right Main Content */}
+                    <div className="lg:col-span-8 xl:col-span-8 min-w-0">
+                        {/* Desktop Header */}
+                        <div className="hidden lg:flex items-center justify-between mb-8">
+                            <h1 className="text-2xl font-black text-slate-900 tracking-tight">Club Dashboard</h1>
+                            <button
+                                onClick={() => setActiveTab('settings')}
+                                className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-100 shadow-sm text-slate-600 hover:bg-slate-50 transition-all font-bold text-sm"
+                            >
+                                <Settings className="w-4 h-4 text-slate-400" />
+                                Account Options
+                            </button>
+                        </div>
+
+                        {/* Sub-Navigation Tabs */}
+                        <div className="flex items-center gap-2 mb-8 bg-white/50 p-1.5 rounded-xl border border-slate-200 shadow-sm overflow-x-auto no-scrollbar">
+                            {[
+                                { id: 'posts', label: 'My Activity', icon: Grid },
+                                { id: 'library', label: 'Saved Library', icon: Bookmark },
+                                { id: 'connections', label: 'Connections', icon: Users },
+                                { id: 'finance', label: 'Wallet & Bank', icon: Wallet },
+                                { id: 'explore', label: 'Explore Tools', icon: Compass },
+                                { id: 'settings', label: 'Settings', icon: Settings }
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id as any)}
+                                    className={cn(
+                                        "flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap",
+                                        activeTab === tab.id
+                                            ? "bg-slate-900 text-white shadow-lg shadow-slate-200"
+                                            : "text-slate-500 hover:bg-slate-50"
+                                    )}
+                                >
+                                    <tab.icon className={cn("w-4 h-4", activeTab === tab.id ? "text-indigo-400" : "text-slate-400")} />
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Content Area */}
+                        <AnimatePresence mode="wait">
+                            {activeTab === 'posts' && (
+                                <motion.div
+                                    key="posts"
+                                    variants={staggerContainer}
+                                    initial="hidden"
+                                    animate="visible"
+                                    className="space-y-4"
+                                >
+                                    {posts.length === 0 ? (
+                                        <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-200">
+                                            <Edit3 className="w-10 h-10 text-slate-200 mx-auto mb-4" />
+                                            <p className="text-slate-400 font-bold text-sm">No predictions posted yet.</p>
+                                            <p className="text-xs text-slate-300 mt-1">Your strategy starts here.</p>
+                                        </div>
+                                    ) : (
+                                        posts.map((post) => (
+                                            <motion.div
+                                                key={post.id}
+                                                variants={fadeUpItem}
+                                                className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:border-indigo-200 transition-colors"
+                                            >
+                                                <div className="flex items-center justify-between mb-4">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                                                        <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Connect Type: Level {lvl}</h4>
+                                                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center">
+                                                            <Target className="w-4 h-4 text-indigo-500" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[13px] font-bold text-slate-900">{post.game_type}</p>
+                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{post.round}</p>
+                                                        </div>
                                                     </div>
-                                                    <div className="grid gap-2">
-                                                        {levelUsers.map((conn: any) => (
-                                                            <div key={conn.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 border border-slate-100/50 hover:bg-white hover:shadow-sm transition-all group">
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center">
-                                                                        {conn.profilePicture ? (
-                                                                            <img
-                                                                                src={conn.profilePicture.startsWith('http') ? conn.profilePicture : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${conn.profilePicture}`}
-                                                                                alt={conn.username}
-                                                                                className="w-full h-full object-cover"
-                                                                            />
-                                                                        ) : (
-                                                                            <User className="w-4 h-4 text-slate-300" />
-                                                                        )}
-                                                                    </div>
-                                                                    <div>
-                                                                        <p className="text-[13px] font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{conn.username}</p>
-                                                                        <p className="text-[10px] text-slate-400 font-medium">Joined {new Date(conn.connectedAt).toLocaleDateString()}</p>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="px-2 py-0.5 rounded-md bg-white border border-slate-100 text-[9px] font-bold text-slate-400 uppercase">
-                                                                    Active
-                                                                </div>
-                                                            </div>
-                                                        ))}
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 mb-1">Number</p>
+                                                        <span className="text-xl font-bold text-slate-900">{post.number}</span>
                                                     </div>
                                                 </div>
-                                            );
-                                        })}
+                                                <div className="bg-slate-50/80 rounded-lg p-3 flex items-center justify-between">
+                                                    <div className="flex items-center gap-2 text-[11px] font-bold text-slate-500">
+                                                        <Clock className="w-3.5 h-3.5" />
+                                                        {new Date(post.created_at).toLocaleDateString()}
+                                                    </div>
+                                                    <span className="text-[11px] font-bold text-indigo-600">Stake: ₹{post.amount}</span>
+                                                </div>
+                                            </motion.div>
+                                        ))
+                                    )}
+                                </motion.div>
+                            )}
 
-                                        {(!connections || Object.values(connections).every((arr: any) => arr.length === 0)) && (
-                                            <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-                                                <Users className="w-8 h-8 text-slate-200 mx-auto mb-3" />
-                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
-                                                    No connections found.
-                                                </p>
+                            {activeTab === 'library' && (
+                                <motion.div
+                                    key="library"
+                                    variants={staggerContainer}
+                                    initial="hidden"
+                                    animate="visible"
+                                    className="space-y-4"
+                                >
+                                    {savedNumbers.length === 0 ? (
+                                        <div className="text-center py-20 bg-white rounded-xl border border-dashed border-slate-200">
+                                            <Bookmark className="w-10 h-10 text-slate-200 mx-auto mb-4" />
+                                            <p className="text-slate-400 font-bold text-sm">Your library is empty.</p>
+                                            <p className="text-xs text-slate-300 mt-1">Save target cards to track your guesses.</p>
+                                        </div>
+                                    ) : (
+                                        savedNumbers.map((record) => (
+                                            <motion.div
+                                                key={record.id}
+                                                variants={fadeUpItem}
+                                                className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 hover:border-indigo-200 transition-all group/card"
+                                            >
+                                                <div className="flex justify-between items-center mb-8 border-b border-slate-50 pb-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <Target className="w-5 h-5 text-indigo-500" />
+                                                        <span className="text-sm font-black text-slate-900 uppercase tracking-widest">{record.game} Target</span>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mb-1">Generated Date</p>
+                                                        <span className="text-xs font-bold text-slate-500">
+                                                            {new Date(record.target_date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                                    {/* Target Digits */}
+                                                    <div className="space-y-4">
+                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Common Numbers</p>
+                                                        <div className="flex flex-wrap gap-3">
+                                                            {record.direct_numbers.split(',').map((num: string, i: number) => (
+                                                                <div key={i} className="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-slate-200">
+                                                                    {num.trim()}
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* House & Ending */}
+                                                    <div className="space-y-4">
+                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">House & Ending</p>
+                                                        <div className="flex flex-wrap gap-3">
+                                                            {[...record.house.split(','), ...record.ending.split(',')].map((num: string, i: number) => (
+                                                                <div key={i} className={cn(
+                                                                    "w-12 h-12 rounded-2xl flex flex-col items-center justify-center gap-0.5",
+                                                                    i < record.house.split(',').length ? "bg-rose-600 text-white" : "bg-indigo-50 text-indigo-600 border border-indigo-100"
+                                                                )}>
+                                                                    <span className="font-bold text-lg leading-none">{num.trim()}</span>
+                                                                    <span className="text-[7px] font-black uppercase">{i < record.house.split(',').length ? 'H' : 'E'}</span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        ))
+                                    )}
+                                </motion.div>
+                            )}
+
+                            {activeTab === 'connections' && (
+                                <motion.div
+                                    key="connections"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="space-y-6"
+                                >
+                                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6">
+                                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">Network Growth</h3>
+
+                                        <div className="space-y-6">
+                                            {/* Levels Summary */}
+                                            <div className="grid grid-cols-5 gap-2">
+                                                {[1, 2, 3, 4, 5].map((lvl) => (
+                                                    <div key={lvl} className="bg-slate-50 rounded-xl p-3 text-center border border-slate-100">
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter mb-1">LVL {lvl}</p>
+                                                        <p className="text-sm font-bold text-slate-900">{connections?.[`level${lvl}`]?.length || 0}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Detailed List */}
+                                            <div className="space-y-6">
+                                                {[1, 2, 3, 4, 5].map((lvl) => {
+                                                    const levelUsers = connections?.[`level${lvl}`] || [];
+                                                    if (levelUsers.length === 0) return null;
+
+                                                    return (
+                                                        <div key={lvl} className="space-y-3">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                                                                <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Connect Type: Level {lvl}</h4>
+                                                            </div>
+                                                            <div className="grid gap-2">
+                                                                {levelUsers.map((conn: any) => (
+                                                                    <div key={conn.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-50/50 border border-slate-100/50 hover:bg-white hover:shadow-sm transition-all group">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 shadow-sm overflow-hidden flex items-center justify-center">
+                                                                                {conn.profilePicture ? (
+                                                                                    <img
+                                                                                        src={conn.profilePicture.startsWith('http') ? conn.profilePicture : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}${conn.profilePicture}`}
+                                                                                        alt={conn.username}
+                                                                                        className="w-full h-full object-cover"
+                                                                                    />
+                                                                                ) : (
+                                                                                    <User className="w-4 h-4 text-slate-300" />
+                                                                                )}
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="text-[13px] font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{conn.username}</p>
+                                                                                <p className="text-[10px] text-slate-400 font-medium">Joined {new Date(conn.connectedAt).toLocaleDateString()}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="px-2 py-0.5 rounded-md bg-white border border-slate-100 text-[9px] font-bold text-slate-400 uppercase">
+                                                                            Active
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+
+                                                {(!connections || Object.values(connections).every((arr: any) => arr.length === 0)) && (
+                                                    <div className="text-center py-10 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                                                        <Users className="w-8 h-8 text-slate-200 mx-auto mb-3" />
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">
+                                                            No connections found.
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Referral Info */}
+                                    <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Your Club Code</p>
+                                        <p className="text-2xl font-black mb-4 truncate">teer.club/invite/{user?.username}</p>
+                                        <button
+                                            onClick={() => navigator.clipboard.writeText(`https://teer.club/invite/${user?.username}`)}
+                                            className="w-full bg-white text-slate-900 rounded-xl py-3 text-xs font-bold uppercase tracking-widest hover:bg-slate-100 transition-all"
+                                        >
+                                            Copy Invite Link
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )}
+
+                            {activeTab === 'finance' && (
+                                <motion.div
+                                    key="finance"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="space-y-6"
+                                >
+                                    {/* Wallet Summary */}
+                                    <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl -mr-16 -mt-16" />
+                                        <div className="relative z-10">
+                                            <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Available Balance</p>
+                                            <h3 className="text-3xl font-bold mb-6">₹{parseFloat(user.wallet_balance.toString()).toLocaleString()}</h3>
+
+                                            {withdrawMsg && (
+                                                <div className={`rounded-xl p-3 mb-4 text-xs font-bold ${withdrawMsg.type === 'success'
+                                                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                                    : 'bg-red-500/20 text-red-300 border border-red-500/30'
+                                                    }`}>
+                                                    {withdrawMsg.text}
+                                                </div>
+                                            )}
+
+                                            <div className="space-y-4">
+                                                <div className="flex items-center gap-3">
+                                                    <input
+                                                        type="number"
+                                                        value={withdrawAmount}
+                                                        onChange={(e) => setWithdrawAmount(e.target.value)}
+                                                        placeholder="Enter amount"
+                                                        className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+                                                    />
+                                                    <button
+                                                        onClick={handleWithdraw}
+                                                        disabled={updating || !withdrawAmount}
+                                                        className="bg-white text-slate-900 rounded-xl px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-slate-100 disabled:opacity-50 transition-all flex items-center gap-2"
+                                                    >
+                                                        {updating ? <span className="w-3.5 h-3.5 border-2 border-slate-300 border-t-slate-900 rounded-full animate-spin" /> : <ArrowUpRight className="w-4 h-4" />}
+                                                        Withdraw
+                                                    </button>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                                                    <AlertCircle className="w-3.5 h-3.5" />
+                                                    Min ₹{WITHDRAWAL_THRESHOLD.toLocaleString()} · Needs primary bank · Admin approved within 24h
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Bank Accounts */}
+                                    <div className="space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Bank Details</h4>
+                                            <button
+                                                onClick={() => setIsAddingBank(true)}
+                                                className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:text-indigo-700"
+                                            >
+                                                <Plus className="w-3.5 h-3.5" /> Add New
+                                            </button>
+                                        </div>
+
+                                        {banks.length === 0 ? (
+                                            <div className="text-center py-10 bg-white rounded-xl border border-dashed border-slate-100">
+                                                <Landmark className="w-8 h-8 text-slate-100 mx-auto mb-2" />
+                                                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">No banks linked</p>
+                                            </div>
+                                        ) : (
+                                            <div className="space-y-3">
+                                                {banks.map(bank => (
+                                                    <div
+                                                        key={bank.id}
+                                                        className={cn(
+                                                            "bg-white rounded-xl border p-4 transition-all",
+                                                            bank.is_primary ? "border-indigo-600 ring-1 ring-indigo-600/10" : "border-slate-100"
+                                                        )}
+                                                    >
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
+                                                                    <Landmark className="w-5 h-5" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-bold text-slate-900">{bank.bank_name}</p>
+                                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{bank.account_holder_name}</p>
+                                                                </div>
+                                                            </div>
+                                                            {bank.is_primary ? (
+                                                                <span className="px-2 py-0.5 bg-indigo-600 text-white text-[8px] font-bold uppercase rounded">Primary</span>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => setPrimaryBank(bank.id)}
+                                                                    className="text-[8px] font-bold text-slate-400 uppercase hover:text-indigo-600"
+                                                                >
+                                                                    Set Primary
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                        <div className="pl-13 flex items-center gap-4 text-[11px] font-mono text-slate-500 pt-2 border-t border-slate-50 mt-2">
+                                                            <span>**** {bank.account_number.slice(-4)}</span>
+                                                            <span className="text-[9px] uppercase tracking-tighter">{bank.ifsc_code}</span>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
                                         )}
                                     </div>
-                                </div>
-                            </div>
 
-                            {/* Referral Info */}
-                            <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Your Club Code</p>
-                                <p className="text-2xl font-black mb-4 truncate">teer.club/invite/{user?.username}</p>
-                                <button
-                                    onClick={() => navigator.clipboard.writeText(`https://teer.club/invite/${user?.username}`)}
-                                    className="w-full bg-white text-slate-900 rounded-xl py-3 text-xs font-bold uppercase tracking-widest hover:bg-slate-100 transition-all"
-                                >
-                                    Copy Invite Link
-                                </button>
-                            </div>
-                        </motion.div>
-                    )}
-
-                    {activeTab === 'finance' && (
-                        <motion.div
-                            key="finance"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="space-y-6"
-                        >
-                            {/* Wallet Summary */}
-                            <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl -mr-16 -mt-16" />
-                                <div className="relative z-10">
-                                    <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-widest mb-1">Available Balance</p>
-                                    <h3 className="text-3xl font-bold mb-6">₹{parseFloat(user.wallet_balance.toString()).toLocaleString()}</h3>
-
-                                    {withdrawMsg && (
-                                        <div className={`rounded-xl p-3 mb-4 text-xs font-bold ${withdrawMsg.type === 'success'
-                                            ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                            : 'bg-red-500/20 text-red-300 border border-red-500/30'
-                                            }`}>
-                                            {withdrawMsg.text}
-                                        </div>
-                                    )}
-
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <input
-                                                type="number"
-                                                value={withdrawAmount}
-                                                onChange={(e) => setWithdrawAmount(e.target.value)}
-                                                placeholder="Enter amount"
-                                                className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-                                            />
-                                            <button
-                                                onClick={handleWithdraw}
-                                                disabled={updating || !withdrawAmount}
-                                                className="bg-white text-slate-900 rounded-xl px-6 py-3 text-xs font-bold uppercase tracking-widest hover:bg-slate-100 disabled:opacity-50 transition-all flex items-center gap-2"
-                                            >
-                                                {updating ? <span className="w-3.5 h-3.5 border-2 border-slate-300 border-t-slate-900 rounded-full animate-spin" /> : <ArrowUpRight className="w-4 h-4" />}
-                                                Withdraw
-                                            </button>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                                            <AlertCircle className="w-3.5 h-3.5" />
-                                            Min ₹{WITHDRAWAL_THRESHOLD.toLocaleString()} · Needs primary bank · Admin approved within 24h
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Bank Accounts */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Bank Details</h4>
-                                    <button
-                                        onClick={() => setIsAddingBank(true)}
-                                        className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest flex items-center gap-1 hover:text-indigo-700"
-                                    >
-                                        <Plus className="w-3.5 h-3.5" /> Add New
-                                    </button>
-                                </div>
-
-                                {banks.length === 0 ? (
-                                    <div className="text-center py-10 bg-white rounded-xl border border-dashed border-slate-100">
-                                        <Landmark className="w-8 h-8 text-slate-100 mx-auto mb-2" />
-                                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">No banks linked</p>
-                                    </div>
-                                ) : (
+                                    {/* Withdrawal Request History */}
                                     <div className="space-y-3">
-                                        {banks.map(bank => (
-                                            <div
-                                                key={bank.id}
-                                                className={cn(
-                                                    "bg-white rounded-xl border p-4 transition-all",
-                                                    bank.is_primary ? "border-indigo-600 ring-1 ring-indigo-600/10" : "border-slate-100"
-                                                )}
-                                            >
-                                                <div className="flex justify-between items-start mb-2">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400">
-                                                            <Landmark className="w-5 h-5" />
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-sm font-bold text-slate-900">{bank.bank_name}</p>
-                                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{bank.account_holder_name}</p>
-                                                        </div>
-                                                    </div>
-                                                    {bank.is_primary ? (
-                                                        <span className="px-2 py-0.5 bg-indigo-600 text-white text-[8px] font-bold uppercase rounded">Primary</span>
-                                                    ) : (
-                                                        <button
-                                                            onClick={() => setPrimaryBank(bank.id)}
-                                                            className="text-[8px] font-bold text-slate-400 uppercase hover:text-indigo-600"
-                                                        >
-                                                            Set Primary
-                                                        </button>
-                                                    )}
-                                                </div>
-                                                <div className="pl-13 flex items-center gap-4 text-[11px] font-mono text-slate-500 pt-2 border-t border-slate-50 mt-2">
-                                                    <span>**** {bank.account_number.slice(-4)}</span>
-                                                    <span className="text-[9px] uppercase tracking-tighter">{bank.ifsc_code}</span>
-                                                </div>
+                                        <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Withdrawal History</h4>
+                                        {withdrawals.length === 0 ? (
+                                            <div className="text-center py-10 bg-white rounded-xl border border-dashed border-slate-100">
+                                                <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">No withdrawal requests yet</p>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Withdrawal Request History */}
-                            <div className="space-y-3">
-                                <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest">Withdrawal History</h4>
-                                {withdrawals.length === 0 ? (
-                                    <div className="text-center py-10 bg-white rounded-xl border border-dashed border-slate-100">
-                                        <p className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">No withdrawal requests yet</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-2">
-                                        {withdrawals.map(wr => (
-                                            <div key={wr.id} className="bg-white rounded-xl border border-slate-100 p-4">
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <div>
-                                                        <p className="text-base font-black text-slate-900">₹{Number(wr.amount).toLocaleString('en-IN')}</p>
-                                                        <p className="text-[10px] font-bold text-slate-400 mt-0.5">
-                                                            {wr.bank_name ? `→ ${wr.bank_name} **** ${wr.account_number?.slice(-4)}` : 'Bank account not linked'}
+                                        ) : (
+                                            <div className="space-y-2">
+                                                {withdrawals.map(wr => (
+                                                    <div key={wr.id} className="bg-white rounded-xl border border-slate-100 p-4">
+                                                        <div className="flex items-center justify-between mb-2">
+                                                            <div>
+                                                                <p className="text-base font-black text-slate-900">₹{Number(wr.amount).toLocaleString('en-IN')}</p>
+                                                                <p className="text-[10px] font-bold text-slate-400 mt-0.5">
+                                                                    {wr.bank_name ? `→ ${wr.bank_name} **** ${wr.account_number?.slice(-4)}` : 'Bank account not linked'}
+                                                                </p>
+                                                            </div>
+                                                            <span className={cn(
+                                                                'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase',
+                                                                wr.status === 'PENDING' && 'bg-amber-50 text-amber-700 border border-amber-100',
+                                                                wr.status === 'APPROVED' && 'bg-emerald-50 text-emerald-700 border border-emerald-100',
+                                                                wr.status === 'REJECTED' && 'bg-red-50 text-red-700 border border-red-100',
+                                                            )}>
+                                                                {wr.status === 'PENDING' && '⏳ '}
+                                                                {wr.status === 'APPROVED' && '✅ '}
+                                                                {wr.status === 'REJECTED' && '❌ '}
+                                                                {wr.status}
+                                                            </span>
+                                                        </div>
+                                                        {wr.admin_note && (
+                                                            <p className="text-[10px] text-slate-400 italic mt-1">Note: {wr.admin_note}</p>
+                                                        )}
+                                                        <p className="text-[10px] text-slate-300 font-bold mt-2">
+                                                            {new Date(wr.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                                                         </p>
                                                     </div>
-                                                    <span className={cn(
-                                                        'px-2.5 py-1 rounded-full text-[10px] font-bold uppercase',
-                                                        wr.status === 'PENDING' && 'bg-amber-50 text-amber-700 border border-amber-100',
-                                                        wr.status === 'APPROVED' && 'bg-emerald-50 text-emerald-700 border border-emerald-100',
-                                                        wr.status === 'REJECTED' && 'bg-red-50 text-red-700 border border-red-100',
-                                                    )}>
-                                                        {wr.status === 'PENDING' && '⏳ '}
-                                                        {wr.status === 'APPROVED' && '✅ '}
-                                                        {wr.status === 'REJECTED' && '❌ '}
-                                                        {wr.status}
-                                                    </span>
-                                                </div>
-                                                {wr.admin_note && (
-                                                    <p className="text-[10px] text-slate-400 italic mt-1">Note: {wr.admin_note}</p>
-                                                )}
-                                                <p className="text-[10px] text-slate-300 font-bold mt-2">
-                                                    {new Date(wr.created_at).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                                                </p>
+                                                ))}
                                             </div>
+                                        )}
+                                    </div>
+
+                                </motion.div>
+                            )}
+
+                            {activeTab === 'explore' && (
+                                <motion.div
+                                    key="explore"
+                                    variants={staggerContainer}
+                                    initial="hidden"
+                                    animate="visible"
+                                    className="bg-white rounded-xl border border-slate-200 shadow-sm p-6"
+                                >
+                                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">Explore Teer Club</h3>
+                                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {MENU_ITEMS.map((item) => (
+                                            <Link
+                                                key={item.name}
+                                                href={item.path}
+                                                className="flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-50 border border-slate-100/50 hover:bg-slate-100 hover:shadow-sm transition-all group/tool"
+                                            >
+                                                <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover/tool:scale-110 transition-transform">
+                                                    <item.icon className={`w-6 h-6 ${item.color}`} />
+                                                </div>
+                                                <span className="text-sm font-bold text-slate-900">{item.name}</span>
+                                            </Link>
                                         ))}
                                     </div>
-                                )}
-                            </div>
+                                </motion.div>
+                            )}
 
-                        </motion.div>
-                    )}
+                            {activeTab === 'settings' && (
+                                <motion.div
+                                    key="settings"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="space-y-4"
+                                >
+                                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                                        <div className="p-4 border-b border-slate-50 bg-slate-50/50">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account Security</p>
+                                        </div>
+                                        <div className="divide-y divide-slate-50">
+                                            <div className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-all group">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+                                                        <Calendar className="w-5 h-5 text-indigo-500" />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="text-sm font-bold text-slate-900">Email Address</p>
+                                                        <p className="text-[11px] font-bold text-slate-400">{user.email}</p>
+                                                    </div>
+                                                </div>
+                                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                                            </div>
+                                            <button onClick={handleLogout} className="w-full flex items-center justify-between p-4 hover:bg-rose-50 transition-all group">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
+                                                        <LogOut className="w-5 h-5 text-rose-500" />
+                                                    </div>
+                                                    <div className="text-left">
+                                                        <p className="text-sm font-bold text-rose-600">Power Off</p>
+                                                        <p className="text-[11px] font-bold text-rose-300 uppercase tracking-widest">Secure Logout</p>
+                                                    </div>
+                                                </div>
+                                                <ChevronRight className="w-4 h-4 text-rose-200 group-hover:translate-x-1 transition-all" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
-                    {activeTab === 'explore' && (
-                        <motion.div
-                            key="explore"
-                            variants={staggerContainer}
-                            initial="hidden"
-                            animate="visible"
-                            className="bg-white rounded-xl border border-slate-200 shadow-sm p-6"
-                        >
-                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">Explore Teer Club</h3>
-                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                                {MENU_ITEMS.map((item) => (
-                                    <Link
-                                        key={item.name}
-                                        href={item.path}
-                                        className="flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-50 border border-slate-100/50 hover:bg-slate-100 hover:shadow-sm transition-all group/tool"
+                        {/* Modals */}
+                        <AnimatePresence>
+                            {isEditing && (
+                                <div className="fixed inset-0 z-[1000] flex items-center justify-center px-4">
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        onClick={() => setIsEditing(false)}
+                                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
+                                    />
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                        className="bg-white rounded-[32px] w-full max-w-[450px] overflow-hidden shadow-2xl relative z-10"
                                     >
-                                        <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover/tool:scale-110 transition-transform">
-                                            <item.icon className={`w-6 h-6 ${item.color}`} />
-                                        </div>
-                                        <span className="text-sm font-bold text-slate-900">{item.name}</span>
-                                    </Link>
-                                ))}
-                            </div>
-                        </motion.div>
-                    )}
+                                        <div className="p-8">
+                                            <div className="flex items-center justify-between mb-8">
+                                                <h3 className="text-2xl font-bold font-sans text-slate-900">Edit Identity</h3>
+                                                <button
+                                                    onClick={() => setIsEditing(false)}
+                                                    className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all"
+                                                >
+                                                    <ArrowLeft className="w-5 h-5" />
+                                                </button>
+                                            </div>
 
-                    {activeTab === 'settings' && (
-                        <motion.div
-                            key="settings"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="space-y-4"
-                        >
-                            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                                <div className="p-4 border-b border-slate-50 bg-slate-50/50">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Account Security</p>
+                                            <form onSubmit={handleUpdateProfile} className="space-y-6">
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Avatar Display URL</label>
+                                                    <input
+                                                        type="text"
+                                                        value={editAvatar}
+                                                        onChange={(e) => setEditAvatar(e.target.value)}
+                                                        placeholder="Paste an image URL..."
+                                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-2">
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Professional Bio</label>
+                                                    <textarea
+                                                        rows={4}
+                                                        value={editBio}
+                                                        onChange={(e) => setEditBio(e.target.value)}
+                                                        placeholder="What is your winning philosophy?"
+                                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
+                                                    />
+                                                </div>
+
+                                                <button
+                                                    type="submit"
+                                                    disabled={updating}
+                                                    className="w-full bg-slate-900 text-white rounded-xl py-4 font-bold text-sm shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+                                                >
+                                                    {updating ? "Processing..." : "Sync Changes"}
+                                                    {!updating && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </motion.div>
                                 </div>
-                                <div className="divide-y divide-slate-50">
-                                    <div className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-all group">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
-                                                <Calendar className="w-5 h-5 text-indigo-500" />
+                            )}
+
+                            {isAddingBank && (
+                                <div className="fixed inset-0 z-[1000] flex items-center justify-center px-4">
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        onClick={() => setIsAddingBank(false)}
+                                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
+                                    />
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                                        className="bg-white rounded-[32px] w-full max-w-[450px] overflow-hidden shadow-2xl relative z-10"
+                                    >
+                                        <div className="p-8">
+                                            <div className="flex items-center justify-between mb-8">
+                                                <h3 className="text-xl font-bold font-sans text-slate-900">Add Bank Account</h3>
+                                                <button
+                                                    onClick={() => setIsAddingBank(false)}
+                                                    className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400"
+                                                >
+                                                    <ArrowLeft className="w-5 h-5" />
+                                                </button>
                                             </div>
-                                            <div className="text-left">
-                                                <p className="text-sm font-bold text-slate-900">Email Address</p>
-                                                <p className="text-[11px] font-bold text-slate-400">{user.email}</p>
-                                            </div>
+
+                                            <form onSubmit={handleAddBank} className="space-y-4">
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Account Holder Name</label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        value={bankForm.account_holder_name}
+                                                        onChange={(e) => setBankForm({ ...bankForm, account_holder_name: e.target.value })}
+                                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20"
+                                                    />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Bank Name</label>
+                                                    <input
+                                                        type="text"
+                                                        required
+                                                        value={bankForm.bank_name}
+                                                        onChange={(e) => setBankForm({ ...bankForm, bank_name: e.target.value })}
+                                                        className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20"
+                                                    />
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <div className="space-y-1">
+                                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">A/C Number</label>
+                                                        <input
+                                                            type="text"
+                                                            required
+                                                            value={bankForm.account_number}
+                                                            onChange={(e) => setBankForm({ ...bankForm, account_number: e.target.value })}
+                                                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20"
+                                                        />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">IFSC Code</label>
+                                                        <input
+                                                            type="text"
+                                                            required
+                                                            value={bankForm.ifsc_code}
+                                                            onChange={(e) => setBankForm({ ...bankForm, ifsc_code: e.target.value })}
+                                                            className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="submit"
+                                                    disabled={updating}
+                                                    className="w-full bg-slate-900 text-white rounded-xl py-4 font-bold text-xs uppercase tracking-widest hover:bg-black transition-all"
+                                                >
+                                                    {updating ? "Saving..." : "Save Bank Account"}
+                                                </button>
+                                            </form>
                                         </div>
-                                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                    </div>
-                                    <button onClick={handleLogout} className="w-full flex items-center justify-between p-4 hover:bg-rose-50 transition-all group">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center">
-                                                <LogOut className="w-5 h-5 text-rose-500" />
-                                            </div>
-                                            <div className="text-left">
-                                                <p className="text-sm font-bold text-rose-600">Power Off</p>
-                                                <p className="text-[11px] font-bold text-rose-300 uppercase tracking-widest">Secure Logout</p>
-                                            </div>
-                                        </div>
-                                        <ChevronRight className="w-4 h-4 text-rose-200 group-hover:translate-x-1 transition-all" />
-                                    </button>
+                                    </motion.div>
                                 </div>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {/* Modals */}
-                <AnimatePresence>
-                    {isEditing && (
-                        <div className="fixed inset-0 z-[1000] flex items-center justify-center px-4">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => setIsEditing(false)}
-                                className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
-                            />
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                className="bg-white rounded-[32px] w-full max-w-[450px] overflow-hidden shadow-2xl relative z-10"
-                            >
-                                <div className="p-8">
-                                    <div className="flex items-center justify-between mb-8">
-                                        <h3 className="text-2xl font-bold font-sans text-slate-900">Edit Identity</h3>
-                                        <button
-                                            onClick={() => setIsEditing(false)}
-                                            className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all"
-                                        >
-                                            <ArrowLeft className="w-5 h-5" />
-                                        </button>
-                                    </div>
-
-                                    <form onSubmit={handleUpdateProfile} className="space-y-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Avatar Display URL</label>
-                                            <input
-                                                type="text"
-                                                value={editAvatar}
-                                                onChange={(e) => setEditAvatar(e.target.value)}
-                                                placeholder="Paste an image URL..."
-                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                                            />
-                                        </div>
-
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest pl-1">Professional Bio</label>
-                                            <textarea
-                                                rows={4}
-                                                value={editBio}
-                                                onChange={(e) => setEditBio(e.target.value)}
-                                                placeholder="What is your winning philosophy?"
-                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all resize-none"
-                                            />
-                                        </div>
-
-                                        <button
-                                            type="submit"
-                                            disabled={updating}
-                                            className="w-full bg-slate-900 text-white rounded-xl py-4 font-bold text-sm shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
-                                        >
-                                            {updating ? "Processing..." : "Sync Changes"}
-                                            {!updating && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
-                                        </button>
-                                    </form>
-                                </div>
-                            </motion.div>
-                        </div>
-                    )}
-
-                    {isAddingBank && (
-                        <div className="fixed inset-0 z-[1000] flex items-center justify-center px-4">
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => setIsAddingBank(false)}
-                                className="absolute inset-0 bg-slate-900/40 backdrop-blur-md"
-                            />
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                className="bg-white rounded-[32px] w-full max-w-[450px] overflow-hidden shadow-2xl relative z-10"
-                            >
-                                <div className="p-8">
-                                    <div className="flex items-center justify-between mb-8">
-                                        <h3 className="text-xl font-bold font-sans text-slate-900">Add Bank Account</h3>
-                                        <button
-                                            onClick={() => setIsAddingBank(false)}
-                                            className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400"
-                                        >
-                                            <ArrowLeft className="w-5 h-5" />
-                                        </button>
-                                    </div>
-
-                                    <form onSubmit={handleAddBank} className="space-y-4">
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Account Holder Name</label>
-                                            <input
-                                                type="text"
-                                                required
-                                                value={bankForm.account_holder_name}
-                                                onChange={(e) => setBankForm({ ...bankForm, account_holder_name: e.target.value })}
-                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20"
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Bank Name</label>
-                                            <input
-                                                type="text"
-                                                required
-                                                value={bankForm.bank_name}
-                                                onChange={(e) => setBankForm({ ...bankForm, bank_name: e.target.value })}
-                                                className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-1">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">A/C Number</label>
-                                                <input
-                                                    type="text"
-                                                    required
-                                                    value={bankForm.account_number}
-                                                    onChange={(e) => setBankForm({ ...bankForm, account_number: e.target.value })}
-                                                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20"
-                                                />
-                                            </div>
-                                            <div className="space-y-1">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">IFSC Code</label>
-                                                <input
-                                                    type="text"
-                                                    required
-                                                    value={bankForm.ifsc_code}
-                                                    onChange={(e) => setBankForm({ ...bankForm, ifsc_code: e.target.value })}
-                                                    className="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-indigo-500/20"
-                                                />
-                                            </div>
-                                        </div>
-                                        <button
-                                            type="submit"
-                                            disabled={updating}
-                                            className="w-full bg-slate-900 text-white rounded-xl py-4 font-bold text-xs uppercase tracking-widest hover:bg-black transition-all"
-                                        >
-                                            {updating ? "Saving..." : "Save Bank Account"}
-                                        </button>
-                                    </form>
-                                </div>
-                            </motion.div>
-                        </div>
-                    )}
-                </AnimatePresence>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
             </div>
         </main>
     );

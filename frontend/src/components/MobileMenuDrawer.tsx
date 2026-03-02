@@ -67,7 +67,7 @@ export function MobileMenuDrawer({ isOpen, onClose }: MobileMenuDrawerProps) {
     };
 
     return (
-        <AnimatePresence mode="wait">
+        <AnimatePresence>
             {isOpen && (
                 <>
                     {/* Native-Style Backdrop - GPU Accelerated */}
@@ -76,7 +76,7 @@ export function MobileMenuDrawer({ isOpen, onClose }: MobileMenuDrawerProps) {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md md:hidden transform-gpu"
+                        className="fixed inset-0 z-[100] bg-slate-900/80 md:hidden transform-gpu"
                         aria-hidden="true"
                     />
 
@@ -92,7 +92,7 @@ export function MobileMenuDrawer({ isOpen, onClose }: MobileMenuDrawerProps) {
                         aria-labelledby="menu-title"
                     >
                         {/* Compact Drag Handle Area - Glassmorphism Refresh */}
-                        <div className="shrink-0 flex justify-center pt-3 pb-2 bg-white/40 backdrop-blur-3xl border-b border-white/40 relative">
+                        <div className="shrink-0 flex justify-center pt-3 pb-2 bg-slate-100 border-b border-slate-200/50 relative">
                             <div className="w-12 h-1.5 bg-slate-200/60 rounded-full mb-1 shadow-inner" />
 
                             <div className="absolute right-5 top-1/2 -translate-y-1/2">
@@ -111,7 +111,7 @@ export function MobileMenuDrawer({ isOpen, onClose }: MobileMenuDrawerProps) {
 
                             <div className="space-y-6">
                                 {/* Profile / Identity Section - Repurposed for Performance */}
-                                <AnimatePresence mode="wait">
+                                <AnimatePresence>
                                     {loading ? (
                                         <div key="loading" className="h-[100px] rounded-[24px] bg-white animate-pulse border border-slate-100" />
                                     ) : user ? (
@@ -122,7 +122,7 @@ export function MobileMenuDrawer({ isOpen, onClose }: MobileMenuDrawerProps) {
                                             className="bg-white rounded-[24px] p-4 text-slate-900 relative overflow-hidden shadow-lg shadow-slate-200/40 border border-slate-100 transform-gpu group"
                                         >
                                             {/* Light Mesh Gradient Hub */}
-                                            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50/50 rounded-full blur-[40px] -mr-24 -mt-24" />
+                                            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50/50 rounded-full -mr-24 -mt-24" />
 
                                             <div className="relative z-10 flex items-center justify-between">
                                                 <div className="flex items-center gap-3 min-w-0">
@@ -171,7 +171,7 @@ export function MobileMenuDrawer({ isOpen, onClose }: MobileMenuDrawerProps) {
                                             animate={{ opacity: 1, y: 0 }}
                                             className="bg-gradient-to-br from-indigo-600 to-purple-800 p-6 rounded-[28px] text-white shadow-xl shadow-indigo-500/10 relative overflow-hidden transform-gpu"
                                         >
-                                            <div className="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full blur-[40px]" />
+                                            <div className="absolute -top-16 -right-16 w-40 h-40 bg-white/10 rounded-full" />
                                             <div className="relative z-10">
                                                 <h3 className="text-lg font-black tracking-tight mb-1">Elevate Your Strategy</h3>
                                                 <p className="text-indigo-100/70 text-[11px] font-bold leading-normal mb-4 max-w-[200px]">Unlock professional analytics, global communities, and secure wallet.</p>

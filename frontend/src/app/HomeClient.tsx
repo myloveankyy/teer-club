@@ -148,13 +148,13 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                                 <h2 className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">Live Results</h2>
                             </div>
 
-                            <AnimatePresence mode="wait">
+                            <AnimatePresence>
                                 <motion.div
                                     key={activeRegion}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.3 }}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.15 }}
                                     className="flex flex-col gap-6"
                                 >
                                     <LiveTicker round={1} targetDate={new Date().toISOString()} region={activeRegion} initialResult={initialLatestResults?.[activeRegion]?.round1} />

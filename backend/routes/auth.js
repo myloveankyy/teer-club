@@ -27,9 +27,11 @@ router.post('/register', async (req, res) => {
         // Validate Referral Code if provided
         let referredById = null;
         if (referralCode) {
-            const referrer = await db.query('SELECT id FROM users WHERE referral_code = $1', [referralCode]);
+            const referrer = await db.query('SELECT id FROM users WHERE LOWER(referral_code) = LOWER($1)', [referralCode]);
             if (referrer.rows.length > 0) {
                 referredById = referrer.rows[0].id;
+            } else {
+                return res.status(400).json({ success: false, error: 'Invalid or non-existent referral code.' });
             }
         }
 
