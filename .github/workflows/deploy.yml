@@ -53,13 +53,16 @@ jobs:
             # PM2 Keepalive
             echo "Starting/Restarting Apps via PM2..."
             cd /var/www/teer.club/backend
-            pm2 start index.js --name "api" || pm2 restart api
+            pm2 delete api || true
+            pm2 start index.js --name "api"
             
             cd /var/www/teer.club/frontend
-            pm2 start npm --name "frontend" -- run start || pm2 restart frontend
+            pm2 delete frontend || true
+            pm2 start npm --name "frontend" -- run start -- -p 3000
             
             cd /var/www/teer.club/admin-panel
-            pm2 start npm --name "admin-panel" -- run start || pm2 restart admin-panel
+            pm2 delete admin-panel || true
+            pm2 start npm --name "admin-panel" -- run start -- -p 3001
             
             pm2 save
             
