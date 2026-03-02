@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 const verifyAdmin = require('../middleware/verifyAdmin');
+const { triggerGoogleIndex } = require('../services/seoIndexer');
 
 // @route   GET /api/admin/posts
 // @desc    Get all blog posts (including unpublished)
@@ -41,7 +42,7 @@ router.get('/:id', verifyAdmin, async (req, res) => {
 // @access  Private (Admin)
 router.post('/', verifyAdmin, async (req, res) => {
     try {
-        const { title, slug, category, excerpt, content, featured_image, is_published } = req.body;
+        const { title, slug, category, excerpt, content, featured_image, is_published, meta_title, meta_description, focus_keyword } = req.body;
         // Basic validation
         if (!title || !slug || !category || !content) {
             return res.status(400).json({ success: false, error: 'Please provide all required fields' });
@@ -54,10 +55,15 @@ router.post('/', verifyAdmin, async (req, res) => {
         }
 
         const newPost = await db.query(`
-            INSERT INTO posts (title, slug, category, excerpt, content, featured_image, is_published, author_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, NULL)
+            INSERT INTO posts (title, slug, category, excerpt, content, featured_image, is_published, author_id, meta_title, meta_description, focus_keyword)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, NULL, $8, $9, $10)
             RETURNING *
-        `, [title, slug, category, excerpt, content, featured_image, is_published || false]);
+        `, [title, slug, category, excerpt, content, featured_image, is_published || false, meta_title, meta_description, focus_keyword]);
+
+        if (newPost.rows[0].is_published) {
+            const postUrl = `https://teer.club/blog/${newPost.rows[0].slug}`;
+            triggerGoogleIndex(postUrl, 'URL_UPDATED').catch(err => console.error('[SEO] Indexing failed:', err.message));
+        }
 
         res.status(201).json({ success: true, message: 'Post created successfully', data: newPost.rows[0] });
     } catch (err) {
@@ -72,7 +78,7 @@ router.post('/', verifyAdmin, async (req, res) => {
 router.put('/:id', verifyAdmin, async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, slug, category, excerpt, content, featured_image, is_published } = req.body;
+        const { title, slug, category, excerpt, content, featured_image, is_published, meta_title, meta_description, focus_keyword } = req.body;
 
         const postCheck = await db.query('SELECT id FROM posts WHERE id = $1', [id]);
         if (postCheck.rows.length === 0) {
@@ -96,10 +102,18 @@ router.put('/:id', verifyAdmin, async (req, res) => {
                 content = COALESCE($5, content),
                 featured_image = COALESCE($6, featured_image),
                 is_published = COALESCE($7, is_published),
+                meta_title = COALESCE($8, meta_title),
+                meta_description = COALESCE($9, meta_description),
+                focus_keyword = COALESCE($10, focus_keyword),
                 updated_at = CURRENT_TIMESTAMP
-            WHERE id = $8
+            WHERE id = $11
             RETURNING *
-        `, [title, slug, category, excerpt, content, featured_image, is_published !== undefined ? is_published : null, id]);
+        `, [title, slug, category, excerpt, content, featured_image, is_published !== undefined ? is_published : null, meta_title, meta_description, focus_keyword, id]);
+
+        if (updatedPost.rows[0].is_published) {
+            const postUrl = `https://teer.club/blog/${updatedPost.rows[0].slug}`;
+            triggerGoogleIndex(postUrl, 'URL_UPDATED').catch(err => console.error('[SEO] Indexing failed:', err.message));
+        }
 
         res.json({ success: true, message: 'Post updated successfully', data: updatedPost.rows[0] });
     } catch (err) {

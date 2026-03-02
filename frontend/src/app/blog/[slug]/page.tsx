@@ -1,4 +1,5 @@
 import markdownToHtml from '@/lib/markdownToHtml';
+import editorjsToHtml from '@/lib/editorjsToHtml';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronLeft, Calendar, ArrowLeft, Clock, Share2, Bookmark, User } from 'lucide-react';
@@ -19,6 +20,9 @@ type PostResponse = {
         is_published: boolean;
         created_at: string;
         author_name: string;
+        meta_title?: string;
+        meta_description?: string;
+        focus_keyword?: string;
     }
 };
 
@@ -43,11 +47,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         }
 
         return {
-            title: `${post.title} | Teer Club Knowledge Hub`,
-            description: post.excerpt,
+            title: post.meta_title || `${post.title} | Teer Club Knowledge Hub`,
+            description: post.meta_description || post.excerpt,
+            keywords: post.focus_keyword ? post.focus_keyword.split(',').map(k => k.trim()) : [],
             openGraph: {
-                title: post.title,
-                description: post.excerpt,
+                title: post.meta_title || post.title,
+                description: post.meta_description || post.excerpt,
                 type: 'article',
                 publishedTime: post.created_at,
                 images: post.featured_image ? [post.featured_image] : [],
@@ -69,10 +74,34 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             notFound();
         }
 
-        const contentHtml = await markdownToHtml(post.content || '');
+        let contentHtml = '';
+        if (post.content.trim().startsWith('{') && post.content.includes('"blocks"')) {
+            contentHtml = editorjsToHtml(post.content);
+        } else {
+            contentHtml = await markdownToHtml(post.content || '');
+        }
+
+        const jsonLd = {
+            "@context": "https://schema.org",
+            "@type": "BlogPosting",
+            "headline": post.meta_title || post.title,
+            "description": post.meta_description || post.excerpt,
+            "image": post.featured_image ? [post.featured_image] : [],
+            "datePublished": post.created_at,
+            "dateModified": post.created_at,
+            "author": [{
+                "@type": "Person",
+                "name": post.author_name || "Teer Club Admin"
+            }]
+        };
 
         return (
             <main className="min-h-screen bg-[#F8FAFC] text-slate-900 pb-32 relative font-sans antialiased">
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+                />
+
                 {/* Immersive Ambient Glow */}
                 <div className="fixed top-0 left-0 w-full h-[400px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-50/50 via-white/50 to-transparent pointer-events-none z-0" />
 

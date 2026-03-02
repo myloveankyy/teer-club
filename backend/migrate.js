@@ -34,6 +34,7 @@ async function main() {
         'fix_withdrawal_status.sql',
         'profile_enhancement.sql',
         'common_numbers.sql',
+        'adv_blog_seo.sql'
     ];
 
     let totalSuccess = 0;

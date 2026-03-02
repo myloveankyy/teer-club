@@ -14,7 +14,7 @@ router.get('/', async (req, res) => {
         const category = req.query.category;
 
         let queryStr = `
-            SELECT p.id, p.title, p.slug, p.category, p.excerpt, p.featured_image, p.created_at, u.username as author_name
+            SELECT p.id, p.title, p.slug, p.category, p.excerpt, p.featured_image, p.created_at, u.username as author_name, p.meta_title, p.meta_description
             FROM posts p
             LEFT JOIN users u ON p.author_id = u.id
             WHERE p.is_published = TRUE

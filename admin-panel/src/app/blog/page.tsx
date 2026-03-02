@@ -4,6 +4,12 @@ import { useEffect, useState } from "react";
 import { PenTool, Plus, Edit2, Trash2, CheckCircle2, AlertCircle, X, Image as ImageIcon, Link as LinkIcon, Save, Eye } from "lucide-react";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import dynamic from 'next/dynamic';
+
+const EditorJsComp = dynamic(() => import('@/components/EditorJs'), {
+    ssr: false,
+    loading: () => <div className="p-8 text-center text-slate-500 font-medium border border-slate-200 rounded-xl bg-slate-50 animate-pulse">Initializing Block Editor...</div>
+});
 
 type BlogPost = {
     id: number;
@@ -15,6 +21,9 @@ type BlogPost = {
     featured_image: string;
     is_published: boolean;
     views: number;
+    meta_title?: string;
+    meta_description?: string;
+    focus_keyword?: string;
     created_at: string;
 };
 
@@ -36,7 +45,10 @@ export default function AdminBlogPage() {
         excerpt: "",
         content: "",
         featured_image: "",
-        is_published: false
+        is_published: false,
+        meta_title: "",
+        meta_description: "",
+        focus_keyword: ""
     });
 
     const categories = ["Tips & Tricks", "Announcements", "Guides", "Strategies"];
@@ -73,12 +85,16 @@ export default function AdminBlogPage() {
                 excerpt: post.excerpt || "",
                 content: post.content,
                 featured_image: post.featured_image || "",
-                is_published: post.is_published
+                is_published: post.is_published,
+                meta_title: post.meta_title || "",
+                meta_description: post.meta_description || "",
+                focus_keyword: post.focus_keyword || ""
             });
         } else {
             setEditingPost(null);
             setFormData({
-                title: "", slug: "", category: "Tips & Tricks", excerpt: "", content: "", featured_image: "", is_published: false
+                title: "", slug: "", category: "Tips & Tricks", excerpt: "", content: "", featured_image: "", is_published: false,
+                meta_title: "", meta_description: "", focus_keyword: ""
             });
         }
         setIsModalOpen(true);
@@ -307,13 +323,48 @@ export default function AdminBlogPage() {
 
                                 <div>
                                     <label className="block text-sm font-bold text-slate-700 mb-1.5 flex justify-between">
-                                        <span>Body Content (Markdown Supported)</span>
+                                        <span>Gutenberg-style Block Editor</span>
+                                        <span className="text-xs text-indigo-500">Press '/' for commands</span>
                                     </label>
-                                    <textarea
-                                        required value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })}
-                                        className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-y min-h-[300px]"
-                                        placeholder="Write your blog post here. You can use Markdown formatting like **bold**, # Headings, etc..."
+                                    <EditorJsComp
+                                        value={formData.content}
+                                        onChange={val => setFormData({ ...formData, content: val })}
                                     />
+                                </div>
+
+                                <div className="p-6 bg-indigo-50/50 border border-indigo-100 rounded-2xl space-y-5">
+                                    <h4 className="font-bold text-indigo-900 flex items-center gap-2">
+                                        Advanced SEO Settings
+                                        <span className="px-2 py-0.5 text-[10px] bg-indigo-100 text-indigo-600 rounded">Boost Ranking</span>
+                                    </h4>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold text-indigo-700 mb-1">Meta Title</label>
+                                            <input
+                                                value={formData.meta_title} onChange={e => setFormData({ ...formData, meta_title: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-1 focus:ring-indigo-500 outline-none"
+                                                placeholder="Custom SEO Title (Optimal: 50-60 chars)"
+                                                maxLength={60}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-indigo-700 mb-1">Meta Description</label>
+                                            <textarea
+                                                value={formData.meta_description} onChange={e => setFormData({ ...formData, meta_description: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-1 focus:ring-indigo-500 outline-none resize-none h-20"
+                                                placeholder="A compelling description for search engine results (Optimal: 150-160 chars)"
+                                                maxLength={160}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-indigo-700 mb-1">Focus Keyword</label>
+                                            <input
+                                                value={formData.focus_keyword} onChange={e => setFormData({ ...formData, focus_keyword: e.target.value })}
+                                                className="w-full px-3 py-2 bg-white border border-indigo-200 rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-1 focus:ring-indigo-500 outline-none"
+                                                placeholder="e.g. teer logic secret, winning pattern"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
