@@ -140,9 +140,9 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 mb-12">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-12">
                         {/* Left Column: Live Tickers */}
-                        <div className="xl:col-span-5 flex flex-col gap-6">
+                        <div className="lg:col-span-5 flex flex-col gap-6">
                             <div className="flex items-center gap-3 px-1">
                                 <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
                                 <h2 className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">Live Results</h2>
@@ -181,7 +181,7 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                                             fill
                                             className="object-cover transition-transform group-hover:scale-110"
                                             sizes="(max-width: 768px) 100vw, 500px"
-                                            priority={false}
+                                            priority={true}
                                         />
                                     </motion.div>
                                     <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent" />
@@ -231,7 +231,7 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                         </div>
 
                         {/* Right Column: Analytics & Feed */}
-                        <div className="xl:col-span-7 flex flex-col gap-6">
+                        <div className="lg:col-span-7 flex flex-col gap-6">
                             <CommonNumbersCard initialRecords={initialCommonNumbers} />
 
                             <div className="flex items-center justify-between mb-8 gap-4 px-1">

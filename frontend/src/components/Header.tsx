@@ -86,7 +86,7 @@ export function Header() {
 
                 {/* Centered Navigation (Desktop) - iPad/Desktop Only */}
                 <nav className="hidden md:flex items-center gap-1.5 bg-slate-100/50 p-1.5 rounded-full border border-slate-200/50 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 backdrop-blur-md">
-                    {ALL_NAV_ITEMS.map((item) => {
+                    {CORE_NAV_ITEMS.map((item) => {
                         const active = isActive(item.path);
                         return (
                             <Link

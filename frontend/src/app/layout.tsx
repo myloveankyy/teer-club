@@ -114,6 +114,7 @@ import PostPredictionModal from "@/components/PostPredictionModal";
 import NotificationPoller from "@/components/NotificationPoller";
 import { LayoutWrapper } from "@/components/LayoutWrapper";
 import Footer from "@/components/Footer";
+import NextTopLoader from "nextjs-toploader";
 
 export default function RootLayout({
   children,
@@ -123,8 +124,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${orbitron.variable} font-sans antialiased text-gray-900 bg-[#F5F7FA] relative min-h-screen`}
+        className={`${inter.variable} ${orbitron.variable} font-sans antialiased text-gray-900 bg-[#F5F7FA] relative min-h-[100svh] overflow-x-hidden`}
       >
+        <NextTopLoader
+          color="#4F46E5"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #4F46E5,0 0 5px #4F46E5"
+        />
         <div className="relative z-10">
           <LayoutWrapper>{children}</LayoutWrapper>
           <Footer />

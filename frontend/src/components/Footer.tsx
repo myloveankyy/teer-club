@@ -1,10 +1,22 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Trophy, Target, BookOpen, MapPin, ShieldCheck, Mail, Github, Twitter, Facebook, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Footer() {
+    const pathname = usePathname();
+
+    // Hide footer on app-like immersive pages to keep UI clean
+    const isImmersivePage = pathname?.startsWith('/profile') ||
+        pathname?.startsWith('/notifications') ||
+        pathname?.startsWith('/admin') ||
+        pathname?.startsWith('/login') ||
+        pathname?.startsWith('/register');
+
+    if (isImmersivePage) return null;
+
     const FOOTER_LINKS = [
         {
             title: "Live Results",

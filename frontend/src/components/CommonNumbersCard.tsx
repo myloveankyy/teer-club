@@ -304,6 +304,7 @@ export function CommonNumbersCard({ initialRecords = [] }: { initialRecords?: Co
                                         src={`https://i.pravatar.cc/100?u=${i}`}
                                         alt="Community Member"
                                         fill
+                                        sizes="48px"
                                         className="object-cover saturate-[0.8] brightness-[1.05]"
                                     />
                                 </div>

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { MENU_ITEMS } from '@/lib/constants';
 import {
     User,
     Settings,
@@ -22,7 +24,8 @@ import {
     AlertCircle,
     ArrowUpRight,
     Users,
-    Bookmark
+    Bookmark,
+    Compass
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '@/lib/api';
@@ -98,7 +101,7 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
     const [isAddingBank, setIsAddingBank] = useState(false);
-    const [activeTab, setActiveTab] = useState<'posts' | 'finance' | 'settings' | 'connections' | 'library'>('posts');
+    const [activeTab, setActiveTab] = useState<'posts' | 'finance' | 'settings' | 'connections' | 'library' | 'explore'>('posts');
     const [withdrawMsg, setWithdrawMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
     const [savedNumbers, setSavedNumbers] = useState<any[]>([]);
 
@@ -384,6 +387,7 @@ export default function ProfilePage() {
                         { id: 'library', label: 'Saved Library', icon: Bookmark },
                         { id: 'connections', label: 'Connections', icon: Users },
                         { id: 'finance', label: 'Wallet & Bank', icon: Wallet },
+                        { id: 'explore', label: 'Explore Tools', icon: Compass },
                         { id: 'settings', label: 'Settings', icon: Settings }
                     ].map(tab => (
                         <button
@@ -760,6 +764,32 @@ export default function ProfilePage() {
                                 )}
                             </div>
 
+                        </motion.div>
+                    )}
+
+                    {activeTab === 'explore' && (
+                        <motion.div
+                            key="explore"
+                            variants={staggerContainer}
+                            initial="hidden"
+                            animate="visible"
+                            className="bg-white rounded-xl border border-slate-200 shadow-sm p-6"
+                        >
+                            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-6">Explore Teer Club</h3>
+                            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                                {MENU_ITEMS.map((item) => (
+                                    <Link
+                                        key={item.name}
+                                        href={item.path}
+                                        className="flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-50 border border-slate-100/50 hover:bg-slate-100 hover:shadow-sm transition-all group/tool"
+                                    >
+                                        <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover/tool:scale-110 transition-transform">
+                                            <item.icon className={`w-6 h-6 ${item.color}`} />
+                                        </div>
+                                        <span className="text-sm font-bold text-slate-900">{item.name}</span>
+                                    </Link>
+                                ))}
+                            </div>
                         </motion.div>
                     )}
 
