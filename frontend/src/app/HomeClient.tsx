@@ -148,7 +148,7 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                                 <h2 className="text-[10px] font-black tracking-[0.2em] text-slate-400 uppercase">Live Results</h2>
                             </div>
 
-                            <AnimatePresence>
+                            <AnimatePresence mode="wait">
                                 <motion.div
                                     key={activeRegion}
                                     initial={{ opacity: 0 }}
@@ -172,6 +172,7 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                                 <div className="relative h-48 w-full overflow-hidden">
                                     <motion.div
                                         className="relative h-48 w-full overflow-hidden"
+                                        style={{ willChange: 'transform' }}
                                         animate={{ scale: [1, 1.05, 1] }}
                                         transition={{ duration: 15, repeat: Infinity }}
                                     >

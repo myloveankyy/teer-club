@@ -30,7 +30,8 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
 
     useEffect(() => {
         const updateTimer = () => {
-            const now = new Date();
+            // Force IST Time for accurate Teer Results
+            const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
             const day = now.getDay();
 
             // Sunday Check
@@ -44,7 +45,7 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
             const timeStr = SCHEDULE[region][round === 1 ? 'r1' : 'r2'];
             const [hours, minutes] = timeStr.split(':').map(Number);
 
-            const target = new Date();
+            const target = new Date(now.getTime());
             target.setHours(hours, minutes, 0, 0);
 
             const diff = target.getTime() - now.getTime();
@@ -73,6 +74,14 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                     setIsDrawClose(false);
                 }
             }
+
+            // Phase 4: Heartbeat & Slot Machine Logic (Consolidated)
+            const min = now.getMinutes();
+            if (displayNumber === '--' && (min === 44 || min === 43 || min === 29 || min === 30)) {
+                setCountdownPulse(true);
+            } else {
+                setCountdownPulse(false);
+            }
         };
 
         const timerInterval = setInterval(updateTimer, 1000);
@@ -94,7 +103,7 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                     if (historyRes.ok) historyData = await historyRes.json();
                 } catch (e) { }
 
-                const todayStr = new Date().toISOString().split('T')[0];
+                const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
 
                 if (latestData && latestData[region]) {
                     const dataDate = latestData[region].date;
@@ -141,21 +150,6 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
     const [countdownPulse, setCountdownPulse] = useState(false);
     const [rollingDigits, setRollingDigits] = useState(false);
 
-    useEffect(() => {
-        // Visual heart-beat simulator for the last minute before results structure
-        const checkTime = () => {
-            const now = new Date();
-            const min = now.getMinutes();
-            if (isLive && (min === 44 || min === 43 || min === 29 || min === 30)) {
-                setCountdownPulse(true);
-            } else {
-                setCountdownPulse(false);
-            }
-        };
-        const int = setInterval(checkTime, 1000);
-        return () => clearInterval(int);
-    }, [isLive]);
-
     // Developer testing trigger for the slot-animation
     const handleMockDrop = () => {
         setRollingDigits(true);
@@ -196,7 +190,7 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
         setShowShareModal(true);
 
         try {
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
             const response = await fetch('/api/image/generate-share-image', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -240,6 +234,7 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                 <div className="absolute inset-0 z-0 text-transparent">
                     <motion.div
                         className="w-full h-full relative"
+                        style={{ willChange: 'transform' }}
                         initial={{ scale: 1.1 }}
                         animate={{
                             scale: [1.1, 1.15, 1.1],

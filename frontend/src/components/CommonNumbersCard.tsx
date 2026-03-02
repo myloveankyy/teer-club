@@ -173,7 +173,7 @@ export function CommonNumbersCard({ initialRecords = [] }: { initialRecords?: Co
                 </div>
 
                 {/* Main Data Content - Restored Old Style Grid */}
-                <AnimatePresence>
+                <AnimatePresence mode="wait">
                     <motion.div
                         key={activeGame}
                         initial={{ opacity: 0 }}
