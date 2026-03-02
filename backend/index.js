@@ -54,6 +54,7 @@ const allowedOrigins = [
   'http://localhost:3002',
   'https://teer.club',
   'https://www.teer.club',
+  'https://admin.teer.club',
 ];
 app.use(cors({
   origin: (origin, callback) => {

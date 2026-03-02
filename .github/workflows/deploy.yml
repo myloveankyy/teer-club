@@ -22,7 +22,7 @@ jobs:
           password: ${{ secrets.DO_PASSWORD }}
           source: "."
           target: "/var/www/teer.club"
-          rm: true
+          rm: false
           
       - name: Install & Build on Server
         uses: appleboy/ssh-action@v1.0.3
@@ -32,6 +32,16 @@ jobs:
           password: ${{ secrets.DO_PASSWORD }}
           script: |
             cd /var/www/teer.club
+            
+            # Recreate Backend .env file
+            echo "Recreating environment variables..."
+            echo "DB_USER=neondb_owner" > backend/.env
+            echo "DB_HOST=ep-bitter-brook-aivyz964-pooler.c-4.us-east-1.aws.neon.tech" >> backend/.env
+            echo "DB_NAME=neondb" >> backend/.env
+            echo "DB_PASSWORD=npg_S5ptrxHMKhu9" >> backend/.env
+            echo "DB_PORT=5432" >> backend/.env
+            echo "DB_SSL=true" >> backend/.env
+            echo "JWT_SECRET=super_secret_teer_club_jwt_key_2026" >> backend/.env
             
             # Backend Setup
             echo "Installing Backend Dependencies..."
