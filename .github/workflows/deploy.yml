@@ -11,7 +11,20 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Deploy to Server
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Copy files via SCP
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          password: ${{ secrets.DO_PASSWORD }}
+          source: "."
+          target: "/var/www/teer.club"
+          rm: true
+          
+      - name: Install & Build on Server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DO_HOST }}
@@ -20,32 +33,34 @@ jobs:
           script: |
             cd /var/www/teer.club
             
-            # Pull latest changes
-            echo "Pulling latest code from GitHub..."
-            git pull origin main
-            
             # Backend Setup
             echo "Installing Backend Dependencies..."
             cd backend
             npm install
-            cd ..
             
             # Frontend Setup
             echo "Installing and Building Frontend..."
-            cd frontend
+            cd ../frontend
             npm install
             npm run build
-            cd ..
             
             # Admin Panel Setup
             echo "Installing and Building Admin Panel..."
-            cd admin-panel
+            cd ../admin-panel
             npm install
             npm run build
-            cd ..
             
-            # Restart Apps
-            echo "Restarting PM2 processes..."
-            pm2 restart all
+            # PM2 Keepalive
+            echo "Starting/Restarting Apps via PM2..."
+            cd /var/www/teer.club/backend
+            pm2 start index.js --name "api" || pm2 restart api
+            
+            cd /var/www/teer.club/frontend
+            pm2 start npm --name "frontend" -- run start || pm2 restart frontend
+            
+            cd /var/www/teer.club/admin-panel
+            pm2 start npm --name "admin-panel" -- run start || pm2 restart admin-panel
+            
+            pm2 save
             
             echo "Deployment Complete!"
