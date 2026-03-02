@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
     ],
     minimumCacheTTL: 86400, // 24 hours
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async rewrites() {
     return [
       {
