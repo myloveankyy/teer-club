@@ -4,10 +4,28 @@ import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
-// Helper to format date nicely
+// Helper to format date deterministically without timezone hydration mismatches
 function formatDateString(dateStr: string) {
     try {
+        // Handle "YYYY-MM-DD" or "YYYY MM DD" gracefully
+        const parts = dateStr.includes('-') ? dateStr.split('-') : dateStr.split(' ');
+        if (parts.length === 3) {
+            const months = [
+                'January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            const year = parts[0];
+            const monthIndex = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+
+            if (monthIndex >= 0 && monthIndex < 12 && day > 0 && day <= 31) {
+                return `${months[monthIndex]} ${day}, ${year}`;
+            }
+        }
+
+        // Fallback for weird formats
         const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return dateStr;
         return d.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
     } catch {
         return dateStr;
@@ -140,7 +158,7 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
                         <Link href="/" className="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800 transition-colors">
                             View Today&apos;s Live Result
                         </Link>
-                        <Link href={`/history/${region}`} className="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm hover:bg-slate-200 transition-colors">
+                        <Link href="/history" className="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm hover:bg-slate-200 transition-colors">
                             {regionName} History
                         </Link>
                     </div>
