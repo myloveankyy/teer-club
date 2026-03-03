@@ -67,13 +67,13 @@ export default function Footer() {
                                     <span className="text-3xl font-black tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-indigo-900 to-slate-900 bg-[length:200%_auto] animate-gradient">
                                         Teer Club
                                     </span>
-                                    <span className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.25em]">Heritage Analytics</span>
+                                    <span className="text-[11px] font-black text-indigo-500 uppercase tracking-[0.25em]">Advanced Analytics</span>
                                 </div>
                             </Link>
                         </div>
 
                         <p className="text-slate-600 text-[15px] font-medium leading-relaxed max-w-md">
-                            India's most advanced Teer analytics platform. Blending Meghalayan heritage with predictive machine learning to deliver real-time insights securely.
+                            India's most advanced Teer analytics platform. Blending Meghalayan Teer tradition with predictive machine learning to deliver real-time insights securely.
                         </p>
 
                         <div className="flex items-center gap-4">

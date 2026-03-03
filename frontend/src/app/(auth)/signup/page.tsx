@@ -185,7 +185,7 @@ export default function SignupPage() {
                                     {formData.referralCode && (
                                         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2 py-0.5 bg-indigo-50 rounded-md border border-indigo-100">
                                             <CheckCircle2 className="w-3.5 h-3.5 text-indigo-500" />
-                                            <span className="text-[9px] font-black text-indigo-600 uppercase tracking-tighter">Guest of Heritage</span>
+                                            <span className="text-[9px] font-black text-indigo-600 uppercase tracking-tighter">Guest Member</span>
                                         </div>
                                     )}
                                 </div>
@@ -232,7 +232,7 @@ export default function SignupPage() {
                 >
                     <img
                         src="/auth-bg.png"
-                        alt="Shillong Teer Heritage"
+                        alt="Shillong Teer Target"
                         className="object-cover w-full h-full brightness-[0.7] saturate-[1.2] transition-transform duration-[20s] hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-emerald-900/10 to-transparent" />
@@ -268,7 +268,7 @@ export default function SignupPage() {
 
                 {/* Info Chip */}
                 <div className="absolute bottom-10 left-10 right-10 flex items-center justify-between text-white/30 text-[9px] font-black uppercase tracking-[0.2em] pointer-events-none">
-                    <span>Heritage Collective</span>
+                    <span>Teer Collective</span>
                     <div className="flex items-center gap-4">
                         <span>Certified</span>
                         <div className="w-1 h-1 rounded-full bg-white/10" />

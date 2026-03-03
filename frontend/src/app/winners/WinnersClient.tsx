@@ -102,7 +102,7 @@ export default function WinnersClient() {
                 <img
                     src="/teer-history-bg.png"
                     className="w-full h-full object-cover brightness-[0.98] opacity-[0.05] saturate-[0.8] scale-110 blur-xl"
-                    alt="Background Heritage"
+                    alt="Background Structure"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-50/20 via-white/80 to-slate-50/50" />
             </div>

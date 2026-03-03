@@ -108,7 +108,7 @@ export default function ReferralPage() {
                 <img
                     src="/teer-history-bg.png"
                     className="w-full h-full object-cover brightness-[0.98] opacity-[0.05] saturate-[0.8] scale-110 blur-xl"
-                    alt="Background Heritage"
+                    alt="Background Target Area"
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/20 via-white/80 to-slate-50/50" />
             </div>
@@ -130,7 +130,7 @@ export default function ReferralPage() {
                     </div>
                 </div>
 
-                {/* LAS Heritage Hero Panel */}
+                {/* Hero Panel */}
                 <div className="mb-10 rounded-[40px] overflow-hidden bg-white border border-slate-200/60 shadow-md group relative flex flex-col md:flex-row items-stretch min-h-[220px]">
                     <div className="relative w-full md:w-[35%] h-48 md:h-auto overflow-hidden shrink-0">
                         <img

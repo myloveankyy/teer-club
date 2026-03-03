@@ -252,7 +252,7 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                     countdownPulse ? "ring-4 ring-rose-500/50" : ""
                 )}>
 
-                {/* Dynamic Heritage Background Asset */}
+                {/* Dynamic Official Asset */}
                 <div className="absolute inset-0 z-0 text-transparent">
                     <motion.div
                         className="w-full h-full relative"
@@ -326,7 +326,7 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                                     isDrawClose ? "bg-rose-500" : "bg-indigo-400"
                                 )} />
                                 <span className="text-[9px] font-black text-white tracking-[0.2em]">
-                                    {isOffDay ? 'HOLIDAY' : (isDrawClose ? 'SUSPENSE MODE' : 'UPCOMING')}
+                                    {isOffDay ? 'HOLIDAY' : (isDrawClose ? 'LIVE DRAW' : 'UPCOMING')}
                                 </span>
                             </motion.div>
                         ) : (
@@ -376,7 +376,7 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
 
                         <div className="flex flex-col items-center gap-1 mt-1">
                             <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.6em] ml-1">
-                                {isLive ? (isOffDay ? 'SYSTEM OFF' : (isDrawClose ? 'SPECIAL LIVE SUSPENSE' : 'PENDING ESTIMATION')) : 'Verified Result'}
+                                {isLive ? (isOffDay ? 'MARKET CLOSED' : (isDrawClose ? 'WAITING FOR RESULT' : 'UPCOMING RESULT')) : 'Official Result'}
                             </span>
                         </div>
                     </div>
@@ -464,7 +464,7 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
 
                             {/* Modal Footer (CTAs) */}
                             <div className="p-8 bg-white flex flex-col items-center">
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight mb-2">Heritage AI share card</h3>
+                                <h3 className="text-xl font-black text-slate-900 tracking-tight mb-2">Official AI Share Card</h3>
                                 <p className="text-[11px] text-slate-400 font-medium tracking-wide uppercase mb-6 text-center">Ready to showcase your local victory.<br /><span className="text-indigo-500 font-bold">Refer & Earn integrated.</span></p>
 
                                 <div className="w-full flex gap-3">

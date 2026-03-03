@@ -135,19 +135,6 @@ export default function GroupsPage() {
                     )}
                 </div>
 
-                {/* Engagement Footer */}
-                <div className="mt-20 p-10 rounded-[40px] bg-white border border-slate-200 shadow-[0_8px_32px_rgba(0,0,0,0.04)] text-center relative overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(99,102,241,0.05),transparent_70%)]" />
-                    <div className="relative z-10 max-w-lg mx-auto">
-                        <h2 className="text-2xl font-bold text-slate-900 mb-3">Can't find your club?</h2>
-                        <p className="text-slate-500 font-medium mb-8 leading-relaxed">
-                            Premium members can create their own private prediction circles. Join the elite hub today.
-                        </p>
-                        <button className="px-8 py-3.5 bg-slate-900 text-white font-bold rounded-2xl hover:bg-indigo-600 transition-all shadow-lg active:scale-95 shadow-slate-900/10 hover:shadow-indigo-600/20">
-                            Apply for Group Creation
-                        </button>
-                    </div>
-                </div>
             </div>
         </main>
     );

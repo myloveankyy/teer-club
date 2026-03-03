@@ -107,7 +107,7 @@ export default function HistoryClient() {
         <main className="min-h-screen bg-slate-50 text-[#1D1D1F] pb-32 font-sans selection:bg-indigo-500/20 selection:text-indigo-900 relative overflow-x-hidden">
             <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
                 <div className="relative w-full h-full">
-                    <Image src="/teer-history-bg.png" alt="Shillong Teer archery heritage background" fill
+                    <Image src="/teer-history-bg.png" alt="Shillong Teer traditional archery background" fill
                         className="object-cover brightness-[0.98] opacity-[0.05] saturate-[0.8] scale-110 blur-xl"
                         sizes="100vw" priority={false} quality={40} />
                 </div>
@@ -117,7 +117,7 @@ export default function HistoryClient() {
             <div className="relative z-10 px-4 md:px-8 max-w-[1000px] mx-auto pt-8">
                 <div className="mb-10 rounded-[32px] overflow-hidden bg-white border border-slate-200/60 shadow-md group relative flex flex-col md:flex-row items-stretch">
                     <div className="relative w-full md:w-1/3 h-32 md:h-auto overflow-hidden shrink-0">
-                        <Image src="/teer-history-bg.png" alt="Shillong Teer heritage archery Meghalaya" fill
+                        <Image src="/teer-history-bg.png" alt="Shillong Teer traditional archery Meghalaya" fill
                             className="object-cover brightness-[0.9] transition-transform duration-[20s] group-hover:scale-110"
                             sizes="(max-width: 768px) 100vw, 33vw" priority={false} />
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/10 hidden md:block" />

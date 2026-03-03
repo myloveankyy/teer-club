@@ -193,12 +193,12 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
 
                                 <div className="p-8 pt-2 relative z-10">
                                     <div className="mb-6">
-                                        <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-2">Heritage & Strategy</p>
-                                        <h3 className="text-2xl font-black text-slate-900 leading-tight">Teer Legacy</h3>
+                                        <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.2em] mb-2">Hit & Target Strategy</p>
+                                        <h3 className="text-2xl font-black text-slate-900 leading-tight">Master The Board</h3>
                                     </div>
 
                                     <p className="text-xs text-slate-500 leading-relaxed mb-8 font-medium">
-                                        Emerging from the misty peaks of Meghalaya, Teer blends legendary archery skills with modern probabilistic expertise – an ancient Khasi tradition evolved for the digital era.
+                                        Emerging from the misty peaks of Meghalaya, Teer blends legendary archery skills with modern probabilistic expertise – an ancient tradition evolved for the digital era to find daily targets.
                                     </p>
 
                                     <div className="space-y-4">
@@ -217,15 +217,15 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                                                 <BookOpen className="w-5 h-5" />
                                             </div>
                                             <div className="min-w-0">
-                                                <span className="text-xs font-black text-slate-900 block font-sans">Sacred Rituals</span>
-                                                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Weekly Shillong Traditions</p>
+                                                <span className="text-xs font-black text-slate-900 block font-sans">Official Matches</span>
+                                                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Weekly Shillong Targets</p>
                                             </div>
                                         </div>
                                     </div>
 
                                     <button className="w-full mt-10 py-4 rounded-3xl bg-slate-900 text-white text-[11px] font-black uppercase tracking-[0.2em] hover:bg-black active:scale-[0.98] transition-all shadow-xl shadow-slate-200 group/btn overflow-hidden relative">
                                         <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-500" />
-                                        Archive Exploration
+                                        Teer Results History
                                     </button>
                                 </div>
                             </motion.div>
