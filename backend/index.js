@@ -139,6 +139,24 @@ app.use('/api/dreams', publicApiLimiter, dreamsRoute);
 const betsRoute = require('./routes/bets');
 app.use('/api/bets', betsRoute);
 
+// Grey Hat SEO: Auto-Blogging Content Spinner (Runs at 2:00 AM Daily)
+const nodeCron = require('node-cron');
+const { generateSeoArticle } = require('./seo-blogger');
+nodeCron.schedule('0 2 * * *', async () => {
+  console.log('[CRON] Initiating Daily SEO Auto-Blogging Generation...');
+  try {
+    // Generate 5 articles to rapidly build topical authority
+    for (let i = 0; i < 5; i++) {
+      await generateSeoArticle();
+      // Wait 10 seconds between API calls to prevent rate limits
+      await new Promise(r => setTimeout(r, 10000));
+    }
+    console.log('[CRON] Daily SEO Auto-Blogging Completed.');
+  } catch (e) {
+    console.error('[CRON] SEO Auto-Blogging Failed:', e);
+  }
+});
+
 const transactionsRoute = require('./routes/transactions');
 app.use('/api/transactions', transactionsRoute);
 
