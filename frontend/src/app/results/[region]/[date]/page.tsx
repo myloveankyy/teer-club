@@ -92,7 +92,7 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
     // For now, we'll build the highly-optimized SEO shell that Google will index.
 
     return (
-        <main suppressHydrationWarning className="min-h-screen bg-[#F0F2F5] text-slate-800 pb-32 pt-24 font-sans">
+        <main className="min-h-screen bg-[#F0F2F5] text-slate-800 pb-32 pt-24 font-sans relative z-10">
             {/* Dynamic JSON-LD injection */}
             <script
                 type="application/ld+json"

@@ -135,7 +135,7 @@ export default function DashboardPage() {
     if (!user) return null;
 
     return (
-        <main className="min-h-screen bg-slate-50 pb-[100px] md:pb-12 text-slate-800 font-sans">
+        <main className="min-h-screen bg-slate-50 pb-[100px] md:pb-12 text-slate-800 font-sans relative z-10">
             {/* Header removed as it is now global */}
 
             <div className="max-w-4xl mx-auto px-4 md:px-8 mt-6">

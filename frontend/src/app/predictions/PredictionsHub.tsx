@@ -105,7 +105,7 @@ export default function PredictionsHub() {
     );
 
     return (
-        <main className="min-h-screen bg-[#F5F7FA] pb-24 font-sans antialiased text-slate-800">
+        <main className="min-h-screen bg-[#F5F7FA] pb-24 font-sans antialiased text-slate-800 relative z-10">
             {/* Simple Clean Header */}
             <header className="sticky top-0 z-[100] bg-white border-b border-slate-200/60 px-6 py-4">
                 <div className="max-w-[1200px] mx-auto flex items-center justify-between">
