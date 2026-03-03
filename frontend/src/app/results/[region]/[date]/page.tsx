@@ -74,7 +74,7 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
     // For now, we'll build the highly-optimized SEO shell that Google will index.
 
     return (
-        <main className="min-h-screen bg-[#F0F2F5] text-slate-800 pb-32 pt-24 font-sans">
+        <main suppressHydrationWarning className="min-h-screen bg-[#F0F2F5] text-slate-800 pb-32 pt-24 font-sans">
             {/* Dynamic JSON-LD injection */}
             <script
                 type="application/ld+json"
@@ -86,7 +86,7 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
                         "description": `Get the verified ${regionName} Teer result for ${formattedDate}.`,
                         "url": `https://teer.club/results/${region}/${date}`,
                         "datePublished": date,
-                        "dateModified": new Date().toISOString()
+                        "dateModified": `${date}T16:00:00.000Z` // Fixed static timestamp to prevent hydration crash
                     })
                 }}
             />
