@@ -1,10 +1,5 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
-const dbPath = path.resolve(__dirname, 'database.sqlite');
-
-// Initialize Database connection
-const db = new sqlite3.Database(dbPath);
+const db = require('./db');
 
 // Initialize Gemini
 const apiKey = process.env.GEMINI_API_KEY;
@@ -69,29 +64,21 @@ async function generateSeoArticle() {
         const tagsString = Array.isArray(articleData.tags) ? articleData.tags.join(',') : '';
 
         // Insert into Database
-        return new Promise((resolve, reject) => {
-            const stmt = db.prepare(`
-                INSERT INTO blogs (slug, title, excerpt, content, tags, author, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, 'Teer AI Guru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-            `);
-
-            stmt.run([
-                slug,
-                articleData.title,
-                articleData.excerpt || 'Read the latest strategy guide.',
-                articleData.content,
-                tagsString
-            ], function (err) {
-                if (err) {
-                    console.error("[SEO-Blogger] Database Insert Error:", err);
-                    reject(err);
-                } else {
-                    console.log(`[SEO-Blogger] Successfully published new article: "${articleData.title}" (ID: ${this.lastID})`);
-                    resolve(this.lastID);
-                }
-            });
-            stmt.finalize();
-        });
+        const query = `
+            INSERT INTO blogs (slug, title, excerpt, content, tags, author, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, 'Teer AI Guru', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            RETURNING id
+        `;
+        const values = [
+            slug,
+            articleData.title,
+            articleData.excerpt || 'Read the latest strategy guide.',
+            articleData.content,
+            tagsString
+        ];
+        const dbRes = await db.query(query, values);
+        console.log(`[SEO-Blogger] Successfully published new article: "${articleData.title}" (ID: ${dbRes.rows[0].id})`);
+        return dbRes.rows[0].id;
 
     } catch (error) {
         console.error("[SEO-Blogger] Fatal Error:", error);
