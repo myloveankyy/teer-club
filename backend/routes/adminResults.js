@@ -4,6 +4,7 @@ const db = require('../db');
 const verifyAdmin = require('../middleware/verifyAdmin');
 const { scrapeTeerResults } = require('../scraper');
 const { checkCommonNumberGreetings } = require('../services/greetingsService');
+const { triggerDailyImageGeneration } = require('../services/imageService');
 
 // Protect all routes
 router.use(verifyAdmin);
@@ -69,6 +70,9 @@ router.post('/scrape', async (req, res) => {
         await checkCommonNumberGreetings(date, 'Khanapara', upserted.khanapara_r1, upserted.khanapara_r2);
         await checkCommonNumberGreetings(date, 'Juwai', upserted.juwai_r1, upserted.juwai_r2);
 
+        // Trigger background AI image generation
+        triggerDailyImageGeneration(date, upserted).catch(err => console.error('[ImageGen] Background gen failed:', err));
+
         // Audit Log
         const username = req.user ? req.user.username : 'admin_fallback';
         await db.query(`
@@ -113,6 +117,9 @@ router.put('/:id', async (req, res) => {
             await checkCommonNumberGreetings(resultDate, 'Shillong', updated.round1, updated.round2);
             await checkCommonNumberGreetings(resultDate, 'Khanapara', updated.khanapara_r1, updated.khanapara_r2);
             await checkCommonNumberGreetings(resultDate, 'Juwai', updated.juwai_r1, updated.juwai_r2);
+
+            // Trigger background AI image generation
+            triggerDailyImageGeneration(resultDate, updated).catch(err => console.error('[ImageGen] Background gen failed:', err));
         }
 
         if (updateRes.rowCount === 0) {

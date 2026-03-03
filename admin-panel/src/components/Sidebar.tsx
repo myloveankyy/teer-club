@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import {
     LayoutDashboard,
     Database,
@@ -40,15 +41,34 @@ export function Sidebar({ className }: { className?: string }) {
     const pathname = usePathname();
     const { logout } = useAuth();
 
+    const [logoUrl, setLogoUrl] = useState<string | null>(null);
+    const [siteName, setSiteName] = useState("Teer.Club");
+    useEffect(() => {
+        const INTERNAL_API = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:5000";
+        fetch(`${INTERNAL_API}/api/admin/settings`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.site_logo) setLogoUrl(data.site_logo);
+                if (data.site_name) setSiteName(data.site_name);
+            })
+            .catch(err => console.error("Failed to fetch settings in sidebar", err));
+    }, []);
+
     return (
         <aside className={cn("flex flex-col", className)}>
             <div className="h-[72px] flex items-center px-6 border-b border-slate-200/50 shrink-0">
                 <div className="flex items-center gap-3 w-full">
-                    <div className="w-9 h-9 bg-gradient-to-br from-slate-800 to-black rounded-xl flex items-center justify-center shadow-md">
-                        <Command className="w-5 h-5 text-white" />
-                    </div>
+                    {logoUrl ? (
+                        <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md shrink-0 border border-slate-200">
+                            <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                        </div>
+                    ) : (
+                        <div className="w-9 h-9 bg-gradient-to-br from-slate-800 to-black rounded-xl flex items-center justify-center shadow-md">
+                            <Command className="w-5 h-5 text-white" />
+                        </div>
+                    )}
                     <div className="flex flex-col">
-                        <span className="font-bold text-[15px] tracking-tight text-slate-900 leading-tight">Teer.Club</span>
+                        <span className="font-bold text-[15px] tracking-tight text-slate-900 leading-tight">{siteName}</span>
                         <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Enterprise</span>
                     </div>
                 </div>

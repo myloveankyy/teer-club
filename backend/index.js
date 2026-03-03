@@ -87,6 +87,8 @@ const publicApiLimiter = rateLimit({
 app.use(express.json());
 app.use(cookieParser());
 app.use('/uploads', express.static('uploads'));
+const path = require('path');
+app.use('/shares', express.static(path.join(__dirname, 'public', 'shares')));
 
 // Global Request Logger (Top-level)
 app.use((req, res, next) => {

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { Target, Trophy, MapPin, Share2, Loader2, X } from 'lucide-react';
+import { Target, Trophy, MapPin, Share2, Loader2, X, Download, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface LiveTickerProps {
@@ -199,8 +199,9 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
 
             const data = await response.json();
             if (data.success && data.imageBase64) {
-                // Backend now returns a complete data URI
-                setShareImage(data.imageBase64);
+                // Determine full URL path
+                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000';
+                setShareImage(`${baseUrl}${data.imageBase64}`);
             } else {
                 console.error("[Share] Image generation failed:", data.error);
                 setShareImage(null); // Shows "Failed to generate" state
@@ -210,6 +211,27 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
             setShareImage(null);
         } finally {
             setIsGeneratingShare(false);
+        }
+    };
+
+    const handleNativeShare = async () => {
+        if (!shareImage) return;
+        try {
+            const fetchResponse = await fetch(shareImage);
+            const blob = await fetchResponse.blob();
+            const file = new File([blob], `teerclub-${region}-r${round}.png`, { type: blob.type });
+
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: `Teer Club - ${region.toUpperCase()} R${round}`,
+                    text: `Check out today's ${region} Teer results!`,
+                    files: [file],
+                });
+            } else {
+                alert("Your browser doesn't support direct image sharing. Please use the Download button.");
+            }
+        } catch (err) {
+            console.error("Error sharing:", err);
         }
     };
 
@@ -247,7 +269,10 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                             src={region === 'shillong' ? '/shillong-bg.png' : region === 'khanapara' ? '/khanapara-bg.png' : '/juwai-bg.png'}
                             alt={`${region} background`}
                             fill
-                            className="object-cover brightness-[0.75] saturate-[1.2]"
+                            className={cn(
+                                "object-cover",
+                                (region === 'shillong' && isLive) ? "" : "brightness-[0.75] saturate-[1.2]"
+                            )}
                             priority={true}
                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
@@ -257,7 +282,7 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                     <div className={cn(
                         "absolute inset-0 transition-opacity duration-1000",
                         isLive
-                            ? (region === 'shillong' ? "bg-rose-950/40" : region === 'khanapara' ? "bg-emerald-950/40" : "bg-purple-950/40")
+                            ? (region === 'shillong' ? "bg-black/10" : region === 'khanapara' ? "bg-emerald-950/40" : "bg-purple-950/40")
                             : "bg-black/60"
                     )} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60" />
@@ -440,24 +465,26 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                             {/* Modal Footer (CTAs) */}
                             <div className="p-8 bg-white flex flex-col items-center">
                                 <h3 className="text-xl font-black text-slate-900 tracking-tight mb-2">Heritage AI share card</h3>
-                                <p className="text-[11px] text-slate-400 font-medium tracking-wide uppercase mb-8">Ready to showcase your local victory.</p>
+                                <p className="text-[11px] text-slate-400 font-medium tracking-wide uppercase mb-6 text-center">Ready to showcase your local victory.<br /><span className="text-indigo-500 font-bold">Refer & Earn integrated.</span></p>
 
                                 <div className="w-full flex gap-3">
                                     {shareImage && (
-                                        <a
-                                            href={shareImage}
-                                            download={`teer-club-${region}-${new Date().toLocaleDateString()}.png`}
-                                            className="flex-1 h-16 bg-slate-900 text-white rounded-[24px] flex items-center justify-center gap-3 text-[13px] font-black uppercase tracking-widest hover:bg-amber-500 transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98]"
-                                        >
-                                            Download Image
-                                        </a>
+                                        <>
+                                            <button
+                                                onClick={handleNativeShare}
+                                                className="flex-1 h-14 bg-indigo-600 text-white rounded-[20px] flex items-center justify-center gap-2 text-[13px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98]"
+                                            >
+                                                <Upload className="w-4 h-4" /> Share
+                                            </button>
+                                            <a
+                                                href={shareImage}
+                                                download={`teer-club-${region}-${new Date().toLocaleDateString()}.png`}
+                                                className="flex-1 h-14 bg-slate-900 text-white rounded-[20px] flex items-center justify-center gap-2 text-[13px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98]"
+                                            >
+                                                <Download className="w-4 h-4" /> Save
+                                            </a>
+                                        </>
                                     )}
-                                    <button
-                                        onClick={() => setShowShareModal(false)}
-                                        className="h-16 px-8 bg-slate-50 text-slate-400 rounded-[24px] flex items-center justify-center text-[13px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all active:scale-[0.98]"
-                                    >
-                                        Close
-                                    </button>
                                 </div>
                             </div>
                         </motion.div>
