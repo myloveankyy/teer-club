@@ -138,7 +138,7 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
 
                     <div className="flex gap-4">
                         <Link href="/" className="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl text-sm hover:bg-slate-800 transition-colors">
-                            View Today's Live Result
+                            View Today&apos;s Live Result
                         </Link>
                         <Link href={`/history/${region}`} className="px-6 py-3 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm hover:bg-slate-200 transition-colors">
                             {regionName} History
