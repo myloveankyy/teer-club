@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 async function getLatestResults() {
   try {
-    const res = await fetch(`${INTERNAL_API}/api/results/latest`, { next: { revalidate: 60 } });
+    const res = await fetch(`${INTERNAL_API}/api/results/latest`, { next: { revalidate: 10 } }); // Reduced cache time drastically for freshness
     if (!res.ok) return null;
     return res.json();
   } catch (e) {

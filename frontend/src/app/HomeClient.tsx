@@ -47,6 +47,26 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
             .catch(() => setIsAuth(false));
     }, []);
 
+    // --- FRESHNESS HACK ---
+    // Update the timestamp every 4 minutes to trick Google into thinking
+    // the page is constantly being updated.
+    const [currentTime, setCurrentTime] = useState<string>('');
+    useEffect(() => {
+        const updateTime = () => {
+            const now = new Date();
+            // Add a random offset between 1 and 3 minutes to make it look natural
+            const randomOffset = Math.floor(Math.random() * 3 * 60 * 1000);
+            now.setTime(now.getTime() - randomOffset);
+            setCurrentTime(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata', hour: 'numeric', minute: 'numeric', hour12: true, second: 'numeric' }));
+        };
+
+        updateTime();
+        // Update every 4 minutes (Google crawls often during peak hours)
+        const interval = setInterval(updateTime, 4 * 60 * 1000);
+        return () => clearInterval(interval);
+    }, []);
+    // ----------------------
+
     useEffect(() => {
         if (initialWinners.length === 0) {
             async function fetchWinners() {
@@ -83,6 +103,7 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                         "name": "Teer Club",
                         "url": "https://teer.club",
                         "description": "Live Shillong Teer, Khanapara Teer, and Juwai Teer results with AI predictions and community insights.",
+                        "dateModified": new Date().toISOString(), // Inject freshness here too
                         "potentialAction": {
                             "@type": "SearchAction",
                             "target": {
@@ -117,7 +138,13 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                         <div>
                             <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">Shillong Teer Result Today</h1>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-time FR &amp; SR Numbers — Updated Daily</p>
+                            <p className="text-[10px] items-center gap-2 flex font-bold text-slate-400 uppercase tracking-widest">
+                                Real-time FR &amp; SR Numbers —
+                                <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                    Live Updated: {currentTime || "Just now"}
+                                </span>
+                            </p>
                         </div>
 
                         {/* Region Tabs (Native App Style) */}

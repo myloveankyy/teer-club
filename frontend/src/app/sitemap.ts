@@ -78,5 +78,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.75,
     }));
 
-    return [...staticPages, ...blogPages];
+    // --- PROGRAMMATIC SEO PAGES ---
+    // Generate dates for the last 30 days to instantly feed Google 90 new highly optimized pages
+    const programmaticPages: MetadataRoute.Sitemap = [];
+    const regions = ['shillong', 'khanapara', 'juwai'];
+
+    for (let i = 0; i < 30; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        // Format YYYY-MM-DD
+        const dateStr = d.toISOString().split('T')[0];
+
+        regions.forEach(region => {
+            programmaticPages.push({
+                url: `${BASE_URL}/results/${region}/${dateStr}`,
+                lastModified: new Date(),
+                changeFrequency: i === 0 ? 'hourly' : 'never', // Today changes often, past days don't
+                priority: i === 0 ? 0.9 : 0.6,
+            });
+        });
+    }
+    // ------------------------------
+
+    return [...staticPages, ...blogPages, ...programmaticPages];
 }

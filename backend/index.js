@@ -596,6 +596,14 @@ setInterval(async () => {
             await triggerGoogleIndex('https://teer.club/shillong-teer-result-today');
             await triggerGoogleIndex('https://teer.club/khanapara-teer-result-today');
             await triggerGoogleIndex('https://teer.club'); // Index homepage 
+
+            // --- AGGRESSIVE PROGRAMMATIC SEO INDEXING ---
+            // Force Google to index the exact date programmatic pages immediately
+            const todayStr = new Date().toISOString().split('T')[0];
+            await triggerGoogleIndex(`https://teer.club/results/shillong/${todayStr}`);
+            await triggerGoogleIndex(`https://teer.club/results/khanapara/${todayStr}`);
+            await triggerGoogleIndex(`https://teer.club/results/juwai/${todayStr}`);
+            // ----------------------------------------------
           } catch (seoErr) {
             console.error('[Auto-Scraper] Failed to auto-index URLs after result change:', seoErr.message);
           }
