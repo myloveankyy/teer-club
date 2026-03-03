@@ -118,7 +118,7 @@ app.use((req, res, next) => {
 // Mount Admin Routes
 app.use('/api/admin/analytics', adminAnalytics);
 app.use('/api/admin/results', adminResults);
-app.use('/api/admin/settings', verifyAdmin, adminSettings);
+app.use('/api/admin/settings', adminSettings);
 app.use('/api/admin/users', verifyAdmin, adminUsers);
 app.use('/api/admin/groups', verifyAdmin, adminGroups);
 app.use('/api/admin/notifications', verifyAdmin, adminNotifications);

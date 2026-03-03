@@ -21,14 +21,17 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://teer.club";
 export async function generateMetadata(): Promise<Metadata> {
   let siteName = "Teer Club";
   let siteFavicon = "/favicon.ico";
+  let siteLogo = "/og-image.png";
+
   try {
     const res = await fetch(`${INTERNAL_API}/api/admin/settings`, {
-      next: { revalidate: 3600 },
+      next: { revalidate: 10 }, // Reduced from 3600 to 10 for near-instant updates
     });
     if (res.ok) {
       const settings = await res.json();
       siteName = settings.site_name || siteName;
       siteFavicon = settings.site_favicon || siteFavicon;
+      siteLogo = settings.site_logo || siteLogo;
     }
   } catch (e) {
     console.warn("Failed to fetch settings for metadata", e);
@@ -76,10 +79,10 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: `${SITE_URL}/og-image.png`,
+          url: siteLogo.startsWith('http') ? siteLogo : `${SITE_URL}${siteLogo}`,
           width: 1200,
           height: 630,
-          alt: "Teer Club - Live Shillong Teer Results & Predictions",
+          alt: `${siteName} - Live Shillong Teer Results & Predictions`,
         },
       ],
     },
@@ -88,7 +91,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: `Shillong Teer Result Today | ${siteName}`,
       description:
         "Live Shillong, Khanapara & Juwai Teer results with AI predictions and community insights.",
-      images: [`${SITE_URL}/og-image.png`],
+      images: [siteLogo.startsWith('http') ? siteLogo : `${SITE_URL}${siteLogo}`],
     },
     manifest: "/manifest.json",
     viewport: {

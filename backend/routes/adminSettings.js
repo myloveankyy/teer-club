@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const verifyAdmin = require('../middleware/verifyAdmin');
 
 // @route   GET /api/admin/settings
 // @desc    Get all global app settings
@@ -25,7 +26,7 @@ router.get('/', async (req, res) => {
 // @route   PUT /api/admin/settings
 // @desc    Update global app settings
 // @access  Private (Admin Only)
-router.put('/', async (req, res) => {
+router.put('/', verifyAdmin, async (req, res) => {
     try {
         const updates = req.body;
 

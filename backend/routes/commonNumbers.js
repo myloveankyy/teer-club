@@ -10,10 +10,8 @@ const { generateCommonNumbersWithAI } = require('../services/aiService');
  */
 router.get('/today', async (req, res) => {
     try {
-        const today = new Date().toISOString().split('T')[0];
         const results = await db.query(
-            "SELECT * FROM common_numbers WHERE target_date = $1",
-            [today]
+            "SELECT * FROM common_numbers WHERE target_date = (SELECT MAX(target_date) FROM common_numbers)"
         );
 
         if (results.rows.length === 0) {
