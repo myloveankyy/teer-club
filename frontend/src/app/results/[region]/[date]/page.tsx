@@ -112,8 +112,24 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
     const formattedDate = formatDateString(date);
     const regionName = formatRegionName(region);
 
-    // In a real app, you would fetch the specific result for this date from your DB here
-    // For now, we'll build the highly-optimized SEO shell that Google will index.
+    // Fetch the specific result for this date from the backend
+    let fr = '--';
+    let sr = '--';
+    try {
+        const INTERNAL_API = process.env.INTERNAL_API_URL || "http://127.0.0.1:5000";
+        const res = await fetch(`${INTERNAL_API}/api/results/${region}?date=${date}`, {
+            next: { revalidate: 60 } // Cached for 60 seconds
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) {
+                fr = data.data.round1_result || '--';
+                sr = data.data.round2_result || '--';
+            }
+        }
+    } catch (e) {
+        console.error("Failed to fetch result for programmatic page", e);
+    }
 
     return (
         <main className="min-h-screen bg-[#F0F2F5] text-slate-800 pb-32 pt-24 font-sans relative z-10">
@@ -164,16 +180,15 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
                         Below you will find the verified First Round (FR) and Second Round (SR) winning numbers.
                     </p>
 
-                    {/* Placeholder for the actual result data */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex flex-col items-center justify-center min-h-[160px]">
                             <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">First Round (FR)</span>
-                            <div className="text-5xl font-black text-slate-900">--</div>
+                            <div className="text-5xl font-black text-slate-900">{fr}</div>
                             <span className="text-xs text-slate-500 mt-2">Declared at 4:00 PM</span>
                         </div>
                         <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 flex flex-col items-center justify-center min-h-[160px]">
                             <span className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-2">Second Round (SR)</span>
-                            <div className="text-5xl font-black text-slate-900">--</div>
+                            <div className="text-5xl font-black text-slate-900">{sr}</div>
                             <span className="text-xs text-slate-500 mt-2">Declared at 4:50 PM</span>
                         </div>
                     </div>
