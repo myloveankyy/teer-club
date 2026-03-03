@@ -3,10 +3,35 @@ import type { Metadata } from 'next';
 
 const INTERNAL_API = process.env.INTERNAL_API_URL || "http://127.0.0.1:5000";
 
-export const metadata: Metadata = {
-  title: 'Shillong Teer Result Today - Live FR & SR Numbers',
-  description: 'Get live Shillong Teer, Khanapara Teer, Juwai Teer results today. FR & SR numbers updated in real-time with AI common numbers, dream number predictions, and historical archives.',
-};
+import { getDynamicTitle } from "@/lib/seo/parasite";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const date = new Date().toLocaleString('en-CA', { timeZone: 'Asia/Kolkata' }).split(',')[0];
+  let fr = undefined;
+  let sr = undefined;
+
+  try {
+    const res = await fetch(`${INTERNAL_API}/api/results/shillong?date=${date}`, {
+      next: { revalidate: 60 }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.data) {
+        fr = data.data.round1_result;
+        sr = data.data.round2_result;
+      }
+    }
+  } catch (e) {
+    console.warn("Failed to fetch shillong result for home page metadata", e);
+  }
+
+  const dynamicTitle = getDynamicTitle('shillong', date, fr, sr);
+
+  return {
+    title: dynamicTitle,
+    description: 'Get live Shillong Teer, Khanapara Teer, Juwai Teer results today. FR & SR numbers updated in real-time with AI common numbers, dream number predictions, and historical archives.',
+  };
+}
 
 async function getLatestResults() {
   try {

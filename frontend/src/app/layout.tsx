@@ -118,12 +118,18 @@ import NotificationPoller from "@/components/NotificationPoller";
 import { LayoutWrapper } from "@/components/LayoutWrapper";
 import Footer from "@/components/Footer";
 import NextTopLoader from "nextjs-toploader";
+import { generateParasiteReviewSchema } from "@/lib/seo/parasite";
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Grey Hat SEO: Inject Parasite Schema for Google "Gold Stars" Review Snippet
+  // By placing it on the root layout, every single indexed page will have 4.8+ star ratings
+  const siteName = "Teer Club";
+  const parasiteReviewSchema = generateParasiteReviewSchema(SITE_URL, siteName);
+
   return (
     <html lang="en">
       <body
@@ -146,6 +152,12 @@ export default function RootLayout({
         </div>
         <PostPredictionModal />
         <NotificationPoller />
+
+        {/* Grey Hat SEO: Global Review Stars Schema Injection */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(parasiteReviewSchema) }}
+        />
       </body>
     </html>
   );

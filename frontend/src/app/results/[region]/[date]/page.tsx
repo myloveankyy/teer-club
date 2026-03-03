@@ -43,6 +43,9 @@ interface PageProps {
     };
 }
 
+import { getDynamicTitle } from "@/lib/seo/parasite";
+import { InfiniteScrollTrap } from "@/components/InfiniteScrollTrap";
+
 // Generate super-optimized metadata for this specific programmatic page
 export async function generateMetadata({ params }: { params: Promise<{ region: string; date: string }> }): Promise<Metadata> {
     const { region, date } = await params;
@@ -55,8 +58,29 @@ export async function generateMetadata({ params }: { params: Promise<{ region: s
     const formattedDate = formatDateString(date);
     const regionName = formatRegionName(region);
 
+    // Fetch the actual result to power the click-bait title (e.g. "FR is 45!")
+    let fr = undefined;
+    let sr = undefined;
+    try {
+        const INTERNAL_API = process.env.INTERNAL_API_URL || "http://127.0.0.1:5000";
+        const res = await fetch(`${INTERNAL_API}/api/results/${region}?date=${date}`, {
+            next: { revalidate: 60 } // Cached for 60 seconds
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) {
+                fr = data.data.round1_result;
+                sr = data.data.round2_result;
+            }
+        }
+    } catch (e) {
+        console.warn("Failed to fetch result for metadata", e);
+    }
+
+    const dynamicTitle = getDynamicTitle(region, formattedDate, fr, sr);
+
     return {
-        title: `${regionName} Teer Result Today ${formattedDate} - Live FR SR`,
+        title: dynamicTitle,
         description: `Check the live ${regionName} Teer result for ${formattedDate}. First Round (FR) and Second Round (SR) winning numbers, previous results, and common numbers. Fast and accurate.`,
         keywords: `${regionName} teer result, teer result today, ${regionName} teer ${date}, ${regionName} teer previous result, fr sr ${regionName}`,
         openGraph: {
@@ -182,6 +206,9 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
                         <li><strong>Location:</strong> Meghalaya, India</li>
                     </ul>
                 </div>
+
+                {/* Grey Hat SEO: Infinite Scroll Trap (Pogo-Sticking Preventer) */}
+                <InfiniteScrollTrap />
             </div>
         </main>
     );
