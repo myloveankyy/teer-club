@@ -14,4 +14,6 @@ Disallow: /notifications
 Disallow: /invite
 Disallow: /api/
 
-Sitemap: https://teer.club/sitemap.xml
+Sitemap: https://teer.club/sitemap-results.xml
+Sitemap: https://teer.club/sitemap-predictions.xml
+Sitemap: https://teer.club/sitemap-blog.xml

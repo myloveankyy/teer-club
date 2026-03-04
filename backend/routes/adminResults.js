@@ -5,6 +5,7 @@ const verifyAdmin = require('../middleware/verifyAdmin');
 const { scrapeTeerResults } = require('../scraper');
 const { checkCommonNumberGreetings } = require('../services/greetingsService');
 const { triggerDailyImageGeneration } = require('../services/imageService');
+const { publishSeoHooks } = require('../services/seoAutomation');
 
 // Protect all routes
 router.use(verifyAdmin);
@@ -73,6 +74,9 @@ router.post('/scrape', async (req, res) => {
         // Trigger background AI image generation
         triggerDailyImageGeneration(date, upserted).catch(err => console.error('[ImageGen] Background gen failed:', err));
 
+        // Background SEO Propagation for the programmatic silos
+        publishSeoHooks(date).catch(err => console.error('[SEO Hook Error]', err));
+
         // Audit Log
         const username = req.user ? req.user.username : 'admin_fallback';
         await db.query(`
@@ -120,6 +124,11 @@ router.put('/:id', async (req, res) => {
 
             // Trigger background AI image generation
             triggerDailyImageGeneration(resultDate, updated).catch(err => console.error('[ImageGen] Background gen failed:', err));
+
+            // Background SEO Propagation for the programmatic silos
+            if (verified === true || verified === 'true') {
+                publishSeoHooks(resultDate).catch(err => console.error('[SEO Hook Error]', err));
+            }
         }
 
         if (updateRes.rowCount === 0) {

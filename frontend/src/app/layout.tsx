@@ -159,6 +159,38 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(parasiteReviewSchema) }}
         />
+        {/* White Hat SEO: Entity & Authority Signals */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Teer Club",
+              "url": "https://teer.club",
+              "logo": "https://teer.club/og-image.png",
+              "sameAs": [
+                "https://www.facebook.com/teerclub",
+                "https://t.me/teerclub"
+              ]
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              "itemListElement": [{
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://teer.club"
+              }]
+            })
+          }}
+        />
 
         {/* Google Analytics Setup */}
         <Script

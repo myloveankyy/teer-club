@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { HistoryList } from '@/components/HistoryList';
 import { ChevronLeft, ChevronDown, Calendar as CalendarIcon, TrendingUp, Award, BarChart3, Flame } from 'lucide-react';
 import Link from 'next/link';
+import ChartComponent from './ChartComponent';
 
 interface HistoryItem {
     date: string;
@@ -190,10 +191,11 @@ export default function HistoryClient() {
                                 </div>
                             </div>
                         </div>
+                        <div className="mt-8">
+                            <ChartComponent history={filteredHistory} year={selectedYear} month={selectedMonth} />
+                        </div>
                     </div>
                 )}
-
-                {/* Filter Controls */}
                 <div className="sticky top-[80px] z-40 mb-12 flex justify-center px-4">
                     <div className="bg-white/70 backdrop-blur-3xl rounded-full p-1.5 border border-white shadow-[0_8px_32px_rgba(0,0,0,0.06)] flex items-center gap-1.5 min-w-fit">
                         <div className="relative group transition-all">
