@@ -63,6 +63,7 @@ jobs:
             # Frontend Setup
             echo "Installing and Building Frontend..."
             cd ../frontend
+            rm -rf .next
             npm install
             npm run build
             
