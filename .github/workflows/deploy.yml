@@ -65,6 +65,7 @@ jobs:
             cd ../frontend
             rm -rf .next
             npm install
+            npm install webpack --no-save
             NEXT_PRIVATE_LOCAL_WEBPACK=true npm run build
             
             # Admin Panel Setup
