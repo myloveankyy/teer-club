@@ -65,8 +65,7 @@ jobs:
             cd ../frontend
             rm -rf .next
             npm install
-            npm install webpack --no-save
-            NEXT_PRIVATE_LOCAL_WEBPACK=true npm run build
+            NODE_OPTIONS="--max-old-space-size=1536" npm run build
             
             # Admin Panel Setup
             echo "Installing and Building Admin Panel..."
