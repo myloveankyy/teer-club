@@ -2,12 +2,13 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const db = require('./db');
 
 // Initialize Gemini
+let genAI = null;
 const apiKey = process.env.GEMINI_API_KEY;
 if (!apiKey) {
-    console.error("FATAL: GEMINI_API_KEY environment variable is missing.");
-    process.exit(1);
+    console.warn("WARNING: GEMINI_API_KEY environment variable is missing. SEO Auto-Blogger will be disabled.");
+} else {
+    genAI = new GoogleGenerativeAI(apiKey);
 }
-const genAI = new GoogleGenerativeAI(apiKey);
 
 // High-volume keywords to rotate through for maximum ranking
 const keywordThemes = [
@@ -27,6 +28,10 @@ function createSlug(title) {
 }
 
 async function generateSeoArticle() {
+    if (!genAI) {
+        console.warn("[SEO-Blogger] Aborted: Gemini API Key is missing.");
+        return;
+    }
     try {
         console.log(`[SEO-Blogger] Starting article generation at ${new Date().toISOString()}`);
 
