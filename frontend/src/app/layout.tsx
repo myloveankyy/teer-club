@@ -119,6 +119,7 @@ import { LayoutWrapper } from "@/components/LayoutWrapper";
 import Footer from "@/components/Footer";
 import NextTopLoader from "nextjs-toploader";
 import { generateParasiteReviewSchema } from "@/lib/seo/parasite";
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -157,6 +158,26 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(parasiteReviewSchema) }}
+        />
+
+        {/* Google Analytics Setup */}
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=G-FHE5ZEWE4Y`}
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){window.dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-FHE5ZEWE4Y', {
+                page_path: window.location.pathname,
+              });
+            `,
+          }}
         />
       </body>
     </html>
