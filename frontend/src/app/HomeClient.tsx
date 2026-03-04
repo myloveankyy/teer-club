@@ -138,13 +138,15 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                         <div>
                             <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-1">Shillong Teer Result Today</h1>
-                            <p className="text-[10px] items-center gap-2 flex font-bold text-slate-400 uppercase tracking-widest">
-                                Real-time FR &amp; SR Numbers —
-                                <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full flex items-center gap-1">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                                    Live Updated: {currentTime || "Just now"}
-                                </span>
-                            </p>
+                            <div className="flex flex-col md:flex-row md:items-center gap-2 mt-2">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest m-0 leading-none">
+                                    Real-time FR &amp; SR Numbers <span className="hidden md:inline">—</span>
+                                </p>
+                                <div className="bg-emerald-100 text-emerald-700 px-2.5 py-1 md:py-0.5 rounded-full flex items-center gap-1.5 w-fit shadow-sm">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse border border-emerald-400" />
+                                    <span className="text-[9px] md:text-[10px] font-black tracking-widest uppercase">Live Updated: {currentTime || "Just now"}</span>
+                                </div>
+                            </div>
                         </div>
 
                         {/* Region Tabs (Native App Style) */}

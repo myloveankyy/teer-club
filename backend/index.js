@@ -305,8 +305,43 @@ app.get('/api/results/history', async (req, res) => {
   } catch (error) {
     console.error('Error serving history:', error);
     // Even on error, try to serve cache
-    if (historyCache.data) return res.json(historyCache.data);
     res.status(500).json({ success: false, error: 'Internal Server Error', data: [] });
+  }
+});
+
+// Specific Result by Date Endpoint (Programmatic SEO Pages)
+app.get('/api/results/:region', async (req, res) => {
+  try {
+    const { region } = req.params;
+    const { date } = req.query; // Expects YYYY-MM-DD
+
+    if (!['shillong', 'khanapara', 'juwai'].includes(region)) {
+      return res.status(400).json({ success: false, error: 'Invalid region' });
+    }
+
+    if (!date) {
+      return res.status(400).json({ success: false, error: 'Date query parameter is required' });
+    }
+
+    const { rows } = await db.query('SELECT * FROM results WHERE date = $1', [date]);
+    if (rows.length === 0) {
+      return res.json({ success: true, data: null });
+    }
+
+    const row = rows[0];
+    let data = {};
+    if (region === 'shillong') {
+      data = { round1_result: row.round1, round2_result: row.round2 };
+    } else if (region === 'khanapara') {
+      data = { round1_result: row.khanapara_r1, round2_result: row.khanapara_r2 };
+    } else if (region === 'juwai') {
+      data = { round1_result: row.juwai_r1, round2_result: row.juwai_r2 };
+    }
+
+    res.json({ success: true, data });
+  } catch (error) {
+    console.error(`Error serving specific result for ${req.params.region} on ${req.query.date}:`, error);
+    res.status(500).json({ success: false, error: 'Internal Server Error' });
   }
 });
 
