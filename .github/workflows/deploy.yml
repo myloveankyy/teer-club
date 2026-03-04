@@ -4,16 +4,36 @@ run-name: Deploying to ${{ github.sha }}
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ---- BUILD FRONTEND LOCALLY ON GITHUB RUNNER (7GB RAM) ----
+      - name: Install & Build Frontend
+        working-directory: ./frontend
+        run: |
+          npm install
+          npm run build
+
+      # ---- BUILD ADMIN PANEL LOCALLY ON GITHUB RUNNER ----
+      - name: Install & Build Admin Panel
+        working-directory: ./admin-panel
+        run: |
+          npm install
+          npm run build
+
+      # ---- COPY ENTIRE PROJECT (with pre-built .next) TO SERVER ----
       - name: Copy files via SCP
         uses: appleboy/scp-action@v0.1.4
         with:
@@ -23,27 +43,18 @@ jobs:
           source: "."
           target: "/var/www/teer.club"
           rm: false
-          
-      - name: Install & Build on Server
+
+      # ---- SERVER-SIDE: Install runtime deps & restart PM2 ----
+      - name: Install Dependencies & Restart PM2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
           password: ${{ secrets.DO_PASSWORD }}
           script: |
-            set -e # Fast fail if any command breaks
+            set -e
             cd /var/www/teer.club
-            
-            # Ensure Swap Space exists to prevent Next.js OOM during build
-            if [ ! -f /swapfile ]; then
-              echo "Creating 2GB swap file..."
-              fallocate -l 2G /swapfile || dd if=/dev/zero of=/swapfile bs=1M count=2048
-              chmod 600 /swapfile
-              mkswap /swapfile
-              swapon /swapfile
-              echo '/swapfile none swap sw 0 0' >> /etc/fstab
-            fi
-            
+
             # Recreate Backend .env file
             echo "Recreating environment variables..."
             echo "DB_USER=neondb_owner" > backend/.env
@@ -54,39 +65,36 @@ jobs:
             echo "DB_SSL=true" >> backend/.env
             echo "JWT_SECRET=super_secret_teer_club_jwt_key_2026" >> backend/.env
             echo "GA4_PROPERTY_ID=469586125" >> backend/.env
-            
-            # Backend Setup
+
+            # Backend: install runtime deps only
             echo "Installing Backend Dependencies..."
             cd backend
-            npm install
-            
-            # Frontend Setup
-            echo "Installing and Building Frontend..."
+            npm install --omit=dev
+
+            # Frontend: install production deps for standalone server
+            echo "Installing Frontend Production Dependencies..."
             cd ../frontend
-            rm -rf .next
-            npm install
-            NODE_OPTIONS="--max-old-space-size=1536" npm run build
-            
-            # Admin Panel Setup
-            echo "Installing and Building Admin Panel..."
+            npm install --omit=dev
+
+            # Admin Panel: install production deps
+            echo "Installing Admin Panel Production Dependencies..."
             cd ../admin-panel
-            npm install
-            npm run build
-            
+            npm install --omit=dev
+
             # PM2 Keepalive
             echo "Starting/Restarting Apps via PM2..."
             cd /var/www/teer.club/backend
             pm2 delete api || true
             pm2 start index.js --name "api" --node-args="-r dotenv/config"
-            
+
             cd /var/www/teer.club/frontend
             pm2 delete frontend || true
             pm2 start npm --name "frontend" -- run start -- -p 3000
-            
+
             cd /var/www/teer.club/admin-panel
             pm2 delete admin-panel || true
             pm2 start npm --name "admin-panel" -- run start -- -p 3001
-            
+
             pm2 save
-            
+
             echo "Deployment Complete!"
