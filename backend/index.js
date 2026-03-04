@@ -142,6 +142,13 @@ app.use('/api/bets', betsRoute);
 // Grey Hat SEO: Auto-Blogging Content Spinner (Runs at 2:00 AM Daily)
 const nodeCron = require('node-cron');
 const { generateSeoArticle } = require('./seo-blogger');
+const { generateStaticSitemap } = require('./services/sitemapGenerator');
+
+// Generate the sitemap immediately on boot to guarantee it exists for Googlebot
+setTimeout(() => {
+  generateStaticSitemap();
+}, 5000);
+
 nodeCron.schedule('0 2 * * *', async () => {
   console.log('[CRON] Initiating Daily SEO Auto-Blogging Generation...');
   try {
@@ -155,6 +162,12 @@ nodeCron.schedule('0 2 * * *', async () => {
   } catch (e) {
     console.error('[CRON] SEO Auto-Blogging Failed:', e);
   }
+});
+
+// Regenerate Static XML Sitemap Daily at 2:30 AM (After blogs are written)
+nodeCron.schedule('30 2 * * *', async () => {
+  console.log('[CRON] Regenerating Static XML Sitemap for Google...');
+  await generateStaticSitemap();
 });
 
 const transactionsRoute = require('./routes/transactions');
