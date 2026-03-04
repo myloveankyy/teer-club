@@ -6,6 +6,7 @@ Allow: /blog
 Allow: /tools
 Allow: /dreams
 Allow: /winners
+Allow: /education
 
 Disallow: /dashboard
 Disallow: /referral
@@ -14,6 +15,4 @@ Disallow: /notifications
 Disallow: /invite
 Disallow: /api/
 
-Sitemap: https://teer.club/sitemap-results.xml
-Sitemap: https://teer.club/sitemap-predictions.xml
-Sitemap: https://teer.club/sitemap-blog.xml
+Sitemap: https://teer.club/sitemap.xml
