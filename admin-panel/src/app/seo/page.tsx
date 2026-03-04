@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Rocket, ShieldCheck, AlertCircle, Link as LinkIcon, Activity, Search, BarChart3, Users as UsersIcon, MousePointerClick } from 'lucide-react';
+import { Rocket, ShieldCheck, AlertCircle, Link as LinkIcon, Activity, Search, BarChart3, Users as UsersIcon, MousePointerClick, Target } from 'lucide-react';
 import api from '@/lib/api';
 
 export default function SEOPage() {
