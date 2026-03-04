@@ -89,6 +89,7 @@ app.use(cookieParser());
 app.use('/uploads', express.static('uploads'));
 const path = require('path');
 app.use('/shares', express.static(path.join(__dirname, 'public', 'shares')));
+app.use('/blog-images', express.static(path.join(__dirname, 'public', 'blog-images')));
 
 // Global Request Logger (Top-level)
 app.use((req, res, next) => {
@@ -128,6 +129,8 @@ const adminTickets = require('./routes/adminTickets');
 app.use('/api/admin/tickets', verifyAdmin, adminTickets);
 const adminSeo = require('./routes/adminSeo');
 app.use('/api/admin/seo', verifyAdmin, adminSeo);
+const adminAutoBlog = require('./routes/adminAutoBlog');
+app.use('/api/admin/auto-blog', adminAutoBlog);
 app.use('/api/admin', adminAuth);
 
 // Mount Public/User Routes

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PenTool, Plus, Edit2, Trash2, CheckCircle2, AlertCircle, X, Image as ImageIcon, Link as LinkIcon, Save, Eye } from "lucide-react";
+import { PenTool, Plus, Edit2, Trash2, CheckCircle2, AlertCircle, X, Image as ImageIcon, Link as LinkIcon, Save, Eye, Sparkles, Loader2, Zap } from "lucide-react";
 import api from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import dynamic from 'next/dynamic';
@@ -32,6 +32,7 @@ export default function AdminBlogPage() {
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+    const [aiGenerating, setAiGenerating] = useState(false);
     const [error, setError] = useState("");
 
     // Modal State
@@ -154,6 +155,25 @@ export default function AdminBlogPage() {
         }
     };
 
+    const handleAutoGenerate = async () => {
+        setAiGenerating(true);
+        setError("");
+        try {
+            const res = await api.post('/admin/auto-blog/generate', {}, { timeout: 120000 });
+            if (res.data.success) {
+                // Refresh posts list
+                await fetchPosts();
+                alert(`✅ AI Blog Post Published!\n\nTitle: ${res.data.data.title}\nSlug: ${res.data.data.slug}\n\n${res.data.data.image_generated ? '🖼️ Featured image generated' : '⚠️ Image generation skipped'}\n📡 Google Indexing pinged\n🗺️ Sitemap regenerated`);
+            }
+        } catch (err: any) {
+            console.error("AI Generation failed", err);
+            setError(err.response?.data?.error || "AI generation failed. Please try again.");
+            alert(`❌ Generation Failed: ${err.response?.data?.error || err.message}`);
+        } finally {
+            setAiGenerating(false);
+        }
+    };
+
     if (authLoading) return <div className="flex 1 items-center justify-center h-full"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>;
 
     return (
@@ -168,13 +188,32 @@ export default function AdminBlogPage() {
                     </h2>
                     <p className="text-sm font-medium text-slate-500 mt-1">Compose, manage, and publish content for the public site.</p>
                 </div>
-                <button
-                    onClick={() => handleOpenModal()}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-[0_4px_12px_rgba(99,102,241,0.2)] transition-all active:scale-95"
-                >
-                    <Plus className="w-5 h-5" />
-                    Write New Post
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={handleAutoGenerate}
+                        disabled={aiGenerating}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-700 hover:to-fuchsia-700 text-white rounded-xl font-bold shadow-[0_4px_12px_rgba(139,92,246,0.3)] transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        {aiGenerating ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <span>Generating with AI...</span>
+                            </>
+                        ) : (
+                            <>
+                                <Sparkles className="w-5 h-5" />
+                                AI Generate Post
+                            </>
+                        )}
+                    </button>
+                    <button
+                        onClick={() => handleOpenModal()}
+                        className="flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-[0_4px_12px_rgba(99,102,241,0.2)] transition-all active:scale-95"
+                    >
+                        <Plus className="w-5 h-5" />
+                        Write New Post
+                    </button>
+                </div>
             </div>
 
             {/* List View */}

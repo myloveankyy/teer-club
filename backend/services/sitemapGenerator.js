@@ -30,7 +30,7 @@ async function generateStaticSitemap() {
 
         // Blog Posts
         try {
-            const { rows } = await db.query('SELECT slug FROM posts WHERE published = true');
+            const { rows } = await db.query('SELECT slug FROM posts WHERE is_published = true');
             rows.forEach(post => {
                 addUrl(`/blog/${post.slug}`, 'weekly', '0.75');
             });
