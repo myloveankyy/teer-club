@@ -58,26 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ region: s
     const formattedDate = formatDateString(date);
     const regionName = formatRegionName(region);
 
-    // Fetch the actual result to power the click-bait title (e.g. "FR is 45!")
-    let fr = undefined;
-    let sr = undefined;
-    try {
-        const INTERNAL_API = process.env.INTERNAL_API_URL || "http://127.0.0.1:5000";
-        const res = await fetch(`${INTERNAL_API}/api/results/${region}?date=${date}`, {
-            next: { revalidate: 60 } // Cached for 60 seconds
-        });
-        if (res.ok) {
-            const data = await res.json();
-            if (data.success && data.data) {
-                fr = data.data.round1_result;
-                sr = data.data.round2_result;
-            }
-        }
-    } catch (e) {
-        console.warn("Failed to fetch result for metadata", e);
-    }
-
-    const dynamicTitle = getDynamicTitle(region, formattedDate, fr, sr);
+    const dynamicTitle = getDynamicTitle(region, formattedDate);
 
     return {
         title: dynamicTitle,

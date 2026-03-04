@@ -3,7 +3,7 @@ const db = require('./db');
 
 // Initialize Gemini
 let genAI = null;
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = 'AIzaSyAImJt5aYwK0lgqtANjOwXQRbM1sDai7Sw';
 if (!apiKey) {
     console.warn("WARNING: GEMINI_API_KEY environment variable is missing. SEO Auto-Blogger will be disabled.");
 } else {
@@ -37,7 +37,7 @@ async function generateSeoArticle() {
 
         // Pick a random keyword theme
         const theme = keywordThemes[Math.floor(Math.random() * keywordThemes.length)];
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `
         You are an expert SEO copywriter and data analyst for the "Shillong Teer" lottery.

@@ -1,11 +1,10 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-// Initialize Gemini
-// Ensure you have GEMINI_API_KEY in your .env file
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+// Initialize Gemini with hardcoded user key
+const genAI = new GoogleGenerativeAI('AIzaSyAImJt5aYwK0lgqtANjOwXQRbM1sDai7Sw');
 
 async function analyzeDream(dreamText) {
-    if (!process.env.GEMINI_API_KEY) {
+    if (!genAI) {
         return {
             interpretation: "AI Analysis unavailable (Missing API Key). Showing generic result.",
             luckyNumbers: ["00", "11", "99"],
@@ -14,7 +13,7 @@ async function analyzeDream(dreamText) {
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `
         You are a mystical dream interpreter for the Teer lottery game. 
