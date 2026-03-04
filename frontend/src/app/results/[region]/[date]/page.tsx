@@ -93,6 +93,16 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
     const formattedDate = formatDateString(date);
     const regionName = formatRegionName(region);
 
+    // Link Wheel Logic
+    const currentDate = new Date(date);
+    const prevDateObj = new Date(currentDate);
+    prevDateObj.setDate(currentDate.getDate() - 1);
+    const nextDateObj = new Date(currentDate);
+    nextDateObj.setDate(currentDate.getDate() + 1);
+
+    const prevDateStr = prevDateObj.toISOString().split('T')[0];
+    const nextDateStr = nextDateObj.toISOString().split('T')[0];
+
     // Fetch the specific result for this date from the backend
     let fr = '--';
     let sr = '--';
@@ -182,6 +192,27 @@ export default async function ProgrammaticResultPage({ params }: { params: Promi
                             {regionName} History
                         </Link>
                     </div>
+                </div>
+
+                {/* Automated Link Wheel for Infinite Crawlability */}
+                <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <Link href={`/results/${region}/${prevDateStr}`} className="flex-1 w-full p-4 border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 rounded-2xl flex items-center justify-center gap-2 group transition-all">
+                        <span className="text-slate-400 group-hover:-translate-x-1 transition-transform">←</span>
+                        <div className="text-center">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Previous Day</div>
+                            <div className="text-sm font-bold text-slate-700">{formatDateString(prevDateStr)}</div>
+                        </div>
+                    </Link>
+                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 hidden sm:flex">
+                        <span className="text-xs font-bold text-slate-300">VS</span>
+                    </div>
+                    <Link href={`/results/${region}/${nextDateStr}`} className="flex-1 w-full p-4 border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50/50 rounded-2xl flex items-center justify-center gap-2 group transition-all">
+                        <div className="text-center">
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Next Day</div>
+                            <div className="text-sm font-bold text-slate-700">{formatDateString(nextDateStr)}</div>
+                        </div>
+                        <span className="text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
+                    </Link>
                 </div>
 
                 {/* SEO Content Block */}

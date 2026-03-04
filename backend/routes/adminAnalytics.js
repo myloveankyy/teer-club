@@ -7,6 +7,32 @@ const verifyAdmin = require('../middleware/verifyAdmin');
 router.use(verifyAdmin);
 
 const axios = require('axios');
+const { getGscData, getGa4Data } = require('../services/googleSeoDashService');
+
+router.get('/seo-dashboard', async (req, res) => {
+    try {
+        // Site URL for Search Console (can be environment variable later)
+        const siteUrl = 'sc-domain:teer.club';
+        // GA4 Property ID (can be in .env)
+        const propertyId = process.env.GA4_PROPERTY_ID || null; // e.g. '123456789'
+
+        const [gsc, ga4] = await Promise.all([
+            getGscData(siteUrl, 30),
+            getGa4Data(propertyId, 7)
+        ]);
+
+        return res.json({
+            success: true,
+            data: {
+                gsc,
+                ga4
+            }
+        });
+    } catch (e) {
+        console.error('[SEO Dashboard API Error]', e);
+        return res.status(500).json({ success: false, error: 'Failed to retrieve SEO data.' });
+    }
+});
 
 router.get('/dashboard', async (req, res) => {
     try {
