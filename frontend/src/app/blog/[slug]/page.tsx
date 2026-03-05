@@ -17,6 +17,7 @@ type PostResponse = {
         excerpt: string;
         content: string;
         featured_image: string;
+        featured_image_alt?: string;
         is_published: boolean;
         created_at: string;
         author_name: string;
@@ -67,17 +68,43 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         const post = await getPost(resolvedParams.slug);
         if (!post) return { title: 'Post Not Found' };
 
+        const siteUrl = 'https://teer.club';
+        const absoluteImageUrl = post.featured_image ?
+            (post.featured_image.startsWith('http') ? post.featured_image : `${siteUrl}${post.featured_image}`)
+            : `${siteUrl}/logo.png`;
+
+        const title = post.meta_title || `${post.title} | Teer Club`;
+        const description = post.meta_description || post.excerpt;
+
         return {
-            title: post.meta_title || `${post.title} | Teer Club`,
-            description: post.meta_description || post.excerpt,
-            keywords: post.focus_keyword ? post.focus_keyword.split(',').map(k => k.trim()) : [],
+            title,
+            description,
+            keywords: post.focus_keyword ? post.focus_keyword.split(',').map(m => m.trim()) : [],
+            alternates: {
+                canonical: `${siteUrl}/blog/${post.slug}`,
+            },
             openGraph: {
-                title: post.meta_title || post.title,
-                description: post.meta_description || post.excerpt,
+                title,
+                description,
+                url: `${siteUrl}/blog/${post.slug}`,
+                siteName: 'Teer Club',
                 type: 'article',
                 publishedTime: post.created_at,
-                images: post.featured_image ? [post.featured_image] : [],
-            }
+                images: [
+                    {
+                        url: absoluteImageUrl,
+                        width: 1200,
+                        height: 630,
+                        alt: post.featured_image_alt || post.title,
+                    },
+                ],
+            },
+            twitter: {
+                card: 'summary_large_image',
+                title,
+                description,
+                images: [absoluteImageUrl],
+            },
         };
     } catch {
         return { title: 'Teer Club' };
@@ -217,7 +244,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 {post.featured_image && (
                     <div className="max-w-[960px] mx-auto px-4 md:px-6 -mt-0 mb-0">
                         <div className="w-full aspect-[16/9] bg-slate-100 rounded-b-2xl md:rounded-2xl overflow-hidden shadow-xl relative mt-0 md:-mt-4">
-                            <Image src={post.featured_image} alt={post.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 960px" priority />
+                            <Image src={post.featured_image} alt={post.featured_image_alt || post.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 960px" priority />
                         </div>
                     </div>
                 )}

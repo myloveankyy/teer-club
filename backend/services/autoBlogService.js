@@ -206,32 +206,36 @@ Generate a PREMIUM, human - sounding blog post.Return this JSON:
 
     {
         "title": "Engaging title 50-60 chars in ${language.toUpperCase()}. NOT clickbaity or AI-sounding. Example: 'Why Most Teer Players Get House-Ending Wrong (And How to Fix It)'",
-            "excerpt": "2 sentences, 150-160 chars in ${language.toUpperCase()}. Written like a real human teaser. Include focus keyword.",
-                "content": "HTML article body (details below)",
-                    "meta_title": "SEO title 50-60 chars with primary keyword in ${language.toUpperCase()}",
-                        "meta_description": "Meta description 150-160 chars with urgency and keyword in ${language.toUpperCase()}",
-                            "focus_keyword": "2-4 word primary keyword in ${language.toUpperCase()}",
-                                "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+        "excerpt": "2 sentences, 150-160 chars in ${language.toUpperCase()}. Written like a real human teaser. Include focus keyword.",
+        "content": "HTML article body (details below)",
+        "meta_title": "SEO title 50-60 chars with primary keyword in ${language.toUpperCase()}",
+        "meta_description": "Meta description 150-160 chars with urgency and keyword in ${language.toUpperCase()}",
+        "focus_keyword": "2-4 word primary keyword in ${language.toUpperCase()}",
+        "featured_image_alt": "SEO optimized alt text in ${language.toUpperCase()} describing image and topic",
+        "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
     }
 
 CONTENT REQUIREMENTS(this is critical):
     - 1800 - 2500 words of well - structured HTML inside the "content" field
         - MUST be written in ${language.toUpperCase()}
     - Use PROPER HTML tags: <h2> for 4-6 main sections, <h3> for subsections, <p> for paragraphs.
+    - ADVANCED SEO (Whitehat/Greyhat Strategy):
+        - FOCUS KEYWORD PLACEMENT: The "focus_keyword" MUST appear in the first <h2> tag and at least one other <h2>/<h3>.
+        - LSI KEYWORDS: Naturally include semantic keywords like "archery target", "result patterns", "house calculation", "teer common number today", "dream lookup", "local lottery secrets".
+        - INTERNAL LINKING: Naturally embed 3-5 links to other teer.club pages.
     - VERY IMPORTANT FORMATTING: Give the article lots of "breathing room" and "gapping". Write extremely short, punchy paragraphs (2-3 sentences max). This looks more like an industry-grade expert blog.
         - Use <strong> for key terms, <em> for emphasis
-            - Use <ul>/<ol> for lists with <li> items
-                - Include <blockquote> for expert tips or important callouts
-                    - Include a VERY WELL FORMATTED <table> with data (result patterns, number frequencies). Ensure it looks clean with readable rows.
-                        - Include 3-5 internal <a href="https://teer.club/..."> links naturally within sentences
-                            - End with a FAQ section: 3 questions using <h3> and answers in <p>
-                                - Finish with a CTA paragraph linking to teer.club features
+        - Use <ul>/<ol> for lists with <li> items
+        - Include <blockquote> for expert tips or important callouts
+        - Include a VERY WELL FORMATTED <table> with data (result patterns, number frequencies). Ensure it looks clean with readable rows.
+        - End with a FAQ section: 3 questions using <h3> and answers in <p>
+        - Finish with a CTA paragraph linking to teer.club features
 
-    WRITING STYLE (critical — this must NOT feel AI-generated):
+    WRITING STYLE (The "Rajesh" Hook):
+    - Start with a "HOOK": The first paragraph must be an intriguing personal story or a shocking teer secret/statistic to pull the reader in immediately (reduces bounce rate).
     - Write in FIRST PERSON as Rajesh from Teer Club team
-    - Use phrases fitting the language ${language.toUpperCase()} (e.g. if Hindi, use Hindi slang, if Hinglish use "yaar", "bhai", "the thing is")
-    - Reference specific numbers, dates, percentages. Example: "In February 2026, the number 47 appeared as house ending 8 times across Shillong rounds"
-    - Share personal stories: "Last month, one of our Teer Club users messaged me..."
+    - Use phrases fitting the language ${language.toUpperCase()}
+    - Reference specific numbers, dates, percentages.
     - NO generic AI phrases like "In the realm of", "Furthermore", "It's important to note", "In conclusion"
     - Make it feel like reading advice from a knowledgeable friend, not a textbook
 
@@ -286,10 +290,10 @@ CONTENT REQUIREMENTS(this is critical):
 
     const dbRes = await db.query(`
         INSERT INTO posts (
-        title, slug, category, excerpt, content, featured_image,
+        title, slug, category, excerpt, content, featured_image, featured_image_alt,
         is_published, meta_title, meta_description, focus_keyword,
         tags, schema_markup, is_ai_generated, generation_theme
-        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *
         `, [
         articleData.title,
         slug,
@@ -297,6 +301,7 @@ CONTENT REQUIREMENTS(this is critical):
         articleData.excerpt || articleData.meta_description || '',
         articleData.content,
         featuredImageUrl,
+        articleData.featured_image_alt || articleData.title,
         true,
         articleData.meta_title || articleData.title.substring(0, 60),
         articleData.meta_description || articleData.excerpt || '',
