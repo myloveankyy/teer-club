@@ -99,12 +99,45 @@ async function pickSmartTopic() {
 async function generateFeaturedImage(title, theme, onProgress) {
     onProgress('image', 'Generating featured image...');
 
-    // Updated for authentic "human-made" Photoshop YouTube Thumbnail Indian lottery style
-    const imagePrompt = `A highly realistic, human-made style YouTube thumbnail for the topic: "${theme}". Visual composition: Photo-realistic dark green chalkboard on the left with REALISTIC handwritten chalk numbers (like 24 or 55) circled in thick white chalk. Thick bright yellow graphical arrows pointing right. On the right side, bright neon-pink and neon-red rectangular 2D boxes containing the exact text "Daily Success" and "HIT" in bold white impact font, along with numbers "14" and "25" in bold red. The design MUST look exactly like an authentic, highly clickable Photoshop edit made by an Indian YouTuber. Absolutely NO smooth 3D render look, NO AI-generated digital art feeling. Gritty, high-contrast, flat layout, hyper-vibrant neon colors (red, yellow, blue, white). Use real-world textures to make it look 100% human-designed and clickbaity.`;
+    // Higher-tier psychological clickbait concept (Industry Grade)
+    const imagePrompt = `A premium, high-impact Pinterest-style modern blog thumbnail for: "${theme}". 
+    Psychological Concept: "The Fortune's Call". 
+    Visuals: Foreground shows a photo-realistic, sharp focus on a pair of hands holding an archery bow with golden arrows, aiming at a vibrant target. In the background, a beautiful blur of a traditional Northeast Indian landscape with a subtle 'Winning Blackboard' overlay that looks like a high-end glassmorphism design. 
+    Colors: Royal Gold, Deep Emerald Green, and Radiant Red. 
+    Aesthetic: Hyper-realistic, 8k resolution, cinematic lighting, shallow depth of field. The design feels both high-end and extremely enticing ("Clickbait-Premium"). 
+    IMPORTANT: Absolutely NO text, NO watermarks, NO letters. Focus on the raw emotion of 'The Win'.`;
 
-    // Method 1: Gemini 2.0 Flash Image Generation (CONFIRMED WORKING)
+    // Method 1: Imagen 3 API (Highest Quality - Prio)
     try {
-        onProgress('image', 'Generating with Gemini AI...');
+        onProgress('image', 'Generating with Premium Imagen 3...');
+        const response = await axios.post(
+            `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages?key=${GEMINI_API_KEY}`,
+            {
+                requests: [
+                    {
+                        prompt: imagePrompt,
+                        aspectRatio: "16:9",
+                        // Imagen 3 specific quality boosts
+                        safetySetting: { "category": "HATE_SPEECH", "threshold": "BLOCK_NONE" }
+                    }
+                ]
+            },
+            { headers: { 'Content-Type': 'application/json' }, timeout: 60000 }
+        );
+
+        if (response.data?.predictions?.[0]?.bytesBase64Encoded) {
+            const filename = `blog-${Date.now()}.png`;
+            fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), Buffer.from(response.data.predictions[0].bytesBase64Encoded, 'base64'));
+            onProgress('image', '✅ Premium Imagen featured image generated!');
+            return `/blog-images/${filename}`;
+        }
+    } catch (err) {
+        console.error('[Auto-Blog] Imagen 3 Premium failed:', err.message);
+    }
+
+    // Method 2: Gemini 2.0 Flash Image Generation (Backup)
+    try {
+        onProgress('image', 'Trying Gemini ImageFX backup...');
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp-image-generation" });
         const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: imagePrompt }] }],
@@ -123,28 +156,10 @@ async function generateFeaturedImage(title, theme, onProgress) {
         console.error('[Auto-Blog] Gemini ImageFX failed:', err.message);
     }
 
-    // Method 2: Imagen 3 API (backup)
-    try {
-        onProgress('image', 'Trying Imagen 3 backup...');
-        const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages?key=${GEMINI_API_KEY}`,
-            { requests: [{ prompt: imagePrompt, aspectRatio: "16:9" }] },
-            { headers: { 'Content-Type': 'application/json' }, timeout: 45000 }
-        );
-        if (response.data?.predictions?.[0]?.bytesBase64Encoded) {
-            const filename = `blog-${Date.now()}.png`;
-            fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), Buffer.from(response.data.predictions[0].bytesBase64Encoded, 'base64'));
-            onProgress('image', '✅ Featured image generated!');
-            return `/blog-images/${filename}`;
-        }
-    } catch (err) {
-        console.error('[Auto-Blog] Imagen 3 failed:', err.response?.data?.error?.message || err.message);
-    }
-
     // Method 3: Unsplash-style free stock photo from Picsum
     try {
         onProgress('image', 'Fetching stock photo...');
-        const imgRes = await axios.get('https://picsum.photos/1200/628?blur=2', { responseType: 'arraybuffer', timeout: 10000, maxRedirects: 5 });
+        const imgRes = await axios.get('https://picsum.photos/1200/628?blur=1', { responseType: 'arraybuffer', timeout: 10000, maxRedirects: 5 });
         const filename = `blog-${Date.now()}.jpg`;
         fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), imgRes.data);
         onProgress('image', '✅ Stock photo saved');
@@ -192,54 +207,36 @@ async function generateAutoBlogPost(language = 'English', onProgress = () => { }
         }
     });
 
-    const prompt = `You are Rajesh, the senior editor at Teer Club(teer.club) — India's most trusted Shillong Teer result platform. You have 12+ years of experience with the teer lottery system. You write with authority, personal anecdotes, insider knowledge, and genuine passion for the game. Your readers are regular teer players from Northeast India and beyond.
+    const prompt = `You are the lead content strategist at Teer Club (teer.club). Your goal is to write the most authoritative, comprehensive, and helpful blog post about Shillong Teer for an audience of passionate players.
 
 LANGUAGE DIRECTIVE:
-        You MUST write the ENTIRE blog post content, excerpt, title, and all JSON fields in this specific language: ${language.toUpperCase()}.Do not use English unless the requested language is English or if using technical teer terms(like "House", "Ending", "F/R", "S/R").If the language is "Hinglish", mix Hindi terms written in English letters.
+    You MUST write the ENTIRE blog post content, excerpt, title, and all JSON fields in this specific language: ${language.toUpperCase()}. Do not use English unless the requested language is English or if using technical terms like "House", "Ending", "FR", "SR".
 
-            TOPIC: "${topic.theme}"
+TOPIC: "${topic.theme}"
 
-INTERNAL LINKS TO NATURALLY EMBED(use 3 - 5 in the article):
+INTERNAL LINKS TO EMBED (use 3-5):
 ${internalLinksContext}
 
-Generate a PREMIUM, human - sounding blog post.Return this JSON:
+Generate a PREMIUM, industry-grade blog post. Return this JSON:
+{
+  "title": "Authoritative title in ${language.toUpperCase()}",
+  "excerpt": "Compelling 160-char summary in ${language.toUpperCase()}",
+  "content": "HTML body (1800-2500 words)",
+  "meta_title": "SEO Title in ${language.toUpperCase()}",
+  "meta_description": "SEO Meta Description in ${language.toUpperCase()}",
+  "focus_keyword": "Primary keyword in ${language.toUpperCase()}",
+  "featured_image_alt": "Descriptive, keyword-rich alt text in ${language.toUpperCase()}",
+  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+}
 
-    {
-        "title": "Engaging title 50-60 chars in ${language.toUpperCase()}. NOT clickbaity or AI-sounding. Example: 'Why Most Teer Players Get House-Ending Wrong (And How to Fix It)'",
-        "excerpt": "2 sentences, 150-160 chars in ${language.toUpperCase()}. Written like a real human teaser. Include focus keyword.",
-        "content": "HTML article body (details below)",
-        "meta_title": "SEO title 50-60 chars with primary keyword in ${language.toUpperCase()}",
-        "meta_description": "Meta description 150-160 chars with urgency and keyword in ${language.toUpperCase()}",
-        "focus_keyword": "2-4 word primary keyword in ${language.toUpperCase()}",
-        "featured_image_alt": "SEO optimized alt text in ${language.toUpperCase()} describing image and topic",
-        "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
-    }
+CONTENT REQUIREMENTS:
+- Length: 1800-2500 words.
+- HTML: Use <h2>, <h3>, <p>, <strong>, <ul>, <li>, <table>, <a>.
+- Structure: Start with a strong introduction, followed by data analysis, strategy tips, a detailed pattern table, FAQ, and a conclusion.
+- SEO: Use the focus keyword in the first H2. Include LSI keywords (prediction, result timing, common numbers).
+- Style: Professional, informative, and deeply knowledgeable. Avoid AI cliches.
 
-CONTENT REQUIREMENTS(this is critical):
-    - 1800 - 2500 words of well - structured HTML inside the "content" field
-        - MUST be written in ${language.toUpperCase()}
-    - Use PROPER HTML tags: <h2> for 4-6 main sections, <h3> for subsections, <p> for paragraphs.
-    - ADVANCED SEO (Whitehat/Greyhat Strategy):
-        - FOCUS KEYWORD PLACEMENT: The "focus_keyword" MUST appear in the first <h2> tag and at least one other <h2>/<h3>.
-        - LSI KEYWORDS: Naturally include semantic keywords like "archery target", "result patterns", "house calculation", "teer common number today", "dream lookup", "local lottery secrets".
-        - INTERNAL LINKING: Naturally embed 3-5 links to other teer.club pages.
-    - VERY IMPORTANT FORMATTING: Give the article lots of "breathing room" and "gapping". Write extremely short, punchy paragraphs (2-3 sentences max). This looks more like an industry-grade expert blog.
-        - Use <strong> for key terms, <em> for emphasis
-        - Use <ul>/<ol> for lists with <li> items
-        - Include <blockquote> for expert tips or important callouts
-        - Include a VERY WELL FORMATTED <table> with data (result patterns, number frequencies). Ensure it looks clean with readable rows.
-        - End with a FAQ section: 3 questions using <h3> and answers in <p>
-        - Finish with a CTA paragraph linking to teer.club features
-
-    WRITING STYLE (The "Rajesh" Hook):
-    - Start with a "HOOK": The first paragraph must be an intriguing personal story or a shocking teer secret/statistic to pull the reader in immediately (reduces bounce rate).
-    - Write in FIRST PERSON as Rajesh from Teer Club team
-    - Use phrases fitting the language ${language.toUpperCase()}
-    - Reference specific numbers, dates, percentages.
-    - NO generic AI phrases like "In the realm of", "Furthermore", "It's important to note", "In conclusion"
-    - Make it feel like reading advice from a knowledgeable friend, not a textbook
-
-    DO NOT wrap content in <html>, <body>, or <div> tags. Start directly with an <h2> or <p>.`;
+DO NOT wrap content in <html> or <body> tags.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
