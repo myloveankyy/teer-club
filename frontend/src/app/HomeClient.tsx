@@ -365,15 +365,15 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
             </div>
 
             {/* Floating Share Engine (Sexy Mobile FAB) */}
-            <div className="fixed bottom-24 right-6 z-[120] md:hidden">
+            <div className="fixed bottom-28 right-5 z-[120] md:hidden">
                 <motion.div className="relative">
                     <AnimatePresence>
                         {showFabMenu && (
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                                initial={{ opacity: 0, scale: 0.9, y: 10 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                                className="absolute bottom-20 right-0 flex flex-col gap-3 min-w-[200px]"
+                                exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                                className="absolute bottom-16 right-0 flex flex-col gap-2 min-w-[220px]"
                             >
                                 {[
                                     { id: 'shillong', label: 'Shillong Result' },
@@ -393,11 +393,11 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                                             setShowShareModal(true);
                                             setShowFabMenu(false);
                                         }}
-                                        className="h-14 bg-white/95 backdrop-blur-xl border border-slate-200 px-6 rounded-2xl flex items-center justify-between shadow-2xl active:scale-95 transition-all group"
+                                        className="h-12 bg-black text-white border border-white/10 px-5 rounded-xl flex items-center justify-between shadow-2xl active:scale-95 transition-all group"
                                     >
-                                        <span className="text-[11px] font-black uppercase tracking-widest text-slate-900">{choice.label}</span>
-                                        <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                                            <Target className="w-4 h-4" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">{choice.label}</span>
+                                        <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center text-white group-hover:bg-indigo-600 transition-colors">
+                                            <Target className="w-3.5 h-3.5" />
                                         </div>
                                     </button>
                                 ))}
@@ -407,14 +407,14 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
 
                     <motion.button
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileTap={{ scale: 0.9 }}
                         onClick={() => setShowFabMenu(!showFabMenu)}
                         className={cn(
-                            "w-16 h-16 rounded-3xl flex items-center justify-center shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] transition-all duration-500",
-                            showFabMenu ? "bg-slate-900 border border-white/20 rotate-90" : "bg-indigo-600 border border-indigo-400"
+                            "w-14 h-14 rounded-2xl flex items-center justify-center shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5)] border transition-all duration-300",
+                            showFabMenu ? "bg-slate-900 border-white/20 rotate-90" : "bg-black border-white/10"
                         )}
                     >
-                        {showFabMenu ? <X className="w-7 h-7 text-white" /> : <Share2 className="w-7 h-7 text-white" />}
+                        {showFabMenu ? <X className="w-6 h-6 text-white" /> : <Share2 className="w-5 h-5 text-white" />}
                     </motion.button>
                 </motion.div>
             </div>

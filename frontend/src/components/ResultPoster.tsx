@@ -25,33 +25,28 @@ export function ResultPosterModal({ isOpen, onClose, region, round, result, date
         if (!cardRef.current) return;
         setIsSharing(true);
         try {
-            await new Promise(res => setTimeout(res, 200));
-
             const dataUrl = await toPng(cardRef.current, {
-                quality: 1,
-                pixelRatio: 4,
+                quality: 0.95,
+                pixelRatio: 2, // Industry standard balance for speed and quality
                 cacheBust: true,
                 style: { borderRadius: '0px' }
             });
 
             if (navigator.share) {
                 const blob = await (await fetch(dataUrl)).blob();
-                const file = new File([blob], `teer-club-result-${region}-${round}.png`, { type: blob.type });
+                const file = new File([blob], `teer-club-${region}-${round}.png`, { type: blob.type });
                 await navigator.share({
-                    title: `Official ${region.toUpperCase()} Result 🎯`,
-                    text: `Teer Club: ${region} Round ${round} Result is ${result}! Check history at https://teer.club`,
+                    title: `Official ${region.toUpperCase()} Result`,
+                    text: `Teer Club: ${region} R${round} is ${result}! https://teer.club`,
                     files: [file],
                 });
             } else {
-                const link = document.createElement('a');
-                link.download = `teer-club-${region}-round${round}.png`;
-                link.href = dataUrl;
-                link.click();
+                window.open(`https://wa.me/?text=${encodeURIComponent(`Official ${region.toUpperCase()} Teer Result: ${result}. Check at https://teer.club`)}`, '_blank');
             }
             setShared(true);
             setTimeout(() => setShared(false), 3000);
         } catch (err) {
-            console.error("Capture failed:", err);
+            console.error("Share failed:", err);
         } finally {
             setIsSharing(false);
         }
@@ -66,13 +61,13 @@ export function ResultPosterModal({ isOpen, onClose, region, round, result, date
     return (
         <AnimatePresence>
             {isOpen && (
-                <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[130] flex items-center justify-center p-0 md:p-4">
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-slate-950/95 backdrop-blur-3xl"
+                        className="absolute inset-0 bg-slate-950/98 backdrop-blur-3xl"
                     />
 
                     <motion.div
@@ -80,11 +75,12 @@ export function ResultPosterModal({ isOpen, onClose, region, round, result, date
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        className="relative w-full max-w-[440px] flex flex-col items-center gap-6"
+                        className="relative w-full md:max-w-[420px] h-full md:h-auto flex flex-col items-center justify-center gap-4 bg-black md:bg-transparent"
                     >
+                        {/* Native Close for Mobile */}
                         <button
                             onClick={onClose}
-                            className="absolute -top-16 right-0 w-12 h-12 bg-white/10 text-white flex items-center justify-center transition-all border border-white/5 active:scale-90"
+                            className="absolute top-6 right-6 w-10 h-10 bg-white/5 text-white flex items-center justify-center border border-white/10 z-50 md:-top-16 md:right-0"
                         >
                             <X className="w-5 h-5" />
                         </button>
@@ -92,110 +88,73 @@ export function ResultPosterModal({ isOpen, onClose, region, round, result, date
                         {/* --- INDUSTRIAL GRADE SOCIAL POSTER --- */}
                         <div
                             ref={cardRef}
-                            className="w-full relative bg-black overflow-hidden shadow-[0_60px_100px_-20px_rgba(0,0,0,0.8)] border border-white/5"
+                            className="w-[90%] md:w-full relative bg-black overflow-hidden border border-white/5 shadow-2xl"
                             style={{ aspectRatio: '1/1.4' }}
                         >
                             {/* Cinematic Focus Background */}
                             <div
-                                className="absolute inset-0 bg-cover bg-center transition-transform duration-[3s] hover:scale-105 saturate-[0.8] brightness-[0.4]"
+                                className="absolute inset-0 bg-cover bg-center saturate-[0.8] brightness-[0.4]"
                                 style={{ backgroundImage: `url('${getBgImage()}')` }}
                             />
 
                             {/* Minimalist Tech Gradient Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 blur-[120px]" />
 
-                            <div className="relative h-full flex flex-col p-10 z-10 justify-between">
+                            <div className="relative h-full flex flex-col p-6 md:p-10 z-10 justify-between">
                                 {/* Top Technical Bar */}
                                 <div className="flex justify-between items-start">
-                                    <div className="space-y-6">
+                                    <div className="space-y-4">
                                         <div className="flex flex-col gap-2">
-                                            <span className="text-[9px] font-black tracking-[0.4em] text-indigo-400 uppercase">SYSTEM LOG: 2.2.0</span>
+                                            <span className="text-[8px] font-black tracking-[0.4em] text-indigo-400 uppercase">VERIFIED LOG 2.2</span>
                                             <div className="flex items-center gap-3">
-                                                <div className="w-0.5 h-8 bg-indigo-500" />
-                                                <div>
-                                                    <h4 className="font-black text-white tracking-widest text-xl uppercase leading-none">{region} Result</h4>
-                                                    <p className="text-[10px] font-medium text-white/40 uppercase tracking-widest mt-1">Status: Fully Verified</p>
-                                                </div>
+                                                <div className="w-0.5 h-6 bg-indigo-500" />
+                                                <h4 className="font-black text-white tracking-widest text-lg uppercase leading-none">{region}</h4>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col items-end gap-3">
-                                        <div className="bg-white/5 border border-white/10 px-4 py-2 text-white font-black text-[10px] tracking-widest uppercase">
-                                            {round === 1 ? 'Round 01' : 'Round 02'}
+                                    <div className="flex flex-col items-end gap-2 text-white/30">
+                                        <div className="bg-white/5 border border-white/10 px-3 py-1 text-white font-black text-[9px] tracking-widest uppercase">
+                                            R{round === 1 ? '01' : '02'}
                                         </div>
-                                        <div className="flex items-center gap-2 text-white/30">
-                                            <Calendar className="w-3 h-3" />
-                                            <span className="text-[10px] font-black lowercase tracking-widest">{date}</span>
-                                        </div>
+                                        <span className="text-[9px] font-black lowercase tracking-widest">{date}</span>
                                     </div>
                                 </div>
 
                                 {/* Center Stage (Sexy Minimalism) */}
-                                <div className="flex-1 flex flex-col items-center justify-center relative">
-                                    <motion.div
-                                        initial={{ filter: "blur(20px)", opacity: 0, scale: 0.95 }}
-                                        animate={{ filter: "blur(0px)", opacity: 1, scale: 1 }}
-                                        transition={{ delay: 0.3, duration: 1 }}
-                                        className="relative flex flex-col items-center"
-                                    >
-                                        <span className="text-[11px] font-black tracking-[0.6em] text-white/20 uppercase mb-4">Official Hit Number</span>
-                                        <h1 className="text-[12rem] leading-none font-black tracking-[-0.08em] text-white drop-shadow-[0_0_80px_rgba(255,255,255,0.15)] flex items-center">
-                                            {result}
-                                        </h1>
-
-                                        <div className="mt-8 flex items-center gap-8 opacity-40">
-                                            <div className="flex flex-col items-center">
-                                                <span className="text-[8px] font-black uppercase tracking-[0.3em]">Latency</span>
-                                                <span className="text-[10px] font-medium">0.42ms</span>
-                                            </div>
-                                            <div className="w-px h-6 bg-white/20" />
-                                            <div className="flex flex-col items-center">
-                                                <span className="text-[8px] font-black uppercase tracking-[0.3em]">Algorithm</span>
-                                                <span className="text-[10px] font-medium">v3.1 High-Sigma</span>
-                                            </div>
-                                        </div>
-                                    </motion.div>
+                                <div className="flex-1 flex flex-col items-center justify-center">
+                                    <span className="text-[10px] font-black tracking-[0.5em] text-white/20 uppercase mb-2">Hit Number</span>
+                                    <h1 className="text-[10rem] md:text-[12rem] leading-none font-black tracking-[-0.08em] text-white drop-shadow-[0_0_80px_rgba(255,255,255,0.1)]">
+                                        {result}
+                                    </h1>
                                 </div>
 
                                 {/* Bottom Industrial Branding */}
-                                <div className="space-y-8">
-                                    <div className="flex justify-between items-end border-t border-white/10 pt-8">
-                                        <div className="flex flex-col gap-1.5">
-                                            <p className="text-[22px] font-black text-white tracking-widest uppercase">Teer<span className="text-indigo-500">.Club</span></p>
-                                            <p className="text-[9px] text-white/30 font-medium tracking-[0.4em] uppercase">Premium Archery Analytics</p>
+                                <div className="space-y-6">
+                                    <div className="flex justify-between items-end border-t border-white/10 pt-6">
+                                        <div className="flex flex-col gap-1">
+                                            <p className="text-[18px] font-black text-white tracking-widest uppercase italic">Teer<span className="text-indigo-500">.Club</span></p>
+                                            <p className="text-[8px] text-white/30 font-medium tracking-[0.3em] uppercase">Premium Analytics</p>
                                         </div>
-
-                                        <div className="flex flex-col items-end gap-2">
-                                            <div className="flex gap-1">
-                                                {[1, 2, 3].map(i => <div key={i} className="w-1 h-3 bg-indigo-500/40" />)}
-                                            </div>
-                                            <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em]">Cryptographically Signed</span>
-                                        </div>
+                                        <span className="text-[8px] font-black text-white/20 uppercase tracking-[0.3em]">SECURE-PROTOCOL</span>
                                     </div>
-
-                                    <p className="text-[8px] font-black tracking-[0.5em] text-white/10 uppercase text-center w-full">
-                                        Industrial Verification Protocol Enabled &nbsp; | &nbsp; 2026 Official Result Source
-                                    </p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Integrated Share Options (Sexy Action Bar) */}
-                        <div className="w-full flex flex-col gap-4">
+                        {/* Integrated Action Bar (Optimized) */}
+                        <div className="w-[90%] md:w-full flex flex-col gap-3 pb-8 md:pb-0">
                             <motion.button
-                                whileHover={{ backgroundColor: "rgb(255, 255, 255)", color: "rgb(0, 0, 0)" }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleShare}
                                 disabled={isSharing}
-                                className="w-full py-5 border border-white/20 text-white font-black text-[11px] uppercase tracking-[0.4em] flex items-center justify-center gap-4 transition-all"
+                                className="w-full py-4 bg-white text-black font-black text-[11px] uppercase tracking-[0.4em] flex items-center justify-center gap-3 shadow-xl"
                             >
-                                {isSharing ? "Processing..." : "Digital Poster"}
+                                <Share2 className="w-4 h-4" />
+                                {isSharing ? "Processing..." : "Share to WhatsApp"}
                             </motion.button>
 
                             <motion.button
-                                whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={async () => {
                                     setIsSharing(true);
@@ -204,28 +163,24 @@ export function ResultPosterModal({ isOpen, onClose, region, round, result, date
                                         const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
                                         const imageUrl = `/shares/consolidated-${dateStr}.png`;
                                         const headCheck = await fetch(imageUrl, { method: 'HEAD' });
-                                        if (!headCheck.ok) { alert("AI is finalizing board details. Wait 5s."); setIsSharing(false); return; }
+                                        if (!headCheck.ok) { alert("AI Board Syncing... Try in 5s."); setIsSharing(false); return; }
 
                                         if (navigator.share) {
                                             const response = await fetch(imageUrl);
                                             const blob = await response.blob();
-                                            const file = new File([blob], `teer-club-board-${dateStr}.png`, { type: blob.type });
-                                            await navigator.share({
-                                                title: `Teer Results Board 🎯`,
-                                                text: `Premium Results at Teer.Club`,
-                                                files: [file],
-                                            });
+                                            const file = new File([blob], `teer-club-board.png`, { type: blob.type });
+                                            await navigator.share({ files: [file] });
                                         } else {
                                             const link = document.createElement('a');
                                             link.href = imageUrl;
-                                            link.download = `teer-club-${dateStr}.png`;
+                                            link.download = `teer-club-board.png`;
                                             link.click();
                                         }
                                     } catch (err) { console.error(err); } finally { setIsSharing(false); }
                                 }}
-                                className="w-full py-5 bg-indigo-600 text-white font-black text-[11px] uppercase tracking-[0.4em] flex items-center justify-center gap-4 shadow-2xl"
+                                className="w-full py-4 border border-white/20 text-white font-black text-[11px] uppercase tracking-[0.4em] flex items-center justify-center gap-3"
                             >
-                                <Sparkles className="w-4 h-4 fill-white" />
+                                <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500" />
                                 <span>Realistic AI Board</span>
                             </motion.button>
                         </div>
