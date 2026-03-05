@@ -23,7 +23,7 @@ const PredictionFeed = dynamic(() => import('@/components/PredictionFeed').then(
     loading: () => <div className="h-[500px] w-full bg-slate-100 animate-pulse rounded-3xl" />
 });
 const VictoryCardModal = dynamic(() => import('@/components/VictoryCard').then(mod => mod.VictoryCardModal));
-const LuckyPredictor = dynamic(() => import('@/components/LuckyPredictor').then(mod => mod.LuckyPredictor));
+
 
 interface HomeClientProps {
     initialWinners?: any[];
@@ -279,7 +279,7 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                                 </div>
                             </div>
 
-                            <LuckyPredictor />
+
 
                             <div className="w-full">
                                 <PredictionFeed isAuth={isAuth} />
