@@ -14,7 +14,8 @@ router.post('/generate', verifyAdmin, async (req, res) => {
     try {
         console.log('[Admin] Auto blog generation triggered by admin');
 
-        const result = await generateAutoBlogPost();
+        const language = req.body.language || 'English';
+        const result = await generateAutoBlogPost(language);
 
         res.status(201).json({
             success: true,

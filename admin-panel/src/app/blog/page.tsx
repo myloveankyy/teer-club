@@ -34,6 +34,7 @@ export default function AdminBlogPage() {
     const [actionLoading, setActionLoading] = useState(false);
     const [aiGenerating, setAiGenerating] = useState(false);
     const [aiProgress, setAiProgress] = useState<{ step: string; message: string }[]>([]);
+    const [aiLanguage, setAiLanguage] = useState("English");
     const [toast, setToast] = useState<{ type: 'success' | 'error'; title: string; message: string } | null>(null);
     const [error, setError] = useState("");
 
@@ -207,7 +208,7 @@ export default function AdminBlogPage() {
         }, 5000);
 
         try {
-            const res = await api.post('/admin/auto-blog/generate', {}, { timeout: 180000 });
+            const res = await api.post('/admin/auto-blog/generate', { language: aiLanguage }, { timeout: 180000 });
             clearInterval(progressInterval);
 
             if (res.data.success) {
@@ -237,8 +238,8 @@ export default function AdminBlogPage() {
             {/* Toast Notification */}
             {toast && (
                 <div className={`fixed top-6 right-6 z-[100] max-w-md animate-in slide-in-from-right-5 duration-300 rounded-2xl shadow-2xl border p-5 ${toast.type === 'success'
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-                        : 'bg-red-50 border-red-200 text-red-900'
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    : 'bg-red-50 border-red-200 text-red-900'
                     }`}>
                     <div className="flex items-start gap-3">
                         <span className="text-2xl">{toast.type === 'success' ? '✅' : '❌'}</span>
@@ -263,6 +264,20 @@ export default function AdminBlogPage() {
                     <p className="text-sm font-medium text-slate-500 mt-1">Compose, manage, and publish content for the public site.</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    <select
+                        value={aiLanguage}
+                        onChange={(e) => setAiLanguage(e.target.value)}
+                        disabled={aiGenerating}
+                        className="h-[44px] px-3 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 shadow-sm outline-none focus:border-indigo-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        <option value="English">English</option>
+                        <option value="Hinglish">Hinglish</option>
+                        <option value="Hindi">Hindi (हिंदी)</option>
+                        <option value="Bengali">Bengali (বাংলা)</option>
+                        <option value="Assamese">Assamese (অসমীয়া)</option>
+                        <option value="Nepali">Nepali (नेपाली)</option>
+                        <option value="Khasi">Khasi</option>
+                    </select>
                     <button
                         onClick={handleAutoGenerate}
                         disabled={aiGenerating}

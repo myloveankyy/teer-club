@@ -99,8 +99,8 @@ async function pickSmartTopic() {
 async function generateFeaturedImage(title, theme, onProgress) {
     onProgress('image', 'Generating featured image...');
 
-    // Google Discovery approved: clean, cinematic photos — ZERO text
-    const imagePrompt = `Professional photography style blog header image. Scene: ${theme}. Setting: lush green hills of Meghalaya Northeast India, misty morning light, golden hour. Elements: traditional bamboo archery bows and arrows, colorful Indian festival atmosphere, vibrant saffron and emerald tones. Style: National Geographic quality photo, shallow depth of field, cinematic color grading, 16:9 landscape composition. IMPORTANT: absolutely NO text, NO words, NO letters, NO writing, NO watermarks anywhere in the image.`;
+    // Google Discovery approved: clean but highly catchy Indian market style (NO text on image!)
+    const imagePrompt = `Extremely catchy, high-contrast, Indian clickbait style thumbnail background. Topic: "${theme}". Visuals: Intense gambling and winning energy, glowing archery arrows hitting a bullseye, glowing Indian Rupee coin or notes subtly in the background out of focus. Colors: Ultra-vibrant neon red, bright gold, and deep blue. Style: Hyper-realistic 3D render mixed with cinematic photography, shallow depth of field, extremely exciting and enticing. IMPORTANT: absolutely NO text, NO words, NO letters, NO writing, NO watermarks anywhere in the image.`;
 
     // Method 1: Gemini 2.0 Flash Image Generation (CONFIRMED WORKING)
     try {
@@ -144,7 +144,7 @@ async function generateFeaturedImage(title, theme, onProgress) {
     // Method 3: Unsplash-style free stock photo from Picsum
     try {
         onProgress('image', 'Fetching stock photo...');
-        const imgRes = await axios.get('https://picsum.photos/1200/628', { responseType: 'arraybuffer', timeout: 10000, maxRedirects: 5 });
+        const imgRes = await axios.get('https://picsum.photos/1200/628?blur=2', { responseType: 'arraybuffer', timeout: 10000, maxRedirects: 5 });
         const filename = `blog-${Date.now()}.jpg`;
         fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), imgRes.data);
         onProgress('image', '✅ Stock photo saved');
@@ -160,7 +160,7 @@ async function generateFeaturedImage(title, theme, onProgress) {
 /**
  * Main generation function
  */
-async function generateAutoBlogPost(onProgress = () => { }) {
+async function generateAutoBlogPost(language = 'English', onProgress = () => { }) {
     const startTime = Date.now();
 
     if (!genAI || !GEMINI_API_KEY) {
@@ -178,7 +178,7 @@ async function generateAutoBlogPost(onProgress = () => { }) {
     onProgress('context', `✅ Found ${existingPosts.length} posts for internal linking`);
 
     // Step 3: Generate article
-    onProgress('article', 'Generating article with Gemini AI...');
+    onProgress('article', `Generating ${language} article with Gemini AI...`);
     const internalLinksContext = [
         ...staticPages.map(p => `- [${p.title}](${SITE_URL}${p.url}) — ${p.description}`),
         ...existingPosts.slice(0, 8).map(p => `- [${p.title}](${SITE_URL}${p.url})`),
@@ -192,46 +192,49 @@ async function generateAutoBlogPost(onProgress = () => { }) {
         }
     });
 
-    const prompt = `You are Rajesh, the senior editor at Teer Club (teer.club) — India's most trusted Shillong Teer result platform. You have 12+ years of experience with the teer lottery system. You write with authority, personal anecdotes, insider knowledge, and genuine passion for the game. Your readers are regular teer players from Northeast India and beyond.
+    const prompt = `You are Rajesh, the senior editor at Teer Club(teer.club) — India's most trusted Shillong Teer result platform. You have 12+ years of experience with the teer lottery system. You write with authority, personal anecdotes, insider knowledge, and genuine passion for the game. Your readers are regular teer players from Northeast India and beyond.
 
-TOPIC: "${topic.theme}"
+LANGUAGE DIRECTIVE:
+        You MUST write the ENTIRE blog post content, excerpt, title, and all JSON fields in this specific language: ${language.toUpperCase()}.Do not use English unless the requested language is English or if using technical teer terms(like "House", "Ending", "F/R", "S/R").If the language is "Hinglish", mix Hindi terms written in English letters.
 
-INTERNAL LINKS TO NATURALLY EMBED (use 3-5 in the article):
+            TOPIC: "${topic.theme}"
+
+INTERNAL LINKS TO NATURALLY EMBED(use 3 - 5 in the article):
 ${internalLinksContext}
 
-Generate a PREMIUM, human-sounding blog post. Return this JSON:
+Generate a PREMIUM, human - sounding blog post.Return this JSON:
 
-{
-  "title": "Engaging title 50-60 chars, conversational Indian English. NOT clickbaity or AI-sounding. Example: 'Why Most Teer Players Get House-Ending Wrong (And How to Fix It)'",
-  "excerpt": "2 sentences, 150-160 chars. Written like a real human teaser. Include focus keyword.",
-  "content": "HTML article body (details below)",
-  "meta_title": "SEO title 50-60 chars with primary keyword",
-  "meta_description": "Meta description 150-160 chars with urgency and keyword",
-  "focus_keyword": "2-4 word primary keyword",
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
-}
+    {
+        "title": "Engaging title 50-60 chars in ${language.toUpperCase()}. NOT clickbaity or AI-sounding. Example: 'Why Most Teer Players Get House-Ending Wrong (And How to Fix It)'",
+            "excerpt": "2 sentences, 150-160 chars in ${language.toUpperCase()}. Written like a real human teaser. Include focus keyword.",
+                "content": "HTML article body (details below)",
+                    "meta_title": "SEO title 50-60 chars with primary keyword in ${language.toUpperCase()}",
+                        "meta_description": "Meta description 150-160 chars with urgency and keyword in ${language.toUpperCase()}",
+                            "focus_keyword": "2-4 word primary keyword in ${language.toUpperCase()}",
+                                "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+    }
 
-CONTENT REQUIREMENTS (this is critical):
-- 1800-2500 words of well-structured HTML
-- Use PROPER HTML tags: <h2> for 4-6 main sections, <h3> for subsections, <p> for paragraphs
-- Use <strong> for key terms, <em> for emphasis
-- Use <ul>/<ol> for lists with <li> items
-- Include <blockquote> for expert tips or important callouts
-- Include a <table> with data (result patterns, number frequencies, etc.)
-- Include 3-5 internal <a href="https://teer.club/..."> links naturally within sentences
-- End with a FAQ section: 3 questions using <h3> and answers in <p>
-- Finish with a CTA paragraph linking to teer.club features
+CONTENT REQUIREMENTS(this is critical):
+    - 1800 - 2500 words of well - structured HTML inside the "content" field
+        - MUST be written in ${language.toUpperCase()}
+    - Use PROPER HTML tags: <h2> for 4-6 main sections, <h3> for subsections, <p> for paragraphs. Add nice breathing room between sections.
+        - Use <strong> for key terms, <em> for emphasis
+            - Use <ul>/<ol> for lists with <li> items
+                - Include <blockquote> for expert tips or important callouts
+                    - Include a VERY WELL FORMATTED <table> with data (result patterns, number frequencies). Ensure it looks clean with readable rows.
+                        - Include 3-5 internal <a href="https://teer.club/..."> links naturally within sentences
+                            - End with a FAQ section: 3 questions using <h3> and answers in <p>
+                                - Finish with a CTA paragraph linking to teer.club features
 
-WRITING STYLE (critical — this must NOT feel AI-generated):
-- Write in FIRST PERSON as Rajesh from Teer Club team
-- Use phrases like "In my 12 years of watching teer...", "What most players don't realize...", "I personally tracked 300+ results and found..."
-- Reference specific numbers, dates, percentages. Example: "In February 2026, the number 47 appeared as house ending 8 times across Shillong rounds"
-- Use conversational Indian English: "yaar", "basically", "the thing is", casual tone
-- Share personal stories: "Last month, one of our Teer Club users messaged me..."
-- NO generic AI phrases like "In the realm of", "Furthermore", "It's important to note", "In conclusion"
-- Make it feel like reading advice from a knowledgeable friend, not a textbook
+    WRITING STYLE (critical — this must NOT feel AI-generated):
+    - Write in FIRST PERSON as Rajesh from Teer Club team
+    - Use phrases fitting the language ${language.toUpperCase()} (e.g. if Hindi, use Hindi slang, if Hinglish use "yaar", "bhai", "the thing is")
+    - Reference specific numbers, dates, percentages. Example: "In February 2026, the number 47 appeared as house ending 8 times across Shillong rounds"
+    - Share personal stories: "Last month, one of our Teer Club users messaged me..."
+    - NO generic AI phrases like "In the realm of", "Furthermore", "It's important to note", "In conclusion"
+    - Make it feel like reading advice from a knowledgeable friend, not a textbook
 
-DO NOT wrap content in <html>, <body>, or <div> tags. Start directly with an <h2> or <p>.`;
+    DO NOT wrap content in <html>, <body>, or <div> tags. Start directly with an <h2> or <p>.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
@@ -262,8 +265,7 @@ DO NOT wrap content in <html>, <body>, or <div> tags. Start directly with an <h2
     onProgress('article', `✅ Article: "${articleData.title}" (${articleData.content.length} chars)`);
 
     // Step 4: Generate image
-    const featuredImage = await generateFeaturedImage(articleData.title, topic.theme, onProgress);
-    const featuredImageUrl = featuredImage ? `${SITE_URL}${featuredImage}` : null;
+    const featuredImageUrl = await generateFeaturedImage(articleData.title, topic.theme, onProgress);
 
     // Step 5: Save to DB
     onProgress('publish', 'Publishing to database...');
@@ -283,11 +285,11 @@ DO NOT wrap content in <html>, <body>, or <div> tags. Start directly with an <h2
 
     const dbRes = await db.query(`
         INSERT INTO posts (
-            title, slug, category, excerpt, content, featured_image,
-            is_published, meta_title, meta_description, focus_keyword,
-            tags, schema_markup, is_ai_generated, generation_theme
+        title, slug, category, excerpt, content, featured_image,
+        is_published, meta_title, meta_description, focus_keyword,
+        tags, schema_markup, is_ai_generated, generation_theme
         ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *
-    `, [
+        `, [
         articleData.title,
         slug,
         topic.category,
@@ -331,7 +333,7 @@ DO NOT wrap content in <html>, <body>, or <div> tags. Start directly with an <h2
         focus_keyword: newPost.focus_keyword,
         tags,
         url: postUrl,
-        image_generated: !!featuredImage,
+        image_generated: !!featuredImageUrl,
         google_indexed: true,
         sitemap_updated: true,
         created_at: newPost.created_at,
