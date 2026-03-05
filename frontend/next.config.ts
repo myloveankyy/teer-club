@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
       { protocol: "http", hostname: "127.0.0.1", port: "5000" },
       { protocol: "https", hostname: "teer.club" },
       { protocol: "https", hostname: "i.pravatar.cc" },
+      { protocol: "https", hostname: "picsum.photos" },
+      { protocol: "https", hostname: "placehold.co" },
     ],
     minimumCacheTTL: 86400, // 24 hours
   },
