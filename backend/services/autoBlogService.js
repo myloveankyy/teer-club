@@ -245,18 +245,33 @@ CONTENT REQUIREMENTS(this is critical):
     const text = result.response.text();
 
     let articleData;
+    let jsonStr = text.trim();
+
+    // Clean up various common LLM garbage
+    if (jsonStr.includes('```')) {
+        jsonStr = jsonStr.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    }
+
+    // Find first { and last } which is standard for extracting JSON from conversational noise
+    const fb = jsonStr.indexOf('{');
+    const lb = jsonStr.lastIndexOf('}');
+    if (fb !== -1 && lb !== -1) {
+        jsonStr = jsonStr.substring(fb, lb + 1);
+    }
+
     try {
-        articleData = JSON.parse(text);
+        articleData = JSON.parse(jsonStr);
     } catch (e1) {
-        let jsonStr = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-        const fb = jsonStr.indexOf('{');
-        const lb = jsonStr.lastIndexOf('}');
-        if (fb !== -1 && lb !== -1) jsonStr = jsonStr.substring(fb, lb + 1);
+        // Fallback: Try to fix common unescaped newline issues in content blocks which LLMs often do
         try {
-            articleData = JSON.parse(jsonStr);
+            // This replaces actual newlines inside strings while keeping \n tokens
+            const fixedJson = jsonStr.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+            // Note: This is a hacky fallback, better to try a slightly more controlled approach
+            articleData = JSON.parse(jsonStr.replace(/[\u0000-\u001f]/g, ' '));
         } catch (e2) {
-            console.error('[Auto-Blog] JSON parse failed. Raw (first 500):', text.substring(0, 500));
-            throw new Error('AI returned invalid JSON. Please try again.');
+            console.error('[Auto-Blog] JSON parse failed after cleanup.');
+            console.error('Cleaned String (first 200):', jsonStr.substring(0, 200));
+            throw new Error('AI returned invalid JSON format. Please try again.');
         }
     }
 
