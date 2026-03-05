@@ -41,10 +41,10 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
     // Mobile Share Engine State
     const [showFabMenu, setShowFabMenu] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
-    const [shareContext, setShareContext] = useState<{ region: 'shillong' | 'khanapara' | 'juwai'; round: number; result: string; date: string }>({
+    const [shareContext, setShareContext] = useState<{ region: 'shillong' | 'khanapara' | 'juwai'; round1Result: string; round2Result: string; date: string }>({
         region: 'shillong',
-        round: 1,
-        result: '--',
+        round1Result: '--',
+        round2Result: '--',
         date: ''
     });
 
@@ -375,11 +375,7 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                                 exit={{ opacity: 0, scale: 0.9, y: 10 }}
                                 className="absolute bottom-16 right-0 flex flex-col gap-2 min-w-[220px]"
                             >
-                                {[
-                                    { id: 'shillong', label: 'Shillong Result' },
-                                    { id: 'khanapara', label: 'Khanapara Result' },
-                                    { id: 'juwai', label: 'Juwai Result' }
-                                ].map((choice) => (
+                                {REGIONS.map((choice) => (
                                     <button
                                         key={choice.id}
                                         onClick={() => {
@@ -387,15 +383,15 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                                             setShareContext({
                                                 region: choice.id as any,
                                                 date: today,
-                                                round: 1,
-                                                result: initialLatestResults?.[choice.id]?.round1 || '--'
+                                                round1Result: initialLatestResults?.[choice.id]?.round1 || '--',
+                                                round2Result: initialLatestResults?.[choice.id]?.round2 || '--'
                                             });
                                             setShowShareModal(true);
                                             setShowFabMenu(false);
                                         }}
                                         className="h-12 bg-black text-white border border-white/10 px-5 rounded-xl flex items-center justify-between shadow-2xl active:scale-95 transition-all group"
                                     >
-                                        <span className="text-[10px] font-black uppercase tracking-widest">{choice.label}</span>
+                                        <span className="text-[10px] font-black uppercase tracking-widest">{choice.label} Result</span>
                                         <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center text-white group-hover:bg-indigo-600 transition-colors">
                                             <Target className="w-3.5 h-3.5" />
                                         </div>
@@ -438,8 +434,8 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                 isOpen={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 region={shareContext.region}
-                round={shareContext.round}
-                result={shareContext.result}
+                round1Result={shareContext.round1Result}
+                round2Result={shareContext.round2Result}
                 date={shareContext.date}
             />
         </main>
