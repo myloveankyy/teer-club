@@ -103,6 +103,10 @@ app.use((req, res, next) => {
 
 // Request Timeout Middleware (Industry Grade Stability)
 app.use((req, res, next) => {
+  // Skip timeout for AI generation routes (they need 60-90s)
+  if (req.originalUrl.startsWith('/api/admin/auto-blog')) {
+    return next();
+  }
   res.setTimeout(35000, () => {
     if (!res.headersSent) {
       console.error(`[Timeout]: ${req.method} ${req.originalUrl} timed out after 35s`);
@@ -114,6 +118,7 @@ app.use((req, res, next) => {
     }
   });
   next();
+
 });
 
 // Mount Admin Routes
