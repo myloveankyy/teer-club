@@ -95,14 +95,36 @@ async function pickSmartTopic() {
 async function generateFeaturedImage(title, theme, onProgress) {
     onProgress('image', 'Generating featured image...');
 
-    // Method 1: Imagen 3
-    try {
-        onProgress('image', 'Trying Imagen 3 API...');
-        const prompt = `Vibrant blog featured image for Indian audience about "${theme}". Rich warm Indian colors saffron deep red royal blue gold. Traditional Meghalaya archery Teer elements bamboo arrows wooden bows. Misty green hills of Northeast India background. Mystical fortune-telling atmosphere. Cinematic quality hyper-realistic digital art landscape orientation. NO text.`;
+    const imagePrompt = `A vibrant, eye-catching blog featured image for Indian audience about "${theme}". Rich warm Indian colors - saffron, deep red, royal blue, gold. Traditional Meghalaya archery Teer elements with bamboo arrows and wooden bows. Misty green hills of Northeast India background. Mystical fortune-telling atmosphere. Cinematic quality, hyper-realistic digital art, landscape 16:9. NO text or writing of any kind.`;
 
+    // Method 1: Gemini 2.0 Flash Image Generation (TESTED & CONFIRMED WORKING)
+    try {
+        onProgress('image', 'Generating with Gemini AI...');
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp-image-generation" });
+        const result = await model.generateContent({
+            contents: [{ role: "user", parts: [{ text: `Generate an image: ${imagePrompt}` }] }],
+            generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
+        });
+        const parts = result.response?.candidates?.[0]?.content?.parts || [];
+        for (const part of parts) {
+            if (part.inlineData?.data) {
+                const filename = `blog-${Date.now()}.png`;
+                fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), Buffer.from(part.inlineData.data, 'base64'));
+                onProgress('image', '✅ AI featured image generated!');
+                return `/blog-images/${filename}`;
+            }
+        }
+        console.warn('[Auto-Blog] Gemini ImageFX returned no image data');
+    } catch (err) {
+        console.error('[Auto-Blog] Gemini ImageFX failed:', err.message);
+    }
+
+    // Method 2: Imagen 3 API (backup)
+    try {
+        onProgress('image', 'Trying Imagen 3 backup...');
         const response = await axios.post(
             `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages?key=${GEMINI_API_KEY}`,
-            { requests: [{ prompt, aspectRatio: "16:9" }] },
+            { requests: [{ prompt: imagePrompt, aspectRatio: "16:9" }] },
             { headers: { 'Content-Type': 'application/json' }, timeout: 45000 }
         );
         const predictions = response.data?.predictions;
@@ -116,30 +138,9 @@ async function generateFeaturedImage(title, theme, onProgress) {
         console.error('[Auto-Blog] Imagen 3 failed:', err.response?.data?.error?.message || err.message);
     }
 
-    // Method 2: Gemini 2.0 Flash image generation
+    // Method 3: High-quality gradient placeholder (last resort)
     try {
-        onProgress('image', 'Trying Gemini Flash image gen...');
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
-        const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: `Generate a vibrant featured image for a blog post about "${theme}". Indian archery theme with Meghalaya scenery, warm colors. No text.` }] }],
-            generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
-        });
-        const parts = result.response?.candidates?.[0]?.content?.parts || [];
-        for (const part of parts) {
-            if (part.inlineData?.data) {
-                const filename = `blog-${Date.now()}.png`;
-                fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), Buffer.from(part.inlineData.data, 'base64'));
-                onProgress('image', '✅ Featured image generated!');
-                return `/blog-images/${filename}`;
-            }
-        }
-    } catch (err) {
-        console.error('[Auto-Blog] Gemini Flash image failed:', err.message);
-    }
-
-    // Method 3: Placeholder
-    try {
-        onProgress('image', 'Using fallback placeholder...');
+        onProgress('image', 'Creating styled placeholder...');
         const text = encodeURIComponent(theme.substring(0, 30));
         const url = `https://placehold.co/1200x628/1e1b4b/e0e7ff/png?text=${text}&font=roboto`;
         const imgRes = await axios.get(url, { responseType: 'arraybuffer', timeout: 10000 });
