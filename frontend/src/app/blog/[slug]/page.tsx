@@ -165,19 +165,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         };
 
         const proseClasses = `prose prose-slate prose-lg max-w-none 
-            prose-headings:text-slate-900 prose-headings:tracking-tight 
-            prose-h2:text-[24px] prose-h2:md:text-[30px] prose-h2:font-extrabold prose-h2:mt-16 prose-h2:mb-8 prose-h2:leading-tight
-            prose-h3:text-[20px] prose-h3:md:text-[24px] prose-h3:font-bold prose-h3:mt-12 prose-h3:mb-6
-            prose-p:text-[#3d3d3d] prose-p:leading-[1.9] prose-p:text-[18px] prose-p:mb-8 prose-p:font-medium
+            prose-headings:text-slate-900 prose-headings:tracking-tight prose-headings:font-serif
+            prose-h2:text-[28px] prose-h2:md:text-[36px] prose-h2:font-extrabold prose-h2:mt-24 prose-h2:mb-10 prose-h2:leading-tight
+            prose-h3:text-[22px] prose-h3:md:text-[28px] prose-h3:font-bold prose-h3:mt-16 prose-h3:mb-8
+            prose-p:text-[#3d3d3d] prose-p:leading-[1.9] prose-p:text-[19px] prose-p:mb-12 prose-p:font-normal
             prose-a:text-indigo-600 prose-a:font-semibold prose-a:no-underline prose-a:border-b prose-a:border-indigo-200 hover:prose-a:border-indigo-500 prose-a:transition-colors
             prose-strong:text-slate-900 prose-strong:font-bold
             prose-em:text-slate-600 prose-em:font-medium
-            prose-img:rounded-xl prose-img:shadow-lg prose-img:my-8
-            prose-ul:list-disc prose-ul:pl-5 prose-ul:space-y-1.5 prose-ul:my-5
-            prose-ol:list-decimal prose-ol:pl-5 prose-ol:space-y-1.5 prose-ol:my-5
-            prose-li:text-[#3d3d3d] prose-li:text-[16px] prose-li:leading-relaxed prose-li:pl-1
-            prose-blockquote:border-l-[3px] prose-blockquote:border-indigo-500 prose-blockquote:bg-gradient-to-r prose-blockquote:from-indigo-50/80 prose-blockquote:to-transparent prose-blockquote:py-4 prose-blockquote:px-5 prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-slate-700 prose-blockquote:font-medium prose-blockquote:my-8 prose-blockquote:text-[16px]
-            prose-table:border prose-table:border-slate-200 prose-table:rounded-xl prose-table:overflow-hidden prose-table:my-8
+            prose-img:rounded-xl prose-img:shadow-lg prose-img:my-12
+            prose-ul:list-disc prose-ul:pl-8 prose-ul:space-y-4 prose-ul:my-10
+            prose-ol:list-decimal prose-ol:pl-8 prose-ol:space-y-4 prose-ol:my-10
+            prose-li:text-[#3d3d3d] prose-li:text-[18px] prose-li:leading-relaxed
+            prose-blockquote:border-l-[4px] prose-blockquote:border-indigo-500 prose-blockquote:bg-slate-50 prose-blockquote:py-6 prose-blockquote:px-8 prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-slate-700 prose-blockquote:font-medium prose-blockquote:my-12 prose-blockquote:text-[18px]
+            prose-table:border prose-table:border-slate-200 prose-table:rounded-xl prose-table:overflow-hidden prose-table:my-12
             prose-thead:bg-slate-900 prose-thead:text-white
             prose-th:py-3.5 prose-th:px-4 prose-th:text-left prose-th:text-xs prose-th:font-bold prose-th:uppercase prose-th:tracking-wider
             prose-td:py-3 prose-td:px-4 prose-td:border-b prose-td:border-slate-100 prose-td:text-[15px]

@@ -45,16 +45,13 @@ const KEYWORD_THEMES = [
  * Clean, SEO-friendly slug — no random gibberish at the end
  */
 function createSlug(title) {
-    const base = title
+    return title
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-')
         .replace(/(^-|-$)/g, '')
-        .substring(0, 75);
-    // Add short 4-char hash to prevent collisions
-    const hash = Math.random().toString(36).substring(2, 6);
-    return `${base}-${hash}`;
+        .substring(0, 85);
 }
 
 async function getExistingContent() {
@@ -230,11 +227,16 @@ Generate a PREMIUM, industry-grade blog post. Return this JSON:
 }
 
 CONTENT REQUIREMENTS:
-- Length: 1800-2500 words.
+- Length: 2000-2500 words.
 - HTML: Use <h2>, <h3>, <p>, <strong>, <ul>, <li>, <table>, <a>.
+- FORMATTING (VITAL): 
+    1. NEVER write a paragraph longer than 3 sentences. Break every concept into a new <p> tag.
+    2. Add significant "Breathing Room" by using <h2> and <h3> tags every 200-300 words.
+    3. Use Bullet points (<ul><li>) heavily to break up lists.
+    4. Each section must be punchy and spacious.
 - Structure: Start with a strong introduction, followed by data analysis, strategy tips, a detailed pattern table, FAQ, and a conclusion.
-- SEO: Use the focus keyword in the first H2. Include LSI keywords (prediction, result timing, common numbers).
-- Style: Professional, informative, and deeply knowledgeable. Avoid AI cliches.
+- SEO: Use the focus keyword in the first H2. Include LSI keywords.
+- Style: Professional, informative, and deeply knowledgeable. Use a clean, editorial layout.
 
 DO NOT wrap content in <html> or <body> tags.`;
 
