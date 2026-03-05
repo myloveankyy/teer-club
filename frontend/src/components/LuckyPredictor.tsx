@@ -38,17 +38,7 @@ export function LuckyPredictor() {
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-indigo-600/30 to-purple-600/20 rounded-full blur-[80px] -ml-40 -mb-40 animate-pulse" />
 
             <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-white/20">
-                        <Trophy className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                        <h4 className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 leading-none mb-1.5 drop-shadow-sm">Top Predictor 👑</h4>
-                        <p className="text-base font-black tracking-tight text-white/90">Aaj ka Super Hit Player</p>
-                    </div>
-                </div>
-
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mt-2">
                     <div className="flex items-center gap-5">
                         <div className="w-20 h-20 rounded-[28px] bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-700 p-0.5 shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/10 group-hover:scale-105 transition-transform duration-500">
                             <div className="w-full h-full rounded-[26px] bg-slate-900 flex items-center justify-center font-black text-2xl italic uppercase text-white shadow-inner">
