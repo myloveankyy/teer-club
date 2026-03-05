@@ -1,4 +1,6 @@
 Teer Club was developed using a modern AI-assisted engineering methodology that combines human decision making with intelligent development tools.
+<!-- Deployment Heartbeat: 2026-03-05 22:50 -->
+
 
 Instead of traditional isolated coding, the project followed a human-directed, AI-accelerated workflow where architecture, development, documentation, and iteration were performed through a structured dialogue process.
 
