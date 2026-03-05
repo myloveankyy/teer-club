@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { Target, Trophy, MapPin, Share2, Loader2, X, Download, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { ResultPosterModal } from '@/components/ResultPoster';
+
 interface LiveTickerProps {
     round: 1 | 2;
     targetDate: string; // ISO date string
@@ -178,61 +180,12 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
         return { gradient: "from-slate-600 to-slate-400", glow: "", bgIcon: "", backdrop: "from-slate-500 to-transparent", text: "text-slate-600", dot: "bg-slate-500" };
     };
 
-    const [isGeneratingShare, setIsGeneratingShare] = useState(false);
-    const [shareImage, setShareImage] = useState<string | null>(null);
     const [showShareModal, setShowShareModal] = useState(false);
 
     const handleShareResult = async (e: React.MouseEvent) => {
         e.stopPropagation();
         if (displayNumber === '--') return;
-
-        setIsGeneratingShare(true);
         setShowShareModal(true);
-
-        try {
-            const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
-            const response = await fetch('/api/image/generate-share-image', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ region, round, result: displayNumber, date: todayStr })
-            });
-
-            const data = await response.json();
-            if (data.success && data.imageBase64) {
-                // Determine full URL path
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000';
-                setShareImage(`${baseUrl}${data.imageBase64}`);
-            } else {
-                console.error("[Share] Image generation failed:", data.error);
-                setShareImage(null); // Shows "Failed to generate" state
-            }
-        } catch (error) {
-            console.error("Failed to generate AI share card:", error);
-            setShareImage(null);
-        } finally {
-            setIsGeneratingShare(false);
-        }
-    };
-
-    const handleNativeShare = async () => {
-        if (!shareImage) return;
-        try {
-            const fetchResponse = await fetch(shareImage);
-            const blob = await fetchResponse.blob();
-            const file = new File([blob], `teerclub-${region}-r${round}.png`, { type: blob.type });
-
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    title: `Teer Club - ${region.toUpperCase()} R${round}`,
-                    text: `Check out today's ${region} Teer results!`,
-                    files: [file],
-                });
-            } else {
-                alert("Your browser doesn't support direct image sharing. Please use the Download button.");
-            }
-        } catch (err) {
-            console.error("Error sharing:", err);
-        }
     };
 
     const styles = getRegionStyles();
@@ -334,9 +287,10 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
                                 onClick={handleShareResult}
-                                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white transition-all shadow-lg"
+                                className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/30 text-white transition-all shadow-lg text-[0px]"
                             >
                                 <Share2 className="w-4.5 h-4.5" />
+                                Share
                             </motion.button>
                         )}
                     </div>
@@ -404,93 +358,14 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                 </div>
             </motion.div>
 
-            {/* AI Share Card Modal */}
-            <AnimatePresence>
-                {showShareModal && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setShowShareModal(false)}
-                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
-                        />
-
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="relative w-full max-w-lg bg-white rounded-[40px] overflow-hidden shadow-2xl z-20 border border-white/20"
-                        >
-                            {/* Modal Header */}
-                            <div className="absolute top-6 right-6 z-30">
-                                <button
-                                    onClick={() => setShowShareModal(false)}
-                                    className="w-10 h-10 rounded-full bg-black/40 hover:bg-black/60 backdrop-blur-md flex items-center justify-center text-white transition-all shadow-lg active:scale-95"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            {/* Image Canvas View */}
-                            <div className="aspect-square relative flex items-center justify-center bg-slate-50">
-                                {isGeneratingShare ? (
-                                    <div className="flex flex-col items-center gap-4">
-                                        <div className="relative">
-                                            <Loader2 className="w-12 h-12 text-slate-200 animate-spin" />
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col items-center">
-                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Processing Global Archive</span>
-                                            <span className="text-[8px] font-bold text-slate-300 uppercase tracking-widest mt-1">Generating AI Share Card...</span>
-                                        </div>
-                                    </div>
-                                ) : shareImage ? (
-                                    <motion.img
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        src={shareImage}
-                                        alt="AI Result Share Card"
-                                        className="w-full h-full object-contain"
-                                    />
-                                ) : (
-                                    <div className="text-center p-8">
-                                        <p className="text-slate-400 text-sm">Failed to generate image. Please try again.</p>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Modal Footer (CTAs) */}
-                            <div className="p-8 bg-white flex flex-col items-center">
-                                <h3 className="text-xl font-black text-slate-900 tracking-tight mb-2">Official AI Share Card</h3>
-                                <p className="text-[11px] text-slate-400 font-medium tracking-wide uppercase mb-6 text-center">Ready to showcase your local victory.<br /><span className="text-indigo-500 font-bold">Refer & Earn integrated.</span></p>
-
-                                <div className="w-full flex gap-3">
-                                    {shareImage && (
-                                        <>
-                                            <button
-                                                onClick={handleNativeShare}
-                                                className="flex-1 h-14 bg-indigo-600 text-white rounded-[20px] flex items-center justify-center gap-2 text-[13px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-600/20 active:scale-[0.98]"
-                                            >
-                                                <Upload className="w-4 h-4" /> Share
-                                            </button>
-                                            <a
-                                                href={shareImage}
-                                                download={`teer-club-${region}-${new Date().toLocaleDateString()}.png`}
-                                                className="flex-1 h-14 bg-slate-900 text-white rounded-[20px] flex items-center justify-center gap-2 text-[13px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 active:scale-[0.98]"
-                                            >
-                                                <Download className="w-4 h-4" /> Save
-                                            </a>
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
+            <ResultPosterModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                region={region}
+                round={round}
+                result={displayNumber}
+                date={new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' }).format(new Date())}
+            />
         </>
     );
 }
