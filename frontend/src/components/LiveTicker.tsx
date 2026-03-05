@@ -362,8 +362,8 @@ export function LiveTicker({ round, targetDate, result, region = 'shillong', ini
                 isOpen={showShareModal}
                 onClose={() => setShowShareModal(false)}
                 region={region}
-                round={round}
-                result={displayNumber}
+                round1Result={round === 1 ? displayNumber : '--'}
+                round2Result={round === 2 ? displayNumber : '--'}
                 date={new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', day: '2-digit', month: 'short', year: 'numeric' }).format(new Date())}
             />
         </>
