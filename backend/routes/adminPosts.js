@@ -10,7 +10,9 @@ const { triggerGoogleIndex } = require('../services/seoIndexer');
 router.get('/', verifyAdmin, async (req, res) => {
     try {
         const postsRes = await db.query(`
-            SELECT id, title, slug, category, is_published, created_at, updated_at
+            SELECT id, title, slug, category, excerpt, content, featured_image, 
+                   is_published, views, meta_title, meta_description, focus_keyword,
+                   tags, schema_markup, is_ai_generated, created_at, updated_at
             FROM posts
             ORDER BY created_at DESC
         `);
