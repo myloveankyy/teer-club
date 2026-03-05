@@ -173,16 +173,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     {/* Enhanced Content Container */}
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 md:p-12 lg:p-16 mb-20 overflow-hidden">
                         <div
-                            className="prose prose-slate max-w-none 
+                            className="prose prose-slate prose-lg max-w-none 
                                 prose-headings:text-slate-900 prose-headings:tracking-tight 
-                                prose-h2:text-3xl prose-h2:font-bold prose-h2:mt-12 prose-h2:mb-6
-                                prose-h3:text-2xl prose-h3:font-bold prose-h3:mt-8
-                                prose-p:text-slate-600 prose-p:leading-relaxed prose-p:text-[17px] prose-p:mb-6
-                                prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline
-                                prose-strong:text-slate-900 prose-strong:font-bold
+                                prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:font-bold prose-h2:mt-14 prose-h2:mb-6 prose-h2:pb-3 prose-h2:border-b prose-h2:border-slate-100
+                                prose-h3:text-xl prose-h3:md:text-2xl prose-h3:font-bold prose-h3:mt-10 prose-h3:mb-4
+                                prose-p:text-slate-600 prose-p:leading-[1.85] prose-p:text-[17px] prose-p:mb-6
+                                prose-a:text-indigo-600 prose-a:font-semibold prose-a:no-underline prose-a:border-b prose-a:border-indigo-200 hover:prose-a:border-indigo-500 prose-a:transition-colors
+                                prose-strong:text-slate-800 prose-strong:font-bold
+                                prose-em:text-slate-700
                                 prose-img:rounded-xl prose-img:shadow-lg
-                                prose-ul:list-disc prose-ol:list-decimal
-                                prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 prose-blockquote:p-6 prose-blockquote:rounded-r-xl prose-blockquote:italic prose-blockquote:text-indigo-900
+                                prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2
+                                prose-ol:list-decimal prose-ol:pl-6 prose-ol:space-y-2
+                                prose-li:text-slate-600 prose-li:text-[17px] prose-li:leading-relaxed
+                                prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-gradient-to-r prose-blockquote:from-indigo-50 prose-blockquote:to-transparent prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:text-slate-700 prose-blockquote:font-medium prose-blockquote:my-8
+                                prose-table:border-collapse prose-table:w-full prose-table:rounded-lg prose-table:overflow-hidden prose-table:my-8
+                                prose-thead:bg-slate-800 prose-thead:text-white
+                                prose-th:py-3 prose-th:px-4 prose-th:text-left prose-th:text-sm prose-th:font-bold
+                                prose-td:py-3 prose-td:px-4 prose-td:border-b prose-td:border-slate-100 prose-td:text-sm
+                                prose-tr:even:bg-slate-50
                                 marker:text-indigo-500 selection:bg-indigo-100"
                             dangerouslySetInnerHTML={{ __html: contentHtml }}
                         />

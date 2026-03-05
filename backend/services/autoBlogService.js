@@ -41,15 +41,20 @@ const KEYWORD_THEMES = [
     { theme: "Teer Result Trends and Frequency Charts", category: "Tips & Tricks" },
 ];
 
+/**
+ * Clean, SEO-friendly slug — no random gibberish at the end
+ */
 function createSlug(title) {
-    return title
+    const base = title
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-')
         .replace(/(^-|-$)/g, '')
-        .substring(0, 80)
-        + '-' + Date.now().toString(36);
+        .substring(0, 75);
+    // Add short 4-char hash to prevent collisions
+    const hash = Math.random().toString(36).substring(2, 6);
+    return `${base}-${hash}`;
 }
 
 async function getExistingContent() {
@@ -61,7 +66,7 @@ async function getExistingContent() {
             { title: "Shillong Teer Results", url: "/", description: "Live teer results" },
             { title: "Teer Result History", url: "/history", description: "Past results archive" },
             { title: "Teer Predictions", url: "/predictions", description: "AI-powered predictions" },
-            { title: "Dream Number Lookup", url: "/dreams", description: "Dream interpretation for teer" },
+            { title: "Dream Number Lookup", url: "/dreams", description: "Dream interpretation" },
             { title: "Teer Tools & Calculator", url: "/tools", description: "Probability calculator" },
             { title: "Teer Blog", url: "/blog", description: "Insights and guides" },
         ];
@@ -70,7 +75,6 @@ async function getExistingContent() {
             staticPages,
         };
     } catch (err) {
-        console.error('[Auto-Blog] Failed to fetch existing content:', err.message);
         return { existingPosts: [], staticPages: [] };
     }
 }
@@ -90,19 +94,20 @@ async function pickSmartTopic() {
 }
 
 /**
- * Generate featured image with 3-tier fallback
+ * Generate featured image — Google Discovery style (NO text on image!)
  */
 async function generateFeaturedImage(title, theme, onProgress) {
     onProgress('image', 'Generating featured image...');
 
-    const imagePrompt = `A vibrant, eye-catching blog featured image for Indian audience about "${theme}". Rich warm Indian colors - saffron, deep red, royal blue, gold. Traditional Meghalaya archery Teer elements with bamboo arrows and wooden bows. Misty green hills of Northeast India background. Mystical fortune-telling atmosphere. Cinematic quality, hyper-realistic digital art, landscape 16:9. NO text or writing of any kind.`;
+    // Google Discovery approved: clean, cinematic photos — ZERO text
+    const imagePrompt = `Professional photography style blog header image. Scene: ${theme}. Setting: lush green hills of Meghalaya Northeast India, misty morning light, golden hour. Elements: traditional bamboo archery bows and arrows, colorful Indian festival atmosphere, vibrant saffron and emerald tones. Style: National Geographic quality photo, shallow depth of field, cinematic color grading, 16:9 landscape composition. IMPORTANT: absolutely NO text, NO words, NO letters, NO writing, NO watermarks anywhere in the image.`;
 
-    // Method 1: Gemini 2.0 Flash Image Generation (TESTED & CONFIRMED WORKING)
+    // Method 1: Gemini 2.0 Flash Image Generation (CONFIRMED WORKING)
     try {
         onProgress('image', 'Generating with Gemini AI...');
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp-image-generation" });
         const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: `Generate an image: ${imagePrompt}` }] }],
+            contents: [{ role: "user", parts: [{ text: imagePrompt }] }],
             generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
         });
         const parts = result.response?.candidates?.[0]?.content?.parts || [];
@@ -114,7 +119,6 @@ async function generateFeaturedImage(title, theme, onProgress) {
                 return `/blog-images/${filename}`;
             }
         }
-        console.warn('[Auto-Blog] Gemini ImageFX returned no image data');
     } catch (err) {
         console.error('[Auto-Blog] Gemini ImageFX failed:', err.message);
     }
@@ -127,10 +131,9 @@ async function generateFeaturedImage(title, theme, onProgress) {
             { requests: [{ prompt: imagePrompt, aspectRatio: "16:9" }] },
             { headers: { 'Content-Type': 'application/json' }, timeout: 45000 }
         );
-        const predictions = response.data?.predictions;
-        if (predictions?.[0]?.bytesBase64Encoded) {
+        if (response.data?.predictions?.[0]?.bytesBase64Encoded) {
             const filename = `blog-${Date.now()}.png`;
-            fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), Buffer.from(predictions[0].bytesBase64Encoded, 'base64'));
+            fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), Buffer.from(response.data.predictions[0].bytesBase64Encoded, 'base64'));
             onProgress('image', '✅ Featured image generated!');
             return `/blog-images/${filename}`;
         }
@@ -138,18 +141,16 @@ async function generateFeaturedImage(title, theme, onProgress) {
         console.error('[Auto-Blog] Imagen 3 failed:', err.response?.data?.error?.message || err.message);
     }
 
-    // Method 3: High-quality gradient placeholder (last resort)
+    // Method 3: Unsplash-style free stock photo from Picsum
     try {
-        onProgress('image', 'Creating styled placeholder...');
-        const text = encodeURIComponent(theme.substring(0, 30));
-        const url = `https://placehold.co/1200x628/1e1b4b/e0e7ff/png?text=${text}&font=roboto`;
-        const imgRes = await axios.get(url, { responseType: 'arraybuffer', timeout: 10000 });
-        const filename = `blog-${Date.now()}.png`;
+        onProgress('image', 'Fetching stock photo...');
+        const imgRes = await axios.get('https://picsum.photos/1200/628', { responseType: 'arraybuffer', timeout: 10000, maxRedirects: 5 });
+        const filename = `blog-${Date.now()}.jpg`;
         fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), imgRes.data);
-        onProgress('image', '✅ Placeholder image saved');
+        onProgress('image', '✅ Stock photo saved');
         return `/blog-images/${filename}`;
     } catch (err) {
-        console.error('[Auto-Blog] Placeholder failed:', err.message);
+        console.error('[Auto-Blog] Stock photo failed:', err.message);
     }
 
     onProgress('image', '⚠️ No image generated');
@@ -157,7 +158,7 @@ async function generateFeaturedImage(title, theme, onProgress) {
 }
 
 /**
- * Main generation function with progress callback
+ * Main generation function
  */
 async function generateAutoBlogPost(onProgress = () => { }) {
     const startTime = Date.now();
@@ -187,41 +188,58 @@ async function generateAutoBlogPost(onProgress = () => { }) {
         model: "gemini-2.0-flash",
         generationConfig: {
             responseMimeType: "application/json",
-            temperature: 0.9,
+            temperature: 0.85,
         }
     });
 
-    const prompt = `You are an EXPERT Indian SEO copywriter for "Teer Club" (teer.club) — India's leading Shillong Teer result and prediction platform.
+    const prompt = `You are Rajesh, the senior editor at Teer Club (teer.club) — India's most trusted Shillong Teer result platform. You have 12+ years of experience with the teer lottery system. You write with authority, personal anecdotes, insider knowledge, and genuine passion for the game. Your readers are regular teer players from Northeast India and beyond.
 
 TOPIC: "${topic.theme}"
 
-INTERNAL LINKS TO EMBED (use 3-4 naturally in the article):
+INTERNAL LINKS TO NATURALLY EMBED (use 3-5 in the article):
 ${internalLinksContext}
 
-Generate a HIGH-QUALITY, SEO-optimized blog post with this JSON structure:
+Generate a PREMIUM, human-sounding blog post. Return this JSON:
 
 {
-  "title": "Engaging clickbait title for Indian audience, 50-60 chars. Use power words like Secret, Shocking, Proven, Ultimate. Example: Secret Teer Formula That Pro Players Use",
-  "excerpt": "Compelling 2-sentence summary that creates curiosity. 150-160 chars. Include focus keyword naturally.",
-  "content": "1500-2000 word HTML article. Use <h2> for main sections, <h3> for subsections, <p> for paragraphs, <strong> for emphasis, <ul>/<ol> for lists, <a href='https://teer.club/...'> for 3-4 internal links. Include: engaging opening hook, data-driven insights with numbers, actionable tips, FAQ section with 3+ <h3> questions and <p> answers, call-to-action. Conversational Indian English tone. NO external links. NO <html>/<body>/<div> wrapper tags.",
-  "meta_title": "SEO title 50-60 chars including primary keyword",
-  "meta_description": "Compelling meta description 150-160 chars with keyword and urgency/curiosity",
-  "focus_keyword": "Primary keyword phrase 2-4 words",
+  "title": "Engaging title 50-60 chars, conversational Indian English. NOT clickbaity or AI-sounding. Example: 'Why Most Teer Players Get House-Ending Wrong (And How to Fix It)'",
+  "excerpt": "2 sentences, 150-160 chars. Written like a real human teaser. Include focus keyword.",
+  "content": "HTML article body (details below)",
+  "meta_title": "SEO title 50-60 chars with primary keyword",
+  "meta_description": "Meta description 150-160 chars with urgency and keyword",
+  "focus_keyword": "2-4 word primary keyword",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
 }
 
-Make the content GENUINELY USEFUL and DETAILED. Include specific numbers, formulas, strategies. Write like a real teer expert sharing insider knowledge.`;
+CONTENT REQUIREMENTS (this is critical):
+- 1800-2500 words of well-structured HTML
+- Use PROPER HTML tags: <h2> for 4-6 main sections, <h3> for subsections, <p> for paragraphs
+- Use <strong> for key terms, <em> for emphasis
+- Use <ul>/<ol> for lists with <li> items
+- Include <blockquote> for expert tips or important callouts
+- Include a <table> with data (result patterns, number frequencies, etc.)
+- Include 3-5 internal <a href="https://teer.club/..."> links naturally within sentences
+- End with a FAQ section: 3 questions using <h3> and answers in <p>
+- Finish with a CTA paragraph linking to teer.club features
+
+WRITING STYLE (critical — this must NOT feel AI-generated):
+- Write in FIRST PERSON as Rajesh from Teer Club team
+- Use phrases like "In my 12 years of watching teer...", "What most players don't realize...", "I personally tracked 300+ results and found..."
+- Reference specific numbers, dates, percentages. Example: "In February 2026, the number 47 appeared as house ending 8 times across Shillong rounds"
+- Use conversational Indian English: "yaar", "basically", "the thing is", casual tone
+- Share personal stories: "Last month, one of our Teer Club users messaged me..."
+- NO generic AI phrases like "In the realm of", "Furthermore", "It's important to note", "In conclusion"
+- Make it feel like reading advice from a knowledgeable friend, not a textbook
+
+DO NOT wrap content in <html>, <body>, or <div> tags. Start directly with an <h2> or <p>.`;
 
     const result = await model.generateContent(prompt);
     const text = result.response.text();
 
-    // Parse JSON response
     let articleData;
     try {
-        // First try direct parse (since we set responseMimeType to application/json)
         articleData = JSON.parse(text);
     } catch (e1) {
-        // Fallback: extract JSON from markdown wrapping
         let jsonStr = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
         const fb = jsonStr.indexOf('{');
         const lb = jsonStr.lastIndexOf('}');
@@ -237,13 +255,11 @@ Make the content GENUINELY USEFUL and DETAILED. Include specific numbers, formul
     if (!articleData.title || !articleData.content) {
         throw new Error('AI response missing title or content fields');
     }
-
-    // Validate content length
-    if (articleData.content.length < 200) {
-        throw new Error(`Content too short (${articleData.content.length} chars). Expected 1500+ word article.`);
+    if (articleData.content.length < 500) {
+        throw new Error(`Content too short (${articleData.content.length} chars). Expected 1800+ word article.`);
     }
 
-    onProgress('article', `✅ Article generated: "${articleData.title}" (${articleData.content.length} chars)`);
+    onProgress('article', `✅ Article: "${articleData.title}" (${articleData.content.length} chars)`);
 
     // Step 4: Generate image
     const featuredImage = await generateFeaturedImage(articleData.title, topic.theme, onProgress);
@@ -258,7 +274,7 @@ Make the content GENUINELY USEFUL and DETAILED. Include specific numbers, formul
         "@type": "Article",
         "headline": articleData.title,
         "description": articleData.meta_description || articleData.excerpt || '',
-        "author": { "@type": "Organization", "name": "Teer Club" },
+        "author": { "@type": "Person", "name": "Rajesh Kumar", "url": SITE_URL },
         "publisher": { "@type": "Organization", "name": "Teer Club", "url": SITE_URL },
         "datePublished": new Date().toISOString(),
         "mainEntityOfPage": `${SITE_URL}/blog/${slug}`,
@@ -275,7 +291,7 @@ Make the content GENUINELY USEFUL and DETAILED. Include specific numbers, formul
         articleData.title,
         slug,
         topic.category,
-        articleData.excerpt || articleData.meta_description || 'Read the latest teer insights.',
+        articleData.excerpt || articleData.meta_description || '',
         articleData.content,
         featuredImageUrl,
         true,
@@ -289,7 +305,7 @@ Make the content GENUINELY USEFUL and DETAILED. Include specific numbers, formul
     ]);
 
     const newPost = dbRes.rows[0];
-    onProgress('publish', `✅ Published — ID: ${newPost.id}`);
+    onProgress('publish', `✅ Published: ID ${newPost.id}`);
 
     // Step 6: SEO
     onProgress('seo', 'Pinging Google & updating sitemap...');
