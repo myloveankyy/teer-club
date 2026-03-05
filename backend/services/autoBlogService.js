@@ -99,8 +99,8 @@ async function pickSmartTopic() {
 async function generateFeaturedImage(title, theme, onProgress) {
     onProgress('image', 'Generating featured image...');
 
-    // Updated for high-converting "YouTube Thumbnail" Indian lottery style
-    const imagePrompt = `A highly clickbait, high-contrast YouTube thumbnail for the topic: "${theme}". Visual composition: The left side shows a close-up of a dark blackboard with white chalk numbers written on it, circled in chalk. Thick black graphical arrows point from the blackboard numbers towards the right side. The right side features bright red rectangular banners containing winning numbers like "24", "14", and "55" in bold white typography, with black circles drawn around them. Additional text banners in bright red and blue with bold white text saying "Daily Success" and "Hit". The overall vibe is extremely catchy, urgent, and attention-grabbing. High contrast, hyper-vibrant colors (red, white, blue, yellow) designed to maximize click-through rate in the Indian market.`;
+    // Updated for authentic "human-made" Photoshop YouTube Thumbnail Indian lottery style
+    const imagePrompt = `A highly realistic, human-made style YouTube thumbnail for the topic: "${theme}". Visual composition: Photo-realistic dark green chalkboard on the left with REALISTIC handwritten chalk numbers (like 24 or 55) circled in thick white chalk. Thick bright yellow graphical arrows pointing right. On the right side, bright neon-pink and neon-red rectangular 2D boxes containing the exact text "Daily Success" and "HIT" in bold white impact font, along with numbers "14" and "25" in bold red. The design MUST look exactly like an authentic, highly clickable Photoshop edit made by an Indian YouTuber. Absolutely NO smooth 3D render look, NO AI-generated digital art feeling. Gritty, high-contrast, flat layout, hyper-vibrant neon colors (red, yellow, blue, white). Use real-world textures to make it look 100% human-designed and clickbaity.`;
 
     // Method 1: Gemini 2.0 Flash Image Generation (CONFIRMED WORKING)
     try {

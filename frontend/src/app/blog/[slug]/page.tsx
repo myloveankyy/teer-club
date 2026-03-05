@@ -216,7 +216,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 {/* Featured Image — Edge to Edge Feel */}
                 {post.featured_image && (
                     <div className="max-w-[960px] mx-auto px-4 md:px-6 -mt-0 mb-0">
-                        <div className="w-full aspect-[16/9] md:aspect-[2/1] rounded-b-2xl md:rounded-2xl overflow-hidden shadow-xl relative mt-0 md:-mt-4">
+                        <div className="w-full aspect-[16/9] bg-slate-100 rounded-b-2xl md:rounded-2xl overflow-hidden shadow-xl relative mt-0 md:-mt-4">
                             <Image src={post.featured_image} alt={post.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 960px" priority />
                         </div>
                     </div>
