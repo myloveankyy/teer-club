@@ -15,6 +15,8 @@ const GAME_TYPES = [
     "Juwai FR", "Juwai SR"
 ];
 
+import { PredictionPosterModal } from "./PredictionPoster";
+
 export default function PostPredictionModal() {
     const router = useRouter();
     const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +34,8 @@ export default function PostPredictionModal() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [isSuccessState, setIsSuccessState] = useState(false);
+    const [showPoster, setShowPoster] = useState(false);
+    const [lastPrediction, setLastPrediction] = useState<any>(null);
 
     const fetchUser = async () => {
         setLoadingAuth(true);
@@ -92,8 +96,17 @@ export default function PostPredictionModal() {
                 setSuccess(res.data.message);
                 setUser((prev: any) => ({ ...prev, wallet_balance: res.data.new_balance }));
                 setIsSuccessState(true);
+
+                // Store for poster
+                setLastPrediction({
+                    number,
+                    gameType,
+                    amount: parseFloat(amount)
+                });
+
                 setTimeout(() => {
                     setIsOpen(false);
+                    setShowPoster(true); // Trigger viral loop
                     router.refresh();
                 }, 1500);
             }
@@ -287,6 +300,15 @@ export default function PostPredictionModal() {
                     </div>
                 )}
             </AnimatePresence>
+
+            {lastPrediction && (
+                <PredictionPosterModal
+                    isOpen={showPoster}
+                    onClose={() => setShowPoster(false)}
+                    userName={user?.username || "Predictor"}
+                    prediction={lastPrediction}
+                />
+            )}
         </>
     );
 }

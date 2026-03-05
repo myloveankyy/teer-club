@@ -28,6 +28,11 @@ async function generateStaticSitemap() {
         addUrl('/blog', 'daily', '0.8');
         addUrl('/winners', 'daily', '0.8');
 
+        // Target Prediction Landing Pages
+        addUrl('/predictions/shillong-teer-prediction-today', 'hourly', '0.95');
+        addUrl('/predictions/khanapara-teer-lucky-number-today', 'hourly', '0.95');
+        addUrl('/predictions/juwai-teer-common-number-today', 'hourly', '0.95');
+
         // Blog Posts
         try {
             const { rows } = await db.query('SELECT slug FROM posts WHERE is_published = true');

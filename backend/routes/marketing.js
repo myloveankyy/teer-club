@@ -176,4 +176,75 @@ router.post('/admin/dummy-winners/generate', verifyAdmin, async (req, res) => {
     }
 });
 
+// --- RECENT LUCKY PREDICTOR (FOR SPOTLIGHT) ---
+router.get('/lucky-predictor', async (req, res) => {
+    try {
+        // Fetch the most recent winner with a high reward
+        const result = await db.query(`
+            SELECT 
+                ub.number as prediction,
+                ub.game_type as game,
+                ub.amount,
+                u.username as name,
+                u.id as user_id
+            FROM user_bets ub
+            JOIN users u ON ub.user_id = u.id
+            WHERE ub.status = 'WON'
+            ORDER BY ub.created_at DESC
+            LIMIT 1
+        `);
+
+        if (result.rows.length === 0) {
+            // Fallback for empty results
+            return res.json({
+                name: "Top Predictor",
+                prediction: "42",
+                game: "Shillong",
+                won: "₹8,400"
+            });
+        }
+
+        const winner = result.rows[0];
+        res.json({
+            name: winner.name,
+            prediction: winner.prediction,
+            game: winner.game.split(' ')[0],
+            won: `₹${(winner.amount * 80).toLocaleString()}` // Mock mult if win mult isn't stored
+        });
+    } catch (error) {
+        console.error('Error fetching lucky predictor:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// --- COMMUNITY PREDICTION STATS (FOR SEO PAGES) ---
+router.get('/community-insights/:region', async (req, res) => {
+    try {
+        const { region } = req.params;
+        const regionPrefix = region.charAt(0).toUpperCase() + region.slice(1);
+
+        // Get the top 4 most predicted numbers for today for this region
+        const stats = await db.query(`
+            SELECT number, COUNT(*) as weight
+            FROM user_bets
+            WHERE game_type LIKE $1 AND created_at >= CURRENT_DATE
+            GROUP BY number
+            ORDER BY weight DESC
+            LIMIT 4
+        `, [`%${regionPrefix}%`]);
+
+        const labels = ['House', 'Ending', 'Direct', 'Hit'];
+        const data = stats.rows.map((row, i) => ({
+            label: labels[i] || 'Target',
+            value: row.number,
+            probability: `${Math.min(95, 60 + parseInt(row.weight) * 5)}%`
+        }));
+
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Error fetching community insights:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;

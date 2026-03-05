@@ -20,11 +20,13 @@ import {
     Zap,
     Trophy,
     ChevronLeft,
-    ShieldCheck
+    ShieldCheck,
+    Sparkles
 } from 'lucide-react';
 import api from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { ReferralVisualizer } from '@/components/ReferralVisualizer';
 
 interface ReferralStats {
     referralCode: string;
@@ -234,6 +236,20 @@ export default function ReferralPage() {
                                 <p className="text-[9px] font-medium text-white/30 uppercase tracking-[0.2em]">Verified High Growth Network</p>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div className="mb-10 min-h-[400px] bg-slate-900/5 backdrop-blur-sm rounded-[48px] border border-slate-200/50 p-6 md:p-12 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8">
+                        <div className="flex items-center gap-2 px-3 py-1 bg-white/80 backdrop-blur-md rounded-full border border-slate-100 shadow-sm">
+                            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Live Tree</span>
+                        </div>
+                    </div>
+                    <div className="relative z-10">
+                        <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">Network Architecture</h2>
+                        <p className="text-xs text-slate-400 font-medium mb-2">Visualize your community impact across 5 unique growth tiers.</p>
+                        <ReferralVisualizer stats={stats?.stats} />
                     </div>
                 </div>
 
