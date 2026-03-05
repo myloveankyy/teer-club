@@ -1,33 +1,37 @@
 import { MetadataRoute } from 'next'
 
-export default function sitemap(): MetadataRoute.Sitemap {
-    const baseUrl = 'https://teer.club'
+const BASE_URL = 'https://teer.club'
+const API_URL = 'http://127.0.0.1:5000'
+
+export const revalidate = 3600 // Revalidate every hour
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const now = new Date()
 
     // --- Static Pages ---
     const staticPages = [
-        '',
-        '/history',
-        '/predictions',
-        '/dreams',
-        '/tools',
-        '/blog',
-        '/winners',
-        '/education',
-        '/education/teer-dream-number-chart',
+        { route: '', priority: 1.0, freq: 'daily' as const },
+        { route: '/history', priority: 0.9, freq: 'daily' as const },
+        { route: '/predictions', priority: 0.9, freq: 'hourly' as const },
+        { route: '/dreams', priority: 0.7, freq: 'weekly' as const },
+        { route: '/tools', priority: 0.7, freq: 'weekly' as const },
+        { route: '/blog', priority: 0.8, freq: 'daily' as const },
+        { route: '/winners', priority: 0.8, freq: 'daily' as const },
+        { route: '/education', priority: 0.7, freq: 'weekly' as const },
+        { route: '/education/teer-dream-number-chart', priority: 0.7, freq: 'weekly' as const },
     ]
 
-    const staticUrls = staticPages.map((route) => ({
-        url: `${baseUrl}${route}`,
+    const staticUrls = staticPages.map((p) => ({
+        url: `${BASE_URL}${p.route}`,
         lastModified: now,
-        changeFrequency: 'daily' as const,
-        priority: route === '' ? 1.0 : 0.8,
+        changeFrequency: p.freq,
+        priority: p.priority,
     }))
 
     // --- Educational Content ---
     const educationTopics = ['what-is-teer', 'teer-rules', 'how-calculation-works']
     const educationUrls = educationTopics.map((topic) => ({
-        url: `${baseUrl}/education/${topic}`,
+        url: `${BASE_URL}/education/${topic}`,
         lastModified: now,
         changeFrequency: 'weekly' as const,
         priority: 0.7,
@@ -37,13 +41,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     const regions = ['shillong', 'khanapara', 'juwai']
     const predictionUrls = regions.flatMap((region) => [
         {
-            url: `${baseUrl}/${region}-teer-prediction-today`,
+            url: `${BASE_URL}/${region}-teer-prediction-today`,
             lastModified: now,
             changeFrequency: 'daily' as const,
             priority: 0.8,
         },
         {
-            url: `${baseUrl}/${region}-teer-common-number-today`,
+            url: `${BASE_URL}/${region}-teer-common-number-today`,
             lastModified: now,
             changeFrequency: 'daily' as const,
             priority: 0.8,
@@ -61,16 +65,46 @@ export default function sitemap(): MetadataRoute.Sitemap {
         const d = new Date(now)
         d.setDate(d.getDate() - i)
         const dateStr = `${d.getDate()}-${months[d.getMonth()]}-${d.getFullYear()}`
+        const isoDate = d.toISOString().split('T')[0]
 
         for (const region of regions) {
+            // Slug-format URLs (e.g. /shillong-teer-result-5-march-2026)
             resultUrls.push({
-                url: `${baseUrl}/${region}-teer-result-${dateStr}`,
+                url: `${BASE_URL}/${region}-teer-result-${dateStr}`,
                 lastModified: d,
-                changeFrequency: 'daily' as const,
-                priority: 0.9,
+                changeFrequency: i === 0 ? 'hourly' : 'daily',
+                priority: i === 0 ? 0.9 : 0.6,
+            })
+            // API-format URLs (e.g. /results/shillong/2026-03-05)
+            resultUrls.push({
+                url: `${BASE_URL}/results/${region}/${isoDate}`,
+                lastModified: d,
+                changeFrequency: i === 0 ? 'hourly' : 'daily',
+                priority: i === 0 ? 0.9 : 0.6,
             })
         }
     }
 
-    return [...staticUrls, ...educationUrls, ...predictionUrls, ...resultUrls]
+    // --- Blog Posts (fetched from API) ---
+    let blogUrls: MetadataRoute.Sitemap = []
+    try {
+        const res = await fetch(`${API_URL}/api/public/posts?limit=100`, {
+            next: { revalidate: 3600 },
+        })
+        if (res.ok) {
+            const data = await res.json()
+            if (data.success && Array.isArray(data.data)) {
+                blogUrls = data.data.map((post: any) => ({
+                    url: `${BASE_URL}/blog/${post.slug}`,
+                    lastModified: post.created_at ? new Date(post.created_at) : now,
+                    changeFrequency: 'weekly' as const,
+                    priority: 0.75,
+                }))
+            }
+        }
+    } catch (err) {
+        console.error('[Sitemap] Failed to fetch blog posts:', err)
+    }
+
+    return [...staticUrls, ...educationUrls, ...predictionUrls, ...resultUrls, ...blogUrls]
 }
