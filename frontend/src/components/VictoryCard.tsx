@@ -172,7 +172,7 @@ export function VictoryCardModal({ isOpen, onClose, prediction, userName, isAlmo
                                 {/* Minimalist Brand Tag */}
                                 <div className="mt-8 flex items-center justify-center gap-2 opacity-40">
                                     <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
-                                    <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-slate-900">Official Teer.Club Analytics</span>
+                                    <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-slate-900">Official Teer.Club Analytics v2.2</span>
                                 </div>
                             </div>
                         </div>
