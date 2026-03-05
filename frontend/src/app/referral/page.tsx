@@ -329,7 +329,7 @@ export default function ReferralPage() {
                                                 </td>
                                                 <td className="px-8 py-6 text-right">
                                                     <div className="inline-flex items-center gap-2 text-emerald-600 font-black">
-                                                        <span className="text-[16px] tracking-tighter">+ ₹{tx.amount.toFixed(2)}</span>
+                                                        <span className="text-[16px] tracking-tighter">+ ₹{Number(tx.amount).toFixed(2)}</span>
                                                         <ArrowUpRight className="w-4 h-4 opacity-40 group-hover:opacity-100 transition-opacity" />
                                                     </div>
                                                 </td>
