@@ -95,20 +95,22 @@ async function generateConsolidatedTeerImage(resultsObj, date) {
     // Format date for display
     const displayDate = new Date(date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
-    const prompt = `A highly realistic, cinematic photo of a traditional dark wooden "Dkhar Teer Counter" result board in the misty Meghalaya hills. 
-    At the top, "TEER" is written in massive, bold white chalk.
-    Below it, it says "OFFICIAL RESULTS: ${displayDate}".
-    The board features a hand-drawn chalk table with clear columns:
-    DATE | REGION | ROUND-1 | ROUND-2
-    ---------------------------------
-    TODAY | SHILLONG | ${round1 || '??'} | ${round2 || '??'}
-    TODAY | KHANAPARA | ${khanapara_r1 || '??'} | ${khanapara_r2 || '??'}
-    TODAY | JUWAI | ${juwai_r1 || '??'} | ${juwai_r2 || '??'}
+    const prompt = `A hyper-realistic, minimalist, and "sexily styled" industrial-grade Teer results dashboard. 
+    The centerpiece is an ultra-modern, dark matte wooden board with sharp (not rounded) edges, featuring a high-contrast white chalk design.
+    The header "TEER" is in massive, sharp, elegant serif typography.
+    Below it, "OFFICIAL RESULT LOG: ${displayDate}" in technical, small-caps handwriting.
+    The results are presented in a clean, industrial-style grid:
     
-    At the bottom, the words "Dkhar Teer Counter" and "TEER.CLUB" are written in stylized chalk.
-    An authentic leather quiver filled with many bamboo arrows is leaning against the side of the wooden board. 
-    The background is a soft-focus, moody landscape of a Khasi village archery field with morning mist and tropical greenery. 
-    The image is hyper-realistic, 4k resolution, cinematic lighting, with authentic chalk dust and wood grain texture.`;
+    [ SHILLONG ]  FR: ${round1 || '??'}  |  SR: ${round2 || '??'}
+    [ KHANAPARA ] FR: ${khanapara_r1 || '??'}  |  SR: ${khanapara_r2 || '??'}
+    [ JUWAI ]     FR: ${juwai_r1 || '??'}  |  SR: ${juwai_r2 || '??'}
+    
+    The board is littered with "micro-information": small chalk-drawn arrow symbols, verification checkmarks, and a technical-looking "DATA-SYNC" indicator.
+    A single, premium leather quiver with high-detail bamboo arrows is positioned beside the board.
+    The background is a cinematic, soft-bokeh shot of the misty Khasi hills at dawn, with a cool, moody atmospheric lighting.
+    The footer has a sharp, minimalist logo: "TEER.CLUB - PREMIUM ANALYTICS".
+    Hyper-realistic 8k, cinematic depth of field, authentic wood texture, professional photography, industrial minimalism.`;
+
 
 
     console.log(`[ImageGen] Triggering Consolidated Gemini Image for ${date}`);

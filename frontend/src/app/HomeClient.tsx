@@ -4,10 +4,11 @@ import { useState, useRef, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, ChevronLeft, ChevronRight, Bell, Menu, Trophy, Info, BookOpen, Map, Sparkles } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Bell, Menu, Trophy, Info, BookOpen, Map, Sparkles, Share2, Target, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import api from '@/lib/api';
 import { BentoSkeleton } from '@/components/Skeleton';
+import { ResultPosterModal } from '@/components/ResultPoster';
 
 // Dynamic imports for performance (Industry Grade)
 const LiveTicker = dynamic(() => import('@/components/LiveTicker').then(mod => mod.LiveTicker), {
@@ -37,9 +38,18 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
     const [activeRegion, setActiveRegion] = useState<'shillong' | 'khanapara' | 'juwai'>('shillong');
     const [dummyWinners, setDummyWinners] = useState<any[]>(initialWinners);
 
-    // Viral Growth Engine: Mocking the win trigger
-    const [showVictoryModal, setShowVictoryModal] = useState(false);
+    // Mobile Share Engine State
+    const [showFabMenu, setShowFabMenu] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [shareContext, setShareContext] = useState<{ region: 'shillong' | 'khanapara' | 'juwai'; round: number; result: string; date: string }>({
+        region: 'shillong',
+        round: 1,
+        result: '--',
+        date: ''
+    });
+
     const [victoryType, setVictoryType] = useState<'win' | 'almost'>('win');
+    const [showVictoryModal, setShowVictoryModal] = useState(false);
     const [isAuth, setIsAuth] = useState(false);
 
     useEffect(() => {
@@ -354,6 +364,61 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                 </div>
             </div>
 
+            {/* Floating Share Engine (Sexy Mobile FAB) */}
+            <div className="fixed bottom-24 right-6 z-[120] md:hidden">
+                <motion.div className="relative">
+                    <AnimatePresence>
+                        {showFabMenu && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                                animate={{ opacity: 1, scale: 1, y: 0 }}
+                                exit={{ opacity: 0, scale: 0.8, y: 20 }}
+                                className="absolute bottom-20 right-0 flex flex-col gap-3 min-w-[200px]"
+                            >
+                                {[
+                                    { id: 'shillong', label: 'Shillong Result' },
+                                    { id: 'khanapara', label: 'Khanapara Result' },
+                                    { id: 'juwai', label: 'Juwai Result' }
+                                ].map((choice) => (
+                                    <button
+                                        key={choice.id}
+                                        onClick={() => {
+                                            const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+                                            setShareContext({
+                                                region: choice.id as any,
+                                                date: today,
+                                                round: 1,
+                                                result: initialLatestResults?.[choice.id]?.round1 || '--'
+                                            });
+                                            setShowShareModal(true);
+                                            setShowFabMenu(false);
+                                        }}
+                                        className="h-14 bg-white/95 backdrop-blur-xl border border-slate-200 px-6 rounded-2xl flex items-center justify-between shadow-2xl active:scale-95 transition-all group"
+                                    >
+                                        <span className="text-[11px] font-black uppercase tracking-widest text-slate-900">{choice.label}</span>
+                                        <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                            <Target className="w-4 h-4" />
+                                        </div>
+                                    </button>
+                                ))}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setShowFabMenu(!showFabMenu)}
+                        className={cn(
+                            "w-16 h-16 rounded-3xl flex items-center justify-center shadow-[0_20px_40px_-10px_rgba(79,70,229,0.4)] transition-all duration-500",
+                            showFabMenu ? "bg-slate-900 border border-white/20 rotate-90" : "bg-indigo-600 border border-indigo-400"
+                        )}
+                    >
+                        {showFabMenu ? <X className="w-7 h-7 text-white" /> : <Share2 className="w-7 h-7 text-white" />}
+                    </motion.button>
+                </motion.div>
+            </div>
+
             <VictoryCardModal
                 isOpen={showVictoryModal}
                 onClose={() => setShowVictoryModal(false)}
@@ -367,6 +432,17 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                     winAmount: 8000
                 }}
             />
+
+            {/* Global Share Engine */}
+            <ResultPosterModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                region={shareContext.region}
+                round={shareContext.round}
+                result={shareContext.result}
+                date={shareContext.date}
+            />
         </main>
     );
 }
+
