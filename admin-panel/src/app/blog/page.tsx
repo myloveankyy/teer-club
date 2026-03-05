@@ -33,6 +33,8 @@ export default function AdminBlogPage() {
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
     const [aiGenerating, setAiGenerating] = useState(false);
+    const [aiProgress, setAiProgress] = useState<{ step: string; message: string }[]>([]);
+    const [toast, setToast] = useState<{ type: 'success' | 'error'; title: string; message: string } | null>(null);
     const [error, setError] = useState("");
 
     // Modal State
@@ -57,7 +59,6 @@ export default function AdminBlogPage() {
     const fetchPosts = async () => {
         if (!isAuthenticated) return;
         setLoading(true);
-        setError("");
         try {
             const res = await api.get('/admin/posts');
             if (res.data.success) {
@@ -75,6 +76,15 @@ export default function AdminBlogPage() {
         if (!authLoading) fetchPosts();
     }, [isAuthenticated, authLoading]);
 
+    const generateSlug = (title: string) => {
+        return title
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/-+/g, "-")
+            .substring(0, 80);
+    };
+
     const handleOpenModal = (post: BlogPost | null = null) => {
         setError("");
         if (post) {
@@ -84,18 +94,26 @@ export default function AdminBlogPage() {
                 slug: post.slug,
                 category: post.category,
                 excerpt: post.excerpt || "",
-                content: post.content,
+                content: post.content || "",
                 featured_image: post.featured_image || "",
                 is_published: post.is_published,
                 meta_title: post.meta_title || "",
                 meta_description: post.meta_description || "",
-                focus_keyword: post.focus_keyword || ""
+                focus_keyword: post.focus_keyword || "",
             });
         } else {
             setEditingPost(null);
             setFormData({
-                title: "", slug: "", category: "Tips & Tricks", excerpt: "", content: "", featured_image: "", is_published: false,
-                meta_title: "", meta_description: "", focus_keyword: ""
+                title: "",
+                slug: "",
+                category: "Tips & Tricks",
+                excerpt: "",
+                content: "",
+                featured_image: "",
+                is_published: false,
+                meta_title: "",
+                meta_description: "",
+                focus_keyword: "",
             });
         }
         setIsModalOpen(true);
@@ -122,17 +140,21 @@ export default function AdminBlogPage() {
         setError("");
 
         try {
+            const payload = {
+                ...formData,
+                slug: formData.slug || generateSlug(formData.title),
+            };
             if (editingPost) {
-                const res = await api.put(`/admin/posts/${editingPost.id}`, formData);
+                const res = await api.put(`/admin/posts/${editingPost.id}`, payload);
                 if (res.data.success) {
-                    setPosts(posts.map(p => p.id === editingPost.id ? res.data.data : p));
-                    handleCloseModal();
+                    await fetchPosts();
+                    setIsModalOpen(false);
                 }
             } else {
-                const res = await api.post('/admin/posts', formData);
+                const res = await api.post('/admin/posts', payload);
                 if (res.data.success) {
-                    setPosts([res.data.data, ...posts]);
-                    handleCloseModal();
+                    await fetchPosts();
+                    setIsModalOpen(false);
                 }
             }
         } catch (err: any) {
@@ -155,22 +177,55 @@ export default function AdminBlogPage() {
         }
     };
 
+    const showToast = (type: 'success' | 'error', title: string, message: string) => {
+        setToast({ type, title, message });
+        setTimeout(() => setToast(null), 8000);
+    };
+
     const handleAutoGenerate = async () => {
         setAiGenerating(true);
+        setAiProgress([]);
         setError("");
+
+        // Simulate progress steps while waiting
+        const steps = [
+            { step: "🎯", message: "Selecting smart topic..." },
+            { step: "🔍", message: "Gathering website context..." },
+            { step: "✍️", message: "Generating article with Gemini AI..." },
+            { step: "🖼️", message: "Generating featured image..." },
+            { step: "💾", message: "Publishing to database..." },
+            { step: "📡", message: "Pinging Google & updating sitemap..." },
+        ];
+
+        // Show steps progressively
+        let stepIdx = 0;
+        const progressInterval = setInterval(() => {
+            if (stepIdx < steps.length) {
+                setAiProgress(prev => [...prev, steps[stepIdx]]);
+                stepIdx++;
+            }
+        }, 5000);
+
         try {
-            const res = await api.post('/admin/auto-blog/generate', {}, { timeout: 120000 });
+            const res = await api.post('/admin/auto-blog/generate', {}, { timeout: 180000 });
+            clearInterval(progressInterval);
+
             if (res.data.success) {
-                // Refresh posts list
+                const d = res.data.data;
+                setAiProgress(steps.map(s => ({ ...s, message: "✅ " + s.message.replace("...", " — Done!") })));
                 await fetchPosts();
-                alert(`✅ AI Blog Post Published!\n\nTitle: ${res.data.data.title}\nSlug: ${res.data.data.slug}\n\n${res.data.data.image_generated ? '🖼️ Featured image generated' : '⚠️ Image generation skipped'}\n📡 Google Indexing pinged\n🗺️ Sitemap regenerated`);
+                showToast('success', '🎉 AI Blog Post Published!',
+                    `"${d.title}"\n${d.content_length || '1500+'} chars • ${d.image_generated ? '🖼️ Image' : '⚠️ No image'} • 📡 Indexed • ${d.generation_time}`
+                );
             }
         } catch (err: any) {
-            console.error("AI Generation failed", err);
-            setError(err.response?.data?.error || "AI generation failed. Please try again.");
-            alert(`❌ Generation Failed: ${err.response?.data?.error || err.message}`);
+            clearInterval(progressInterval);
+            const errMsg = err.response?.data?.error || err.message || "Unknown error";
+            showToast('error', '❌ Generation Failed', errMsg);
+            setError(errMsg);
         } finally {
             setAiGenerating(false);
+            setTimeout(() => setAiProgress([]), 3000);
         }
     };
 
@@ -178,6 +233,25 @@ export default function AdminBlogPage() {
 
     return (
         <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
+
+            {/* Toast Notification */}
+            {toast && (
+                <div className={`fixed top-6 right-6 z-[100] max-w-md animate-in slide-in-from-right-5 duration-300 rounded-2xl shadow-2xl border p-5 ${toast.type === 'success'
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                        : 'bg-red-50 border-red-200 text-red-900'
+                    }`}>
+                    <div className="flex items-start gap-3">
+                        <span className="text-2xl">{toast.type === 'success' ? '✅' : '❌'}</span>
+                        <div className="flex-1 min-w-0">
+                            <p className="font-bold text-sm">{toast.title}</p>
+                            <p className="text-xs mt-1 opacity-80 whitespace-pre-line">{toast.message}</p>
+                        </div>
+                        <button onClick={() => setToast(null)} className="text-slate-400 hover:text-slate-600">
+                            <X className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -197,7 +271,7 @@ export default function AdminBlogPage() {
                         {aiGenerating ? (
                             <>
                                 <Loader2 className="w-5 h-5 animate-spin" />
-                                <span>Generating with AI...</span>
+                                <span>Generating...</span>
                             </>
                         ) : (
                             <>
@@ -215,6 +289,27 @@ export default function AdminBlogPage() {
                     </button>
                 </div>
             </div>
+
+            {/* AI Progress Stepper */}
+            {aiProgress.length > 0 && (
+                <div className="bg-gradient-to-br from-violet-50 to-fuchsia-50 border border-violet-200 rounded-2xl p-5 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                        <Sparkles className="w-5 h-5 text-violet-600" />
+                        <span className="font-bold text-violet-900 text-sm">AI Generation Progress</span>
+                        {aiGenerating && <Loader2 className="w-4 h-4 animate-spin text-violet-500 ml-auto" />}
+                    </div>
+                    <div className="space-y-2">
+                        {aiProgress.map((p, i) => (
+                            <div key={i} className="flex items-center gap-3 text-sm animate-in slide-in-from-left-3 duration-300">
+                                <span className="text-base">{p.step}</span>
+                                <span className={`font-medium ${p.message.includes('✅') ? 'text-emerald-700' : 'text-violet-700'}`}>
+                                    {p.message}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* List View */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

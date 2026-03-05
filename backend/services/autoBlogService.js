@@ -6,10 +6,9 @@ const db = require('../db');
 const { triggerGoogleIndex } = require('./seoIndexer');
 const { generateStaticSitemap } = require('./sitemapGenerator');
 
-// Keys — same pattern used across the codebase
 // Single API key from env — injected via GitHub Secrets on deploy
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
 const BLOG_IMAGES_DIR = path.join(__dirname, '../public/blog-images');
 if (!fs.existsSync(BLOG_IMAGES_DIR)) {
@@ -42,9 +41,6 @@ const KEYWORD_THEMES = [
     { theme: "Teer Result Trends and Frequency Charts", category: "Tips & Tricks" },
 ];
 
-/**
- * Helper to create URL-safe slugs
- */
 function createSlug(title) {
     return title
         .toLowerCase()
@@ -56,18 +52,11 @@ function createSlug(title) {
         + '-' + Date.now().toString(36);
 }
 
-/**
- * Fetches existing posts for internal linking context
- */
 async function getExistingContent() {
     try {
-        const postsRes = await db.query(`
-            SELECT title, slug, category FROM posts 
-            WHERE is_published = true 
-            ORDER BY created_at DESC 
-            LIMIT 15
-        `);
-
+        const postsRes = await db.query(
+            `SELECT title, slug, category FROM posts WHERE is_published = true ORDER BY created_at DESC LIMIT 15`
+        );
         const staticPages = [
             { title: "Shillong Teer Results", url: "/", description: "Live teer results" },
             { title: "Teer Result History", url: "/history", description: "Past results archive" },
@@ -76,12 +65,8 @@ async function getExistingContent() {
             { title: "Teer Tools & Calculator", url: "/tools", description: "Probability calculator" },
             { title: "Teer Blog", url: "/blog", description: "Insights and guides" },
         ];
-
         return {
-            existingPosts: postsRes.rows.map(p => ({
-                title: p.title,
-                url: `/blog/${p.slug}`,
-            })),
+            existingPosts: postsRes.rows.map(p => ({ title: p.title, url: `/blog/${p.slug}` })),
             staticPages,
         };
     } catch (err) {
@@ -90,214 +75,183 @@ async function getExistingContent() {
     }
 }
 
-/**
- * Pick a topic that hasn't been used recently
- */
 async function pickSmartTopic() {
     try {
-        const recentRes = await db.query(`
-            SELECT generation_theme FROM posts 
-            WHERE is_ai_generated = true 
-            ORDER BY created_at DESC 
-            LIMIT 10
-        `);
+        const recentRes = await db.query(
+            `SELECT generation_theme FROM posts WHERE is_ai_generated = true ORDER BY created_at DESC LIMIT 10`
+        );
         const recentThemes = recentRes.rows.map(r => r.generation_theme).filter(Boolean);
         const available = KEYWORD_THEMES.filter(k => !recentThemes.includes(k.theme));
-
-        if (available.length === 0) {
-            return KEYWORD_THEMES[Math.floor(Math.random() * KEYWORD_THEMES.length)];
-        }
+        if (available.length === 0) return KEYWORD_THEMES[Math.floor(Math.random() * KEYWORD_THEMES.length)];
         return available[Math.floor(Math.random() * available.length)];
     } catch (err) {
-        // If the column doesn't exist yet, just pick random
-        console.warn('[Auto-Blog] pickSmartTopic fallback:', err.message);
         return KEYWORD_THEMES[Math.floor(Math.random() * KEYWORD_THEMES.length)];
     }
 }
 
 /**
- * Generate featured image using Gemini Imagen 3
- * Returns the path on success, null on failure (non-blocking)
+ * Generate featured image with 3-tier fallback
  */
-async function generateFeaturedImage(title, theme) {
-    console.log('[Auto-Blog] === IMAGE GENERATION START ===');
+async function generateFeaturedImage(title, theme, onProgress) {
+    onProgress('image', 'Generating featured image...');
 
-    // Method 1: Try Imagen 3 API
+    // Method 1: Imagen 3
     try {
-        const prompt = `A vibrant, eye-catching blog featured image for Indian audience about "${theme}". 
-Rich warm Indian colors, saffron, deep red, royal blue, gold.
-Traditional Meghalaya archery Teer elements, bamboo arrows, wooden bows.
-Misty green hills of Northeast India background.
-Mystical fortune-telling atmosphere.
-Cinematic quality, hyper-realistic digital art, landscape orientation.
-NO text in any script except English.`;
-
-        console.log('[Auto-Blog] Trying Imagen 3 API...');
+        onProgress('image', 'Trying Imagen 3 API...');
+        const prompt = `Vibrant blog featured image for Indian audience about "${theme}". Rich warm Indian colors saffron deep red royal blue gold. Traditional Meghalaya archery Teer elements bamboo arrows wooden bows. Misty green hills of Northeast India background. Mystical fortune-telling atmosphere. Cinematic quality hyper-realistic digital art landscape orientation. NO text.`;
 
         const response = await axios.post(
             `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages?key=${GEMINI_API_KEY}`,
             { requests: [{ prompt, aspectRatio: "16:9" }] },
             { headers: { 'Content-Type': 'application/json' }, timeout: 45000 }
         );
-
         const predictions = response.data?.predictions;
-        if (predictions && predictions.length > 0 && predictions[0].bytesBase64Encoded) {
+        if (predictions?.[0]?.bytesBase64Encoded) {
             const filename = `blog-${Date.now()}.png`;
-            const filepath = path.join(BLOG_IMAGES_DIR, filename);
-            fs.writeFileSync(filepath, Buffer.from(predictions[0].bytesBase64Encoded, 'base64'));
-            console.log(`[Auto-Blog] ✅ Imagen 3 image saved: ${filename}`);
+            fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), Buffer.from(predictions[0].bytesBase64Encoded, 'base64'));
+            onProgress('image', '✅ Featured image generated!');
             return `/blog-images/${filename}`;
         }
-        console.warn('[Auto-Blog] Imagen 3 returned empty predictions');
     } catch (err) {
-        console.error('[Auto-Blog] ❌ Imagen 3 failed:', err.response?.data?.error?.message || err.message);
+        console.error('[Auto-Blog] Imagen 3 failed:', err.response?.data?.error?.message || err.message);
     }
 
-    // Method 2: Try Gemini 2.0 Flash image generation
+    // Method 2: Gemini 2.0 Flash image generation
     try {
-        console.log('[Auto-Blog] Trying Gemini 2.0 Flash image generation...');
+        onProgress('image', 'Trying Gemini Flash image gen...');
         const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
         const result = await model.generateContent({
-            contents: [{
-                role: "user",
-                parts: [{
-                    text: `Generate a vibrant featured image for a blog post about "${theme}". Indian archery theme with Meghalaya scenery, warm colors.`
-                }]
-            }],
+            contents: [{ role: "user", parts: [{ text: `Generate a vibrant featured image for a blog post about "${theme}". Indian archery theme with Meghalaya scenery, warm colors. No text.` }] }],
             generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
         });
-
-        const response = result.response;
-        if (response.candidates && response.candidates[0]) {
-            const parts = response.candidates[0].content?.parts || [];
-            for (const part of parts) {
-                if (part.inlineData && part.inlineData.data) {
-                    const filename = `blog-${Date.now()}.png`;
-                    const filepath = path.join(BLOG_IMAGES_DIR, filename);
-                    fs.writeFileSync(filepath, Buffer.from(part.inlineData.data, 'base64'));
-                    console.log(`[Auto-Blog] ✅ Gemini Flash image saved: ${filename}`);
-                    return `/blog-images/${filename}`;
-                }
+        const parts = result.response?.candidates?.[0]?.content?.parts || [];
+        for (const part of parts) {
+            if (part.inlineData?.data) {
+                const filename = `blog-${Date.now()}.png`;
+                fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), Buffer.from(part.inlineData.data, 'base64'));
+                onProgress('image', '✅ Featured image generated!');
+                return `/blog-images/${filename}`;
             }
         }
-        console.warn('[Auto-Blog] Gemini Flash returned no image data');
     } catch (err) {
-        console.error('[Auto-Blog] ❌ Gemini Flash image failed:', err.message);
+        console.error('[Auto-Blog] Gemini Flash image failed:', err.message);
     }
 
-    // Method 3: Fallback — Use a high-quality placeholder
+    // Method 3: Placeholder
     try {
-        console.log('[Auto-Blog] Using fallback placeholder image...');
-        const encodedTitle = encodeURIComponent(theme.substring(0, 40));
-        const placeholderUrl = `https://placehold.co/1200x628/1e293b/f8fafc/png?text=${encodedTitle}&font=roboto`;
-
-        const imgRes = await axios.get(placeholderUrl, { responseType: 'arraybuffer', timeout: 10000 });
+        onProgress('image', 'Using fallback placeholder...');
+        const text = encodeURIComponent(theme.substring(0, 30));
+        const url = `https://placehold.co/1200x628/1e1b4b/e0e7ff/png?text=${text}&font=roboto`;
+        const imgRes = await axios.get(url, { responseType: 'arraybuffer', timeout: 10000 });
         const filename = `blog-${Date.now()}.png`;
-        const filepath = path.join(BLOG_IMAGES_DIR, filename);
-        fs.writeFileSync(filepath, imgRes.data);
-        console.log(`[Auto-Blog] ✅ Fallback image saved: ${filename}`);
+        fs.writeFileSync(path.join(BLOG_IMAGES_DIR, filename), imgRes.data);
+        onProgress('image', '✅ Placeholder image saved');
         return `/blog-images/${filename}`;
     } catch (err) {
-        console.error('[Auto-Blog] ❌ Fallback image also failed:', err.message);
+        console.error('[Auto-Blog] Placeholder failed:', err.message);
     }
 
-    console.warn('[Auto-Blog] === ALL IMAGE METHODS FAILED — proceeding without image ===');
+    onProgress('image', '⚠️ No image generated');
     return null;
 }
 
 /**
- * Main: Generate a full SEO-optimized blog post using Gemini AI
+ * Main generation function with progress callback
  */
-async function generateAutoBlogPost() {
-    console.log('[Auto-Blog] ========== STARTING AUTO BLOG GENERATION ==========');
+async function generateAutoBlogPost(onProgress = () => { }) {
     const startTime = Date.now();
 
-    // 1. Pick a smart topic
+    if (!genAI || !GEMINI_API_KEY) {
+        throw new Error('GEMINI_API_KEY is not configured. Add it to your .env and GitHub Secrets.');
+    }
+
+    // Step 1: Pick topic
+    onProgress('topic', 'Selecting smart topic...');
     const topic = await pickSmartTopic();
-    console.log(`[Auto-Blog] Selected topic: "${topic.theme}" (${topic.category})`);
+    onProgress('topic', `✅ Topic: "${topic.theme}"`);
 
-    // 2. Gather website context for internal linking
+    // Step 2: Gather context
+    onProgress('context', 'Gathering website context...');
     const { existingPosts, staticPages } = await getExistingContent();
-    console.log(`[Auto-Blog] Context: ${existingPosts.length} posts, ${staticPages.length} static pages`);
+    onProgress('context', `✅ Found ${existingPosts.length} posts for internal linking`);
 
-    // 3. Build the mega-prompt
+    // Step 3: Generate article
+    onProgress('article', 'Generating article with Gemini AI...');
     const internalLinksContext = [
         ...staticPages.map(p => `- [${p.title}](${SITE_URL}${p.url}) — ${p.description}`),
         ...existingPosts.slice(0, 8).map(p => `- [${p.title}](${SITE_URL}${p.url})`),
     ].join('\n');
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    const model = genAI.getGenerativeModel({
+        model: "gemini-2.0-flash",
+        generationConfig: {
+            responseMimeType: "application/json",
+            temperature: 0.9,
+        }
+    });
 
-    const prompt = `You are an EXPERT Indian SEO copywriter for "Teer Club" (teer.club) — India's #1 Shillong Teer result and prediction platform.
+    const prompt = `You are an EXPERT Indian SEO copywriter for "Teer Club" (teer.club) — India's leading Shillong Teer result and prediction platform.
 
-TARGET KEYWORD: "${topic.theme}"
+TOPIC: "${topic.theme}"
 
-INTERNAL LINKS (embed 3-4 naturally in the article):
+INTERNAL LINKS TO EMBED (use 3-4 naturally in the article):
 ${internalLinksContext}
 
-Write a blog post. Return ONLY valid JSON with these exact keys:
+Generate a HIGH-QUALITY, SEO-optimized blog post with this JSON structure:
 
 {
-  "title": "Clickbait title for Indian audience, 50-60 chars, use power words",
-  "excerpt": "2-sentence meta description, 150-160 chars, creates curiosity",
-  "content": "1500-2000 word HTML article body with <h2>, <h3>, <strong>, <ul>/<ol>, 3-4 internal <a href> links, FAQ section with 3 questions. Conversational Indian English. NO <html>/<body>/<div> root tags.",
-  "meta_title": "SEO title tag 50-60 chars with primary keyword",
-  "meta_description": "Meta description 150-160 chars with keyword and FOMO",
-  "focus_keyword": "Primary keyword 2-4 words",
+  "title": "Engaging clickbait title for Indian audience, 50-60 chars. Use power words like Secret, Shocking, Proven, Ultimate. Example: Secret Teer Formula That Pro Players Use",
+  "excerpt": "Compelling 2-sentence summary that creates curiosity. 150-160 chars. Include focus keyword naturally.",
+  "content": "1500-2000 word HTML article. Use <h2> for main sections, <h3> for subsections, <p> for paragraphs, <strong> for emphasis, <ul>/<ol> for lists, <a href='https://teer.club/...'> for 3-4 internal links. Include: engaging opening hook, data-driven insights with numbers, actionable tips, FAQ section with 3+ <h3> questions and <p> answers, call-to-action. Conversational Indian English tone. NO external links. NO <html>/<body>/<div> wrapper tags.",
+  "meta_title": "SEO title 50-60 chars including primary keyword",
+  "meta_description": "Compelling meta description 150-160 chars with keyword and urgency/curiosity",
+  "focus_keyword": "Primary keyword phrase 2-4 words",
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
 }
 
-CRITICAL: Return ONLY raw JSON. No markdown backticks. No explanation.`;
+Make the content GENUINELY USEFUL and DETAILED. Include specific numbers, formulas, strategies. Write like a real teer expert sharing insider knowledge.`;
 
-    console.log('[Auto-Blog] Sending to Gemini 2.5 Flash...');
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+
+    // Parse JSON response
     let articleData;
-
     try {
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text();
-
-        // Aggressive JSON extraction
+        // First try direct parse (since we set responseMimeType to application/json)
+        articleData = JSON.parse(text);
+    } catch (e1) {
+        // Fallback: extract JSON from markdown wrapping
         let jsonStr = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-
-        // If it starts with non-JSON text, try to find the JSON object
-        const firstBrace = jsonStr.indexOf('{');
-        const lastBrace = jsonStr.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1 && firstBrace < lastBrace) {
-            jsonStr = jsonStr.substring(firstBrace, lastBrace + 1);
+        const fb = jsonStr.indexOf('{');
+        const lb = jsonStr.lastIndexOf('}');
+        if (fb !== -1 && lb !== -1) jsonStr = jsonStr.substring(fb, lb + 1);
+        try {
+            articleData = JSON.parse(jsonStr);
+        } catch (e2) {
+            console.error('[Auto-Blog] JSON parse failed. Raw (first 500):', text.substring(0, 500));
+            throw new Error('AI returned invalid JSON. Please try again.');
         }
-
-        articleData = JSON.parse(jsonStr);
-        console.log(`[Auto-Blog] ✅ Article parsed: "${articleData.title}"`);
-    } catch (parseErr) {
-        console.error('[Auto-Blog] ❌ Gemini response parse failed:', parseErr.message);
-        throw new Error('AI returned invalid response. Please try again.');
     }
 
     if (!articleData.title || !articleData.content) {
-        throw new Error('AI response missing title or content');
+        throw new Error('AI response missing title or content fields');
     }
 
-    // 4. Generate featured image (non-blocking — post publishes even if image fails)
-    console.log('[Auto-Blog] Starting image generation...');
-    let featuredImage = null;
-    try {
-        featuredImage = await generateFeaturedImage(articleData.title, topic.theme);
-    } catch (imgErr) {
-        console.error('[Auto-Blog] Image generation threw:', imgErr.message);
+    // Validate content length
+    if (articleData.content.length < 200) {
+        throw new Error(`Content too short (${articleData.content.length} chars). Expected 1500+ word article.`);
     }
 
-    // 5. Build featured image URL
-    let featuredImageUrl = null;
-    if (featuredImage) {
-        featuredImageUrl = `${SITE_URL}${featuredImage}`;
-    }
+    onProgress('article', `✅ Article generated: "${articleData.title}" (${articleData.content.length} chars)`);
 
-    // 6. Prepare slug and data
+    // Step 4: Generate image
+    const featuredImage = await generateFeaturedImage(articleData.title, topic.theme, onProgress);
+    const featuredImageUrl = featuredImage ? `${SITE_URL}${featuredImage}` : null;
+
+    // Step 5: Save to DB
+    onProgress('publish', 'Publishing to database...');
     const slug = createSlug(articleData.title);
     const tags = Array.isArray(articleData.tags) ? articleData.tags.join(', ') : (articleData.tags || '');
-
-    // Build schema markup
     const schemaMarkup = JSON.stringify({
         "@context": "https://schema.org",
         "@type": "Article",
@@ -310,58 +264,42 @@ CRITICAL: Return ONLY raw JSON. No markdown backticks. No explanation.`;
         ...(featuredImageUrl ? { "image": featuredImageUrl } : {})
     });
 
-    // 7. Insert into DB
-    console.log('[Auto-Blog] Inserting into database...');
-    let newPost;
-    try {
-        const insertQuery = `
-            INSERT INTO posts (
-                title, slug, category, excerpt, content, featured_image,
-                is_published, meta_title, meta_description, focus_keyword,
-                tags, schema_markup, is_ai_generated, generation_theme
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-            RETURNING *
-        `;
-        const values = [
-            articleData.title,
-            slug,
-            topic.category,
-            articleData.excerpt || articleData.meta_description || 'Read the latest teer insights.',
-            articleData.content,
-            featuredImageUrl,
-            true,
-            articleData.meta_title || articleData.title.substring(0, 60),
-            articleData.meta_description || articleData.excerpt || '',
-            articleData.focus_keyword || topic.theme,
-            tags,
-            schemaMarkup,
-            true,
-            topic.theme,
-        ];
+    const dbRes = await db.query(`
+        INSERT INTO posts (
+            title, slug, category, excerpt, content, featured_image,
+            is_published, meta_title, meta_description, focus_keyword,
+            tags, schema_markup, is_ai_generated, generation_theme
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *
+    `, [
+        articleData.title,
+        slug,
+        topic.category,
+        articleData.excerpt || articleData.meta_description || 'Read the latest teer insights.',
+        articleData.content,
+        featuredImageUrl,
+        true,
+        articleData.meta_title || articleData.title.substring(0, 60),
+        articleData.meta_description || articleData.excerpt || '',
+        articleData.focus_keyword || topic.theme,
+        tags,
+        schemaMarkup,
+        true,
+        topic.theme,
+    ]);
 
-        const dbRes = await db.query(insertQuery, values);
-        newPost = dbRes.rows[0];
-        console.log(`[Auto-Blog] ✅ Published — ID: ${newPost.id}, Slug: ${slug}`);
-    } catch (dbErr) {
-        console.error('[Auto-Blog] ❌ DB insert failed:', dbErr.message);
-        throw new Error(`Database error: ${dbErr.message}`);
-    }
+    const newPost = dbRes.rows[0];
+    onProgress('publish', `✅ Published — ID: ${newPost.id}`);
 
-    // 8. Google Indexing (fire-and-forget, never blocks)
+    // Step 6: SEO
+    onProgress('seo', 'Pinging Google & updating sitemap...');
     const postUrl = `${SITE_URL}/blog/${slug}`;
-    triggerGoogleIndex(postUrl, 'URL_UPDATED')
-        .then(() => console.log(`[Auto-Blog] ✅ Google pinged: ${postUrl}`))
-        .catch(e => console.error('[Auto-Blog] Google ping failed:', e.message));
-
+    triggerGoogleIndex(postUrl, 'URL_UPDATED').catch(e => console.error('[Auto-Blog] Google ping failed:', e.message));
     triggerGoogleIndex(`${SITE_URL}/blog`, 'URL_UPDATED').catch(() => { });
-
-    // 9. Sitemap regeneration (fire-and-forget)
-    generateStaticSitemap()
-        .then(() => console.log('[Auto-Blog] ✅ Sitemap regenerated'))
-        .catch(e => console.error('[Auto-Blog] Sitemap regen failed:', e.message));
+    generateStaticSitemap().catch(e => console.error('[Auto-Blog] Sitemap failed:', e.message));
+    onProgress('seo', '✅ Google pinged & sitemap updated');
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(`[Auto-Blog] ========== COMPLETE in ${elapsed}s ==========`);
+    onProgress('done', `✅ Complete in ${elapsed}s`);
 
     return {
         id: newPost.id,
@@ -369,11 +307,12 @@ CRITICAL: Return ONLY raw JSON. No markdown backticks. No explanation.`;
         slug: newPost.slug,
         category: newPost.category,
         excerpt: newPost.excerpt,
+        content_length: articleData.content.length,
         featured_image: newPost.featured_image,
         meta_title: newPost.meta_title,
         meta_description: newPost.meta_description,
         focus_keyword: newPost.focus_keyword,
-        tags: tags,
+        tags,
         url: postUrl,
         image_generated: !!featuredImage,
         google_indexed: true,

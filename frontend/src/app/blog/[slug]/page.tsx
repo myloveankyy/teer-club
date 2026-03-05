@@ -77,6 +77,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         let contentHtml = '';
         if (post.content.trim().startsWith('{') && post.content.includes('"blocks"')) {
             contentHtml = editorjsToHtml(post.content);
+        } else if (post.content.trim().startsWith('<') || post.content.includes('<h2') || post.content.includes('<p>')) {
+            // Raw HTML from AI-generated posts — render directly
+            contentHtml = post.content;
         } else {
             contentHtml = await markdownToHtml(post.content || '');
         }
