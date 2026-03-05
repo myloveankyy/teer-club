@@ -82,6 +82,62 @@ async function generateAndSaveTeerImage(region, round, result, date) {
 }
 
 /**
+ * Generates a consolidated image for all Teer results of the day
+ */
+async function generateConsolidatedTeerImage(resultsObj, date) {
+    if (!resultsObj || !date) return null;
+
+    const filename = `consolidated-${date}.png`;
+    const filepath = path.join(SHARES_DIR, filename);
+
+    const { round1, round2, khanapara_r1, khanapara_r2, juwai_r1, juwai_r2 } = resultsObj;
+
+    // Format date for display
+    const displayDate = new Date(date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+    const prompt = `A highly realistic, cinematic photo of a traditional dark wooden "Dkhar Teer Counter" result board in the misty Meghalaya hills. 
+    At the top, "TEER" is written in massive, bold white chalk.
+    Below it, it says "OFFICIAL RESULTS: ${displayDate}".
+    The board features a hand-drawn chalk table with clear columns:
+    DATE | REGION | ROUND-1 | ROUND-2
+    ---------------------------------
+    TODAY | SHILLONG | ${round1 || '??'} | ${round2 || '??'}
+    TODAY | KHANAPARA | ${khanapara_r1 || '??'} | ${khanapara_r2 || '??'}
+    TODAY | JUWAI | ${juwai_r1 || '??'} | ${juwai_r2 || '??'}
+    
+    At the bottom, the words "Dkhar Teer Counter" and "TEER.CLUB" are written in stylized chalk.
+    An authentic leather quiver filled with many bamboo arrows is leaning against the side of the wooden board. 
+    The background is a soft-focus, moody landscape of a Khasi village archery field with morning mist and tropical greenery. 
+    The image is hyper-realistic, 4k resolution, cinematic lighting, with authentic chalk dust and wood grain texture.`;
+
+
+    console.log(`[ImageGen] Triggering Consolidated Gemini Image for ${date}`);
+
+    try {
+        const response = await axios.post(
+            `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages?key=${GEMINI_API_KEY}`,
+            {
+                requests: [{ prompt, aspectRatio: "1:1" }]
+            },
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+
+        const predictions = response.data.predictions;
+
+        if (predictions && predictions.length > 0 && predictions[0].bytesBase64Encoded) {
+            const buffer = Buffer.from(predictions[0].bytesBase64Encoded, 'base64');
+            fs.writeFileSync(filepath, buffer);
+            console.log(`[ImageGen] Successfully saved ${filename}`);
+            return `/shares/${filename}`;
+        }
+        return null;
+    } catch (error) {
+        console.error('[ImageGen] Error generating consolidated image:', error.response?.data?.error?.message || error.message);
+        return null;
+    }
+}
+
+/**
  * Triggers background generation for all results of a given day
  * Used silently in the background when admin scrapes or edits results
  */
@@ -100,16 +156,22 @@ async function triggerDailyImageGeneration(date, resultsObj) {
         { region: 'juwai', round: 2, val: resultsObj.juwai_r2 },
     ];
 
+    // Generate individual images (existing logic)
     for (const task of tasks) {
-        // We only generate if the result is a number (not '--' or null)
-        if (task.val && task.val !== '--' && task.val !== 'XX') {
+        if (task.val && task.val !== '--' && task.val !== 'XX' && task.val !== '??') {
             await generateAndSaveTeerImage(task.region, task.round, task.val, date).catch(err => console.error(err));
         }
     }
+
+    // NEW: Generate the consolidated image for all 6 games
+    await generateConsolidatedTeerImage(resultsObj, date).catch(err => console.error(err));
+
     console.log(`[ImageGen] Background generation task for ${date} complete.`);
 }
 
 module.exports = {
     generateAndSaveTeerImage,
+    generateConsolidatedTeerImage,
     triggerDailyImageGeneration
 };
+

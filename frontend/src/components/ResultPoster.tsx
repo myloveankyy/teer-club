@@ -202,14 +202,14 @@ export function ResultPosterModal({ isOpen, onClose, region, round, result, date
                         </div>
 
                         {/* Actions */}
-                        <div className="w-full px-4 pt-2">
+                        <div className="w-full px-4 pt-2 flex flex-col gap-3">
                             <motion.button
                                 whileHover={{ scale: 1.02, y: -4 }}
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleShare}
                                 disabled={isSharing}
                                 className={cn(
-                                    "w-full py-6 rounded-[32px] font-black text-[14px] uppercase tracking-[0.25em] flex items-center justify-center gap-4 text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden",
+                                    "w-full py-5 rounded-[28px] font-black text-[13px] uppercase tracking-[0.25em] flex items-center justify-center gap-4 text-white shadow-[0_20px_40px_-10px_rgba(0,0,0,0.4)] transition-all duration-300 relative overflow-hidden",
                                     shared
                                         ? "bg-emerald-500"
                                         : "bg-indigo-600"
@@ -218,7 +218,7 @@ export function ResultPosterModal({ isOpen, onClose, region, round, result, date
                                 {isSharing ? (
                                     <div className="flex items-center gap-3">
                                         <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
-                                        <span>Designing Card...</span>
+                                        <span>Preparing...</span>
                                     </div>
                                 ) : shared ? (
                                     <>
@@ -227,12 +227,69 @@ export function ResultPosterModal({ isOpen, onClose, region, round, result, date
                                     </>
                                 ) : (
                                     <>
-                                        <Share2 className="w-6 h-6 stroke-[3]" />
-                                        <span>Share to WhatsApp</span>
+                                        <Share2 className="w-5 h-5 stroke-[2.5]" />
+                                        <span>Digital Victory Card</span>
                                     </>
                                 )}
                             </motion.button>
+
+                            {/* Phase 5: Realistic AI Sharing */}
+                            <motion.button
+                                whileHover={{ scale: 1.02, y: -4 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={async () => {
+                                    setIsSharing(true);
+                                    try {
+                                        // Format date carefully to match server (YYYY-MM-DD)
+                                        const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+                                        const year = now.getFullYear();
+                                        const month = String(now.getMonth() + 1).padStart(2, '0');
+                                        const day = String(now.getDate()).padStart(2, '0');
+                                        const dateStr = `${year}-${month}-${day}`;
+
+                                        // Note: In local dev, you might need the full backend URL if proxy isn't set
+                                        const imageUrl = `/shares/consolidated-${dateStr}.png`;
+
+                                        // Check if AI generated the board yet
+                                        const headCheck = await fetch(imageUrl, { method: 'HEAD' });
+                                        if (!headCheck.ok) {
+                                            alert("AI is still crafting your realistic result board. Please wait 10 seconds and try again!");
+                                            setIsSharing(false);
+                                            return;
+                                        }
+
+                                        if (navigator.share) {
+                                            const response = await fetch(imageUrl);
+                                            const blob = await response.blob();
+                                            const file = new File([blob], `teer-club-official-${dateStr}.png`, { type: blob.type });
+                                            await navigator.share({
+                                                title: `Official Teer Results Board Today 🎯`,
+                                                text: `Check out today's Teer results on the official realistic board! Get yours at https://teer.club #TeerClub #ShillongTeer`,
+                                                files: [file],
+                                            });
+                                        } else {
+                                            const link = document.createElement('a');
+                                            link.href = imageUrl;
+                                            link.download = `teer-club-${dateStr}.png`;
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        }
+                                    } catch (err) {
+                                        console.error("AI Share Error:", err);
+                                        alert("Sharing failed. You can also Long Press the image to save if it doesn't open.");
+                                    } finally {
+                                        setIsSharing(false);
+                                    }
+                                }}
+                                disabled={isSharing}
+                                className="w-full py-5 rounded-[28px] font-black text-[13px] uppercase tracking-[0.25em] flex items-center justify-center gap-4 bg-slate-100 text-slate-800 border border-slate-200 hover:bg-white transition-all duration-300"
+                            >
+                                <Sparkles className="w-5 h-5 text-amber-500 fill-amber-500" />
+                                <span>Share Realistic AI Board</span>
+                            </motion.button>
                         </div>
+
                     </motion.div>
                 </div>
             )}

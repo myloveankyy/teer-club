@@ -34,6 +34,7 @@ const adminBranding = require('./routes/adminBranding');
 const verifyAdmin = require('./middleware/verifyAdmin');
 const marketingRoutes = require('./routes/marketing');
 const feedRoutes = require('./routes/feed');
+const { triggerDailyImageGeneration } = require('./services/imageService');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -687,6 +688,14 @@ setInterval(async () => {
 
       // TRIGGER THE AUTO SETTLER AFTER NEW RESULTS ARE FETCHED
       await settlePendingBets();
+
+      // NEW: Trigger background AI image generation for the new results
+      const upserted = {
+        round1, round2,
+        khanapara_r1: khanaparaR1, khanapara_r2: khanaparaR2,
+        juwai_r1: juwaiR1, juwai_r2: juwaiR2
+      };
+      triggerDailyImageGeneration(date, upserted).catch(err => console.error('[ImageGen] Auto-Scraper background gen failed:', err));
     }
   } catch (err) {
     console.error('[Auto-Scraper] Error during scheduled scrape:', err.message);
