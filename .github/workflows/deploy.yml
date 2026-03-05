@@ -65,6 +65,7 @@ jobs:
             echo "DB_SSL=true" >> backend/.env
             echo "JWT_SECRET=super_secret_teer_club_jwt_key_2026" >> backend/.env
             echo "GA4_PROPERTY_ID=469586125" >> backend/.env
+            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> backend/.env
 
             # Backend: install runtime deps only
             echo "Installing Backend Dependencies..."

@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCl253SC0rBsg_-1J7m0Rdni7mVNJgq8_0';
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const SHARES_DIR = path.join(__dirname, '../public/shares');
 
 // Ensure the directory exists

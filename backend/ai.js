@@ -1,7 +1,7 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 // Initialize Gemini with hardcoded user key
-const genAI = new GoogleGenerativeAI('AIzaSyAImJt5aYwK0lgqtANjOwXQRbM1sDai7Sw');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 async function analyzeDream(dreamText) {
     if (!genAI) {

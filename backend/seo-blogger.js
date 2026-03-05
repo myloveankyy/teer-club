@@ -3,7 +3,7 @@ const db = require('./db');
 
 // Initialize Gemini
 let genAI = null;
-const apiKey = 'AIzaSyAImJt5aYwK0lgqtANjOwXQRbM1sDai7Sw';
+const apiKey = process.env.GEMINI_API_KEY || '';
 if (!apiKey) {
     console.warn("WARNING: GEMINI_API_KEY environment variable is missing. SEO Auto-Blogger will be disabled.");
 } else {

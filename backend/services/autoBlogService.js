@@ -7,9 +7,9 @@ const { triggerGoogleIndex } = require('./seoIndexer');
 const { generateStaticSitemap } = require('./sitemapGenerator');
 
 // Keys — same pattern used across the codebase
-const GEMINI_TEXT_KEY = 'AIzaSyAImJt5aYwK0lgqtANjOwXQRbM1sDai7Sw';
-const GEMINI_IMAGE_KEY = process.env.GEMINI_API_KEY || 'AIzaSyCl253SC0rBsg_-1J7m0Rdni7mVNJgq8_0';
-const genAI = new GoogleGenerativeAI(GEMINI_TEXT_KEY);
+// Single API key from env — injected via GitHub Secrets on deploy
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const BLOG_IMAGES_DIR = path.join(__dirname, '../public/blog-images');
 if (!fs.existsSync(BLOG_IMAGES_DIR)) {
@@ -135,7 +135,7 @@ NO text in any script except English.`;
         console.log('[Auto-Blog] Trying Imagen 3 API...');
 
         const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages?key=${GEMINI_IMAGE_KEY}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:generateImages?key=${GEMINI_API_KEY}`,
             { requests: [{ prompt, aspectRatio: "16:9" }] },
             { headers: { 'Content-Type': 'application/json' }, timeout: 45000 }
         );
