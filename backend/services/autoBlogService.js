@@ -99,8 +99,8 @@ async function pickSmartTopic() {
 async function generateFeaturedImage(title, theme, onProgress) {
     onProgress('image', 'Generating featured image...');
 
-    // Google Discovery approved: clean but highly catchy Indian market style (NO text on image!)
-    const imagePrompt = `Extremely catchy, high-contrast, Indian clickbait style thumbnail background. Topic: "${theme}". Visuals: Intense gambling and winning energy, glowing archery arrows hitting a bullseye, glowing Indian Rupee coin or notes subtly in the background out of focus. Colors: Ultra-vibrant neon red, bright gold, and deep blue. Style: Hyper-realistic 3D render mixed with cinematic photography, shallow depth of field, extremely exciting and enticing. IMPORTANT: absolutely NO text, NO words, NO letters, NO writing, NO watermarks anywhere in the image.`;
+    // Updated for high-converting "YouTube Thumbnail" Indian lottery style
+    const imagePrompt = `A highly clickbait, high-contrast YouTube thumbnail for the topic: "${theme}". Visual composition: The left side shows a close-up of a dark blackboard with white chalk numbers written on it, circled in chalk. Thick black graphical arrows point from the blackboard numbers towards the right side. The right side features bright red rectangular banners containing winning numbers like "24", "14", and "55" in bold white typography, with black circles drawn around them. Additional text banners in bright red and blue with bold white text saying "Daily Success" and "Hit". The overall vibe is extremely catchy, urgent, and attention-grabbing. High contrast, hyper-vibrant colors (red, white, blue, yellow) designed to maximize click-through rate in the Indian market.`;
 
     // Method 1: Gemini 2.0 Flash Image Generation (CONFIRMED WORKING)
     try {
@@ -217,7 +217,8 @@ Generate a PREMIUM, human - sounding blog post.Return this JSON:
 CONTENT REQUIREMENTS(this is critical):
     - 1800 - 2500 words of well - structured HTML inside the "content" field
         - MUST be written in ${language.toUpperCase()}
-    - Use PROPER HTML tags: <h2> for 4-6 main sections, <h3> for subsections, <p> for paragraphs. Add nice breathing room between sections.
+    - Use PROPER HTML tags: <h2> for 4-6 main sections, <h3> for subsections, <p> for paragraphs.
+    - VERY IMPORTANT FORMATTING: Give the article lots of "breathing room" and "gapping". Write extremely short, punchy paragraphs (2-3 sentences max). This looks more like an industry-grade expert blog.
         - Use <strong> for key terms, <em> for emphasis
             - Use <ul>/<ol> for lists with <li> items
                 - Include <blockquote> for expert tips or important callouts

@@ -139,9 +139,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
         const proseClasses = `prose prose-slate prose-lg max-w-none 
             prose-headings:text-slate-900 prose-headings:tracking-tight 
-            prose-h2:text-[22px] prose-h2:md:text-[28px] prose-h2:font-extrabold prose-h2:mt-12 prose-h2:mb-5 prose-h2:leading-tight
-            prose-h3:text-[18px] prose-h3:md:text-[22px] prose-h3:font-bold prose-h3:mt-9 prose-h3:mb-3
-            prose-p:text-[#3d3d3d] prose-p:leading-[1.9] prose-p:text-[17px] prose-p:mb-5 prose-p:font-[410]
+            prose-h2:text-[24px] prose-h2:md:text-[30px] prose-h2:font-extrabold prose-h2:mt-16 prose-h2:mb-8 prose-h2:leading-tight
+            prose-h3:text-[20px] prose-h3:md:text-[24px] prose-h3:font-bold prose-h3:mt-12 prose-h3:mb-6
+            prose-p:text-[#3d3d3d] prose-p:leading-[1.9] prose-p:text-[18px] prose-p:mb-8 prose-p:font-medium
             prose-a:text-indigo-600 prose-a:font-semibold prose-a:no-underline prose-a:border-b prose-a:border-indigo-200 hover:prose-a:border-indigo-500 prose-a:transition-colors
             prose-strong:text-slate-900 prose-strong:font-bold
             prose-em:text-slate-600 prose-em:font-medium
