@@ -50,11 +50,17 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
 
     const [victoryType, setVictoryType] = useState<'win' | 'almost'>('win');
     const [showVictoryModal, setShowVictoryModal] = useState(false);
+    const [user, setUser] = useState<any>(null);
     const [isAuth, setIsAuth] = useState(false);
 
     useEffect(() => {
         api.get('/auth/me')
-            .then(res => setIsAuth(res.data.success))
+            .then(res => {
+                setIsAuth(res.data.success);
+                if (res.data.success) {
+                    setUser(res.data.user);
+                }
+            })
             .catch(() => setIsAuth(false));
     }, []);
 
@@ -437,8 +443,8 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                 round1Result={shareContext.round1Result}
                 round2Result={shareContext.round2Result}
                 date={shareContext.date}
+                userName={user?.username || 'Top Predictor'}
             />
         </main>
     );
 }
-
