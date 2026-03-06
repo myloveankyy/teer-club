@@ -86,7 +86,7 @@ export function ResultPosterModal({ isOpen, onClose, region, round1Result, round
                             <X className="w-5 h-5" />
                         </button>
 
-                        {/* --- INDUSTRIAL GRADE SOCIAL POSTER --- */}
+                        {/* --- ARTIST-DRIVEN CINEMATIC POSTER --- */}
                         <div
                             ref={cardRef}
                             className="w-[90%] md:w-full relative bg-black overflow-hidden border border-white/5 shadow-2xl"
@@ -98,102 +98,91 @@ export function ResultPosterModal({ isOpen, onClose, region, round1Result, round
                                 style={{ backgroundImage: `url('${getBgImage()}')` }}
                             />
 
-                            {/* Minimalist Tech Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+                            {/* Artful Overlays */}
+                            <div className="absolute inset-0 bg-gradient-to-tr from-black/80 via-transparent to-black/40" />
+                            <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-indigo-500/10 rounded-full blur-[120px]" />
+                            <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-purple-500/10 rounded-full blur-[100px]" />
 
-
-
-                            {/* --- PREMIUM MARKETING OVERLAYS --- */}
-
-                            {/* Neon Glow Accents */}
-                            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[80px]" />
-                            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[80px]" />
-
-                            <div className="relative h-full flex flex-col p-6 md:p-10 z-10 justify-between">
-                                {/* Top Branding & User Attribution */}
-                                <div className="flex justify-between items-start">
-                                    <div className="space-y-4">
-                                        <div className="flex flex-col gap-2">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
-                                                <span className="text-[9px] font-black tracking-[0.3em] text-amber-500 uppercase">TEER CLUB EXCLUSIVE</span>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <h4 className="font-black text-white tracking-widest text-2xl uppercase leading-none mb-1">{region} ARCHERY</h4>
-                                                <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-tighter">Verified Numbers by @{userName}</p>
-                                            </div>
-                                        </div>
+                            <div className="relative h-full flex flex-col p-8 md:p-12 z-10 justify-between">
+                                {/* Top Branding: Minimalist & Spaced */}
+                                <div className="flex justify-between items-start border-b border-white/5 pb-6">
+                                    <div className="space-y-1">
+                                        <h4 className="font-extrabold text-white tracking-[0.4em] text-sm uppercase leading-none">{region}</h4>
+                                        <p className="text-[10px] font-medium text-indigo-400 uppercase tracking-widest italic opacity-80">Official Archery Result</p>
                                     </div>
 
-                                    <div className="flex flex-col items-end gap-1.5">
-                                        <div className="bg-indigo-600 px-3 py-1 rounded-sm text-white font-black text-[9px] tracking-widest uppercase shadow-[0_0_15px_rgba(79,70,229,0.4)]">
+                                    <div className="flex flex-col items-end gap-1">
+                                        <div className="flex items-center gap-1.5 font-black text-[9px] tracking-[0.3em] text-white">
+                                            <div className="w-1 h-1 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]" />
                                             LIVE DATA
                                         </div>
-                                        <span className="text-[9px] font-black text-white/40 tracking-[0.2em]">{date}</span>
+                                        <span className="text-[9px] font-bold text-white/30 tracking-[0.2em]">{date}</span>
                                     </div>
                                 </div>
 
-                                {/* Center Stage: Results with Depth */}
-                                <div className="flex-1 flex flex-col items-center justify-center gap-4 py-4">
-                                    <div className="flex flex-col items-center group relative">
-                                        <div className="absolute inset-0 bg-white/5 blur-3xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                        <span className="text-[9px] font-black tracking-[0.5em] text-white/30 uppercase mb-0 group-hover:text-indigo-400 transition-colors">FIRST ROUND</span>
-                                        <h1 className="text-[9rem] md:text-[10rem] leading-none font-black tracking-[-0.05em] text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+                                {/* Center Stage: Numbers as Art */}
+                                <div className="flex-1 flex flex-col items-center justify-center relative py-6">
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.03),transparent_70%)]" />
+
+                                    <div className="flex flex-col items-center group relative z-10">
+                                        <span className="text-[10px] font-black tracking-[0.6em] text-white/20 uppercase mb-4 transition-all group-hover:text-indigo-500 group-hover:tracking-[0.8em]">FIRST ROUND</span>
+                                        <h1 className="text-[10rem] md:text-[11rem] leading-none font-black tracking-tighter text-white select-none">
                                             {round1Result || '--'}
                                         </h1>
+                                        <div className="w-12 h-1 bg-indigo-500/30 mt-2 rounded-full" />
                                     </div>
 
-                                    {/* Signup Bonus Glass Badge */}
-                                    <div className="w-full flex justify-center -my-2 relative z-20">
-                                        <div className="bg-white/10 backdrop-blur-xl border border-white/20 px-6 py-2.5 rounded-2xl shadow-2xl flex flex-col items-center gap-0.5 transform -rotate-1 hover:rotate-0 transition-transform cursor-pointer group/bonus">
-                                            <span className="text-[8px] font-black text-indigo-300 uppercase tracking-[0.3em]">LIMITED OFFER</span>
-                                            <p className="text-[11px] font-black text-white text-center leading-tight">GET INSTANT <span className="text-emerald-400">₹25</span> AFTER SIGNUP <br /> AT TEER.CLUB</p>
+                                    {/* The "Sexy" Marketing Integration: Floating Seal */}
+                                    <div className="relative w-full h-12 my-6 flex items-center justify-center">
+                                        <div className="absolute w-[120%] h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+                                        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-6 py-2 rounded-full relative z-20 shadow-2xl overflow-hidden group/seal">
+                                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover/seal:opacity-100 transition-opacity" />
+                                            <p className="text-[11px] font-black text-white tracking-[0.1em] text-center">
+                                                GET INSTANT <span className="text-emerald-400">₹25</span> AT <span className="text-indigo-400 font-extrabold">TEER.CLUB</span>
+                                            </p>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col items-center group relative mt-4">
-                                        <span className="text-[9px] font-black tracking-[0.5em] text-white/30 uppercase mb-0 group-hover:text-indigo-400 transition-colors">SECOND ROUND</span>
-                                        <h1 className="text-[6rem] md:text-[7rem] leading-none font-black tracking-[-0.05em] text-white/80">
+                                    <div className="flex flex-col items-center group relative z-10">
+                                        <span className="text-[10px] font-black tracking-[0.6em] text-white/20 uppercase mb-4 transition-all group-hover:text-purple-500 group-hover:tracking-[0.8em]">SECOND ROUND</span>
+                                        <h1 className="text-[7rem] md:text-[8rem] leading-none font-black tracking-tighter text-white/90 select-none">
                                             {round2Result || '--'}
                                         </h1>
                                     </div>
                                 </div>
 
-                                {/* Bottom High-Energy Branding */}
-                                <div className="pt-6 mt-auto">
-                                    <div className="flex justify-between items-end border-t border-white/10 pt-6">
-                                        <div className="flex flex-col gap-1.5">
-                                            <p className="text-[22px] font-black text-white tracking-widest uppercase italic">TEER<span className="text-indigo-500">.CLUB</span></p>
-                                            <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-[0.2em]">CALCULATED TARGETS. REAL REWARDS.</p>
+                                {/* Bottom: Editorial Slogan & Sign-off */}
+                                <div className="flex flex-col gap-8 pt-8 border-t border-white/5">
+                                    <div className="flex justify-between items-center">
+                                        <div className="space-y-1">
+                                            <p className="text-[26px] font-black text-white tracking-widest uppercase leading-none">TEER<span className="text-indigo-500">.CLUB</span></p>
+                                            <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-[0.4em] leading-none">The Science of Prediction</p>
                                         </div>
-                                        <div className="flex flex-col items-end opacity-40">
-                                            <div className="flex gap-1.5 mb-2">
-                                                {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />)}
-                                            </div>
-                                            <span className="text-[7px] font-black text-white/50 uppercase tracking-[0.4em]">WINNER_CIRCLES_ONLY</span>
+                                        <div className="text-right">
+                                            <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 leading-none">Verified By</p>
+                                            <p className="text-base font-black text-white uppercase italic leading-none">{userName}</p>
                                         </div>
+                                    </div>
+
+                                    <div className="flex justify-center gap-1.5 opacity-10">
+                                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => <div key={i} className="w-1 h-1 bg-white rounded-full" />)}
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Integrated Action Bar (Optimized for Viral Conversion) */}
+                        {/* Integrated Action Bar: Sexy Buttons */}
                         <div className="w-[90%] md:w-full flex flex-col gap-3 pb-8 md:pb-0">
-                            <div className="flex flex-col items-center mb-1">
-                                <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.3em] animate-pulse">Viral Reward: ₹25 Credits Earned per Share</span>
-                            </div>
-
                             <motion.button
                                 whileTap={{ scale: 0.98 }}
                                 onClick={handleShare}
                                 disabled={isSharing}
-                                className="w-full py-4 bg-white text-black font-black text-[12px] uppercase tracking-[0.4em] flex flex-col items-center justify-center gap-0.5 shadow-[0_20px_40px_rgba(255,255,255,0.15)] group relative overflow-hidden"
+                                className="w-full py-4 bg-white text-black font-black text-[12px] uppercase tracking-[0.5em] flex flex-col items-center justify-center gap-0.5 shadow-[0_25px_50px_-12px_rgba(255,255,255,0.2)] group relative overflow-hidden rounded-2xl"
                             >
-                                <div className="flex items-center gap-3 relative z-10 transition-transform group-hover:scale-105">
+                                <div className="flex items-center gap-3 relative z-10 transition-all group-hover:scale-105 group-hover:tracking-[0.6em]">
                                     <Share2 className="w-4 h-4" />
                                     <span>Share & Earn ₹25</span>
                                 </div>
-                                <span className="text-[8px] font-bold text-slate-500 tracking-widest relative z-10">DIRECT TO WHATSAPP</span>
                                 {isSharing && (
                                     <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
                                         <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
@@ -203,32 +192,14 @@ export function ResultPosterModal({ isOpen, onClose, region, round1Result, round
 
                             <motion.button
                                 whileTap={{ scale: 0.98 }}
-                                onClick={async () => {
-                                    setIsSharing(true);
-                                    try {
-                                        const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-                                        const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-                                        const imageUrl = `/shares/consolidated-${dateStr}.png`;
-                                        const headCheck = await fetch(imageUrl, { method: 'HEAD' });
-                                        if (!headCheck.ok) { alert("AI Board Syncing... Try in 5s."); setIsSharing(false); return; }
-
-                                        if (navigator.share) {
-                                            const response = await fetch(imageUrl);
-                                            const blob = await response.blob();
-                                            const file = new File([blob], `teer-club-board.png`, { type: blob.type });
-                                            await navigator.share({ files: [file] });
-                                        } else {
-                                            const link = document.createElement('a');
-                                            link.href = imageUrl;
-                                            link.download = `teer-club-board.png`;
-                                            link.click();
-                                        }
-                                    } catch (err) { console.error(err); } finally { setIsSharing(false); }
-                                }}
-                                className="w-full py-4 border border-white/20 text-white font-black text-[11px] uppercase tracking-[0.4em] flex items-center justify-center gap-3 group transition-colors hover:bg-white/5 active:scale-95"
+                                onClick={handleShare}
+                                className="w-full py-4 bg-transparent border border-white/20 text-white font-black text-[11px] uppercase tracking-[0.4em] flex items-center justify-center gap-3 group transition-all hover:bg-white/5 hover:border-white/40 active:scale-95 rounded-2xl"
                             >
-                                <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500 group-hover:rotate-12 transition-transform" />
-                                <span>Realistic AI Board</span>
+                                <div className="relative">
+                                    <Sparkles className="w-4 h-4 text-amber-500 fill-amber-500 group-hover:rotate-12 transition-transform" />
+                                    <div className="absolute inset-0 bg-amber-500 blur-md opacity-20" />
+                                </div>
+                                <span>Add to Story</span>
                             </motion.button>
                         </div>
                     </motion.div>
