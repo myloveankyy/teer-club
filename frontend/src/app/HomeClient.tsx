@@ -364,8 +364,8 @@ export default function HomeClient({ initialWinners = [], initialLatestResults, 
                 </div>
             </div>
 
-            {/* Floating Share Engine (Sexy Mobile FAB) */}
-            <div className="fixed bottom-28 right-5 z-[120] md:hidden">
+            {/* Floating Share Engine (Sexy FAB - Mobile & Desktop) */}
+            <div className="fixed bottom-28 right-5 z-[120] md:bottom-8 md:right-8">
                 <motion.div className="relative">
                     <AnimatePresence>
                         {showFabMenu && (
