@@ -108,7 +108,7 @@ export function ResultPosterModal({ isOpen, onClose, region, round1Result, round
                                 <div className="flex justify-between items-start border-b border-white/5 pb-6">
                                     <div className="space-y-1">
                                         <h4 className="font-extrabold text-white tracking-[0.4em] text-sm uppercase leading-none">{region}</h4>
-                                        <p className="text-[10px] font-medium text-indigo-400 uppercase tracking-widest italic opacity-80">Official Archery Result</p>
+                                        <p className="text-[10px] font-medium text-indigo-400 uppercase tracking-widest opacity-80">Official Archery Result</p>
                                     </div>
 
                                     <div className="flex flex-col items-end gap-1">
@@ -120,47 +120,47 @@ export function ResultPosterModal({ isOpen, onClose, region, round1Result, round
                                     </div>
                                 </div>
 
-                                {/* Center Stage: Numbers as Art */}
-                                <div className="flex-1 flex flex-col items-center justify-center relative py-6">
+                                {/* Center Stage: Numbers as Art (Responsive & Fluid) */}
+                                <div className="flex-1 flex flex-col items-center justify-center relative py-4 overflow-hidden">
                                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.03),transparent_70%)]" />
 
-                                    <div className="flex flex-col items-center group relative z-10">
-                                        <span className="text-[10px] font-black tracking-[0.6em] text-white/20 uppercase mb-4 transition-all group-hover:text-indigo-500 group-hover:tracking-[0.8em]">FIRST ROUND</span>
-                                        <h1 className="text-[10rem] md:text-[11rem] leading-none font-black tracking-tighter text-white select-none">
+                                    <div className="flex flex-col items-center group relative z-10 w-full">
+                                        <span className="text-[9px] md:text-[10px] font-black tracking-[0.6em] text-white/20 uppercase mb-2 transition-all group-hover:text-indigo-500 group-hover:tracking-[0.8em]">FIRST ROUND</span>
+                                        <h1 className="text-[clamp(5rem,20vw,10rem)] leading-none font-black tracking-tighter text-white select-none text-center">
                                             {round1Result || '--'}
                                         </h1>
-                                        <div className="w-12 h-1 bg-indigo-500/30 mt-2 rounded-full" />
+                                        <div className="w-12 h-0.5 bg-indigo-500/30 mt-1 rounded-full" />
                                     </div>
 
-                                    {/* The "Sexy" Marketing Integration: Floating Seal */}
-                                    <div className="relative w-full h-12 my-6 flex items-center justify-center">
+                                    {/* Marketing Seal - Scaled for Mobile */}
+                                    <div className="relative w-full h-10 my-4 flex items-center justify-center">
                                         <div className="absolute w-[120%] h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-                                        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-6 py-2 rounded-full relative z-20 shadow-2xl overflow-hidden group/seal">
+                                        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-5 py-2 rounded-full relative z-20 shadow-2xl overflow-hidden group/seal">
                                             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 opacity-0 group-hover/seal:opacity-100 transition-opacity" />
-                                            <p className="text-[11px] font-black text-white tracking-[0.1em] text-center">
+                                            <p className="text-[9px] md:text-[11px] font-black text-white tracking-[0.1em] text-center whitespace-nowrap">
                                                 GET INSTANT <span className="text-emerald-400">₹25</span> AT <span className="text-indigo-400 font-extrabold">TEER.CLUB</span>
                                             </p>
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col items-center group relative z-10">
-                                        <span className="text-[10px] font-black tracking-[0.6em] text-white/20 uppercase mb-4 transition-all group-hover:text-purple-500 group-hover:tracking-[0.8em]">SECOND ROUND</span>
-                                        <h1 className="text-[7rem] md:text-[8rem] leading-none font-black tracking-tighter text-white/90 select-none">
+                                    <div className="flex flex-col items-center group relative z-10 w-full">
+                                        <span className="text-[9px] md:text-[10px] font-black tracking-[0.6em] text-white/20 uppercase mb-2 transition-all group-hover:text-purple-500 group-hover:tracking-[0.8em]">SECOND ROUND</span>
+                                        <h1 className="text-[clamp(3.5rem,15vw,7rem)] leading-none font-black tracking-tighter text-white/90 select-none text-center">
                                             {round2Result || '--'}
                                         </h1>
                                     </div>
                                 </div>
 
                                 {/* Bottom: Editorial Slogan & Sign-off */}
-                                <div className="flex flex-col gap-8 pt-8 border-t border-white/5">
+                                <div className="flex flex-col gap-6 pt-6 border-t border-white/5">
                                     <div className="flex justify-between items-center">
                                         <div className="space-y-1">
-                                            <p className="text-[26px] font-black text-white tracking-widest uppercase leading-none">TEER<span className="text-indigo-500">.CLUB</span></p>
-                                            <p className="text-[10px] text-indigo-300 font-bold uppercase tracking-[0.4em] leading-none">The Science of Prediction</p>
+                                            <p className="text-[20px] md:text-[26px] font-black text-white tracking-widest uppercase leading-none">TEER<span className="text-indigo-500">.CLUB</span></p>
+                                            <p className="text-[9px] md:text-[10px] text-indigo-300 font-bold uppercase tracking-[0.4em] leading-none">The Science of Prediction</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 leading-none">Verified By</p>
-                                            <p className="text-base font-black text-white uppercase italic leading-none">{userName}</p>
+                                            <p className="text-[8px] font-bold text-white/40 uppercase tracking-widest mb-1 leading-none">Verified By</p>
+                                            <p className="text-sm md:text-base font-black text-white uppercase leading-none">{userName}</p>
                                         </div>
                                     </div>
 
