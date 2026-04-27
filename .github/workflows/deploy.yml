@@ -1,0 +1,167 @@
+name: Deploy to DigitalOcean
+run-name: Deploying to ${{ github.sha }}
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ---- BUILD BACKEND (TypeScript & Prisma) ----
+      - name: Install & Build Backend
+        working-directory: ./backend
+        run: |
+          npm install
+          npx prisma generate
+          npm run build
+          
+      # ---- BUILD FRONTEND ----
+      - name: Install & Build Frontend
+        working-directory: ./frontend
+        env:
+          NEXT_PUBLIC_API_URL: https://api.teer.club
+        run: |
+          npm install
+          npm run build
+
+      # ---- BUILD ADMIN PANEL ----
+      - name: Install & Build Admin Panel
+        working-directory: ./admin-panel
+        env:
+          NEXT_PUBLIC_API_URL: https://api.teer.club
+        run: |
+          npm install
+          npm run build
+
+      # ---- COMPRESS ARTIFACTS BEFORE SCP ----
+      - name: Compress project
+        run: |
+          tar --exclude='./deployment.tar.gz' --exclude='./.git' --ignore-failed-read -czf deployment.tar.gz . 2>/dev/null
+
+      # ---- COPY ARCHIVE TO SERVER ----
+      - name: Copy files via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          password: ${{ secrets.DO_PASSWORD }}
+          source: "deployment.tar.gz"
+          target: "/var/www/teer.club"
+          rm: false
+
+      # ---- SERVER-SIDE: Extract, Install & Restart ----
+      - name: Extract, Database Sync, & Restart PM2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          password: ${{ secrets.DO_PASSWORD }}
+          script: |
+            set -e
+            mkdir -p /var/www/teer.club
+            cd /var/www/teer.club
+            
+            echo "Extracting deployment archive..."
+            tar -xzf deployment.tar.gz
+            rm deployment.tar.gz
+
+            echo "Force-Purging Server Side Build Cache..."
+            rm -rf frontend/.next/cache || true
+            rm -rf admin-panel/.next/cache || true
+
+            # --- TOTAL ISOLATION PROTOCOL ---
+            echo "Shutting down application layers to isolate registry..."
+            pm2 delete all || true
+            pkill -9 -f "node" 2>/dev/null || true
+            sleep 2
+
+            # --- INFRASTRUCTURE SOVEREIGNTY (PORT RECOVERY) ---
+            echo "Neutralizing potential environment conflicts (Docker/Port 5432)..."
+            if command -v docker &> /dev/null; then
+              sudo docker stop teer-club-db 2>/dev/null || true
+              sudo docker rm teer-club-db 2>/dev/null || true
+            fi
+            
+            sudo apt-get install -y psmisc || true
+            sudo fuser -k 5432/tcp || true
+
+            # CRITICAL: Postgres Validation
+            echo "Re-establishing Registry Engine Sovereignty..."
+            sudo systemctl start postgresql
+            sudo systemctl enable postgresql
+            sleep 5 
+            
+            echo "Synchronizing Local Database Sovereignty..."
+            sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='teerclub'" | grep -q 1 || sudo -u postgres psql -c "CREATE USER teerclub WITH PASSWORD 'TeerClub_Prod_2026!';"
+            sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='teer_club'" | grep -q 1 || sudo -u postgres psql -c "CREATE DATABASE teer_club OWNER teerclub;"
+            sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE teer_club TO teerclub;"
+            sudo -u postgres psql -d teer_club -c "ALTER SCHEMA public OWNER TO teerclub;"
+
+            # Recreate environment variables
+            echo "Recreating environment variables..."
+            echo "DB_USER=teerclub" > backend/.env
+            echo "DB_HOST=localhost" >> backend/.env
+            echo "DB_NAME=teer_club" >> backend/.env
+            echo "DB_PASSWORD=TeerClub_Prod_2026!" >> backend/.env
+            echo "DB_PORT=5432" >> backend/.env
+            echo "DB_SSL=false" >> backend/.env
+            echo "JWT_SECRET=super_secret_teer_club_jwt_key_2026_PRODUCTION_V3" >> backend/.env
+            echo "GA4_PROPERTY_ID=469586125" >> backend/.env
+            echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> backend/.env
+            echo "REDIS_URL=redis://localhost:6379" >> backend/.env
+            echo "DATABASE_URL=postgresql://teerclub:TeerClub_Prod_2026!@localhost:5432/teer_club?schema=public" >> backend/.env
+            
+            echo "NEXT_PUBLIC_API_URL=https://api.teer.club" > frontend/.env
+            echo "INTERNAL_API_URL=http://localhost:5000" >> frontend/.env
+            echo "NEXT_PUBLIC_API_URL=https://api.teer.club" > admin-panel/.env
+            echo "INTERNAL_API_URL=http://localhost:5000" >> admin-panel/.env
+
+            echo "Ensuring Redis is running..."
+            sudo apt-get install -y redis-server
+            sudo systemctl start redis-server
+            
+            echo "Installing Backend Dependencies..."
+            cd backend
+            npm install --omit=dev
+            
+            echo "Generating Prisma Client..."
+            npx prisma generate
+            
+            echo "Force Syncing Database Schema..."
+            npx prisma db push --accept-data-loss
+
+            echo "Installing Frontend Production Dependencies..."
+            cd ../frontend
+            npm install --omit=dev
+
+            echo "Installing Admin Panel Production Dependencies..."
+            cd ../admin-panel
+            npm install --omit=dev
+
+            echo "Starting Apps via PM2..."
+            cd /var/www/teer.club/backend
+            pm2 start dist/index.js --name "api" --node-args="-r dotenv/config"
+            pm2 start dist/worker.js --name "worker" --node-args="-r dotenv/config"
+
+            cd /var/www/teer.club/frontend
+            pm2 start npm --name "frontend" -- run start -- -p 3000
+
+            cd /var/www/teer.club/admin-panel
+            pm2 start npm --name "admin-panel" -- run start -- -p 3001
+
+            pm2 save
+
+            echo "Fresh Launch Deployment Complete!"
