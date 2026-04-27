@@ -1,0 +1,99 @@
+﻿{
+    "success":  true,
+    "data":  {
+                 "game":  {
+                              "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                              "name":  "shillong",
+                              "displayName":  "Shillong Teer",
+                              "description":  null,
+                              "location":  null,
+                              "startTime":  null,
+                              "frTime":  null,
+                              "srTime":  null,
+                              "trTime":  null,
+                              "closeTime":  null,
+                              "hasRound3":  false,
+                              "isEnabled":  true,
+                              "createdAt":  "2026-04-22T05:18:30.970Z",
+                              "updatedAt":  "2026-04-22T05:18:30.970Z"
+                          },
+                 "results":  [
+                                 {
+                                     "id":  "c8404877-71c9-48d4-b40d-fa0a9e9f6c99",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-22T00:00:00.000Z",
+                                     "round1":  "57",
+                                     "round2":  "46",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.387Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.387Z"
+                                 },
+                                 {
+                                     "id":  "d99a9a3c-bd42-40a9-983f-8ebf80209718",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-21T00:00:00.000Z",
+                                     "round1":  "91",
+                                     "round2":  "78",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.429Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.429Z"
+                                 },
+                                 {
+                                     "id":  "9cdf198d-1aa6-40e0-a18a-df57fac7ed1b",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-20T00:00:00.000Z",
+                                     "round1":  "39",
+                                     "round2":  "14",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.432Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.432Z"
+                                 },
+                                 {
+                                     "id":  "190dd5b8-e7b1-40f4-b9ed-ea41e0d6b1b6",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-19T00:00:00.000Z",
+                                     "round1":  "14",
+                                     "round2":  "84",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.436Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.436Z"
+                                 },
+                                 {
+                                     "id":  "f7ce739a-f1a1-43a7-b61d-f618fd15a0d8",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-18T00:00:00.000Z",
+                                     "round1":  "55",
+                                     "round2":  "14",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.439Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.439Z"
+                                 }
+                             ],
+                 "pagination":  {
+                                    "total":  5,
+                                    "page":  1,
+                                    "limit":  10,
+                                    "totalPages":  1
+                                }
+             }
+}

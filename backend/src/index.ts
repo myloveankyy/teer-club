@@ -1,0 +1,167 @@
+import express, { Express, Request, Response, NextFunction } from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import compression from "compression";
+import rateLimit from "express-rate-limit";
+import prisma from "./prisma";
+import { logger } from "./utils/logger";
+import { aggregatePages } from "./services/pageAggregator";
+import { adminAuth } from "./middleware/adminAuth";
+
+import gamesRouter from "./routes/games";
+import resultsRouter from "./routes/results";
+import adminRouter from "./routes/admin";
+import pagesRouter from "./routes/pages";
+import predictionsRouter from "./routes/predictions";
+import settingsRouter from "./routes/settings";
+import cronRouter from "./routes/cronRoutes";
+import importRouter from "./routes/importRoutes";
+import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
+
+
+dotenv.config();
+
+const app: Express = express();
+const PORT = parseInt(process.env.PORT || "3001", 10);
+
+// ─── CORS — restrict to known origins ────────────────────────────────────────
+const ALLOWED_ORIGINS = [
+  "https://teer.club",
+  "https://www.teer.club",
+  "https://admin.teer.club",
+  "http://localhost:3000",
+  "http://localhost:3002",
+];
+
+app.use(cors({
+  origin: process.env.NODE_ENV === "production"
+    ? ALLOWED_ORIGINS
+    : true,
+  credentials: true,
+}));
+
+app.use(express.json());
+app.use(compression());
+
+// ─── Rate Limiting ───────────────────────────────────────────────────────────
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: "Too many requests, please try again later." }
+});
+
+app.use("/api", apiLimiter);
+
+// ─── Health Check ────────────────────────────────────────────────────────────
+app.get("/health", async (req: Request, res: Response) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({
+      status: "ok",
+      database: "connected",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    });
+  } catch (err: any) {
+    logger.error("Health check failed", err);
+    res.status(503).json({
+      status: "error",
+      database: "disconnected",
+      error: err.message,
+      timestamp: new Date().toISOString(),
+    });
+  }
+});
+
+// ─── Routes ──────────────────────────────────────────────────────────────────
+app.use("/api/games", gamesRouter);
+app.use("/api/results", resultsRouter);
+app.use("/api/admin", adminAuth, adminRouter);
+app.use("/api/pages", pagesRouter);
+app.use("/api/predictions", predictionsRouter);
+app.use("/api/settings", settingsRouter);
+app.use("/api/admin/cron", adminAuth, cronRouter);
+app.use("/api/admin/import", adminAuth, importRouter);
+
+
+// ─── Seed Default Data ───────────────────────────────────────────────────────
+async function seedDefaultData() {
+  logger.info("[Seed] Checking for default data...");
+
+  // Seed default site settings
+  try {
+    const settings = await prisma.siteSettings.findUnique({ where: { id: "global" } });
+    if (!settings) {
+      await prisma.siteSettings.create({
+        data: {
+          id: "global",
+          youtubeUrl: "https://youtube.com/@teerclub",
+          youtubeEnabled: true,
+          whatsappUrl: "https://wa.me/910000000000",
+          whatsappEnabled: true,
+          telegramUrl: "https://t.me/teerclub",
+          telegramEnabled: true,
+          bannerText: "Welcome to Teer Club - Best Predictions for Shillong & Khanapara!",
+          bannerVisible: true,
+          bannerColor: "#2563eb",
+          resultAwaitedText: "Result Awaited",
+          sundayOffText: "Sunday Off",
+        },
+      });
+      logger.info("[Seed] Default site settings created");
+    }
+  } catch (error) {
+    logger.error("[Seed] Failed to seed site settings", error);
+  }
+
+  // Aggregate pages on startup
+  try {
+    await aggregatePages();
+  } catch (e) {
+    logger.error("[Seed] Failed to aggregate pages", e);
+  }
+
+  logger.info("[Seed] Default data seeding complete");
+}
+
+// ─── Global Error Handler ────────────────────────────────────────────────────
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  logger.error("[Error] Unhandled route error", err);
+  res.status(500).json({ success: false, error: "Internal server error" });
+});
+
+// ─── Startup ─────────────────────────────────────────────────────────────────
+async function start() {
+  try {
+    await prisma.$connect();
+    logger.info("[Database] Connected to PostgreSQL");
+
+    await seedDefaultData();
+    startAllCrons();
+
+
+    app.listen(PORT, "0.0.0.0", () => {
+      logger.info(`[Server] Running on http://localhost:${PORT}`);
+    });
+  } catch (error) {
+    logger.error("[Startup] Failed to start", error);
+    process.exit(1);
+  }
+}
+
+// ─── Graceful Shutdown ───────────────────────────────────────────────────────
+process.on("SIGINT", async () => {
+  logger.info("[Shutdown] Stopping server...");
+  stopAllCrons();
+  await prisma.$disconnect();
+
+  process.exit(0);
+});
+
+if (require.main === module) {
+  start();
+}
+
+export default app;

@@ -1,0 +1,356 @@
+﻿{
+    "success":  true,
+    "data":  {
+                 "results":  [
+                                 {
+                                     "id":  "c8404877-71c9-48d4-b40d-fa0a9e9f6c99",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-22T00:00:00.000Z",
+                                     "round1":  "57",
+                                     "round2":  "46",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.387Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.387Z",
+                                     "game":  {
+                                                  "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                  "name":  "shillong",
+                                                  "displayName":  "Shillong Teer"
+                                              }
+                                 },
+                                 {
+                                     "id":  "d99a9a3c-bd42-40a9-983f-8ebf80209718",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-21T00:00:00.000Z",
+                                     "round1":  "91",
+                                     "round2":  "78",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.429Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.429Z",
+                                     "game":  {
+                                                  "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                  "name":  "shillong",
+                                                  "displayName":  "Shillong Teer"
+                                              }
+                                 },
+                                 {
+                                     "id":  "9cdf198d-1aa6-40e0-a18a-df57fac7ed1b",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-20T00:00:00.000Z",
+                                     "round1":  "39",
+                                     "round2":  "14",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.432Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.432Z",
+                                     "game":  {
+                                                  "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                  "name":  "shillong",
+                                                  "displayName":  "Shillong Teer"
+                                              }
+                                 },
+                                 {
+                                     "id":  "190dd5b8-e7b1-40f4-b9ed-ea41e0d6b1b6",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-19T00:00:00.000Z",
+                                     "round1":  "14",
+                                     "round2":  "84",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.436Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.436Z",
+                                     "game":  {
+                                                  "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                  "name":  "shillong",
+                                                  "displayName":  "Shillong Teer"
+                                              }
+                                 },
+                                 {
+                                     "id":  "f7ce739a-f1a1-43a7-b61d-f618fd15a0d8",
+                                     "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                     "date":  "2026-04-18T00:00:00.000Z",
+                                     "round1":  "55",
+                                     "round2":  "14",
+                                     "round3":  null,
+                                     "confidence":  "HIGH",
+                                     "sourceCount":  1,
+                                     "verified":  true,
+                                     "detectedAt":  null,
+                                     "createdAt":  "2026-04-22T05:59:23.439Z",
+                                     "updatedAt":  "2026-04-22T05:59:23.439Z",
+                                     "game":  {
+                                                  "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                  "name":  "shillong",
+                                                  "displayName":  "Shillong Teer"
+                                              }
+                                 }
+                             ],
+                 "byGame":  {
+                                "d602ddf5-23bb-400a-82e4-9faa99daa0e4":  [
+                                                                             {
+                                                                                 "id":  "c8404877-71c9-48d4-b40d-fa0a9e9f6c99",
+                                                                                 "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                 "date":  "2026-04-22T00:00:00.000Z",
+                                                                                 "round1":  "57",
+                                                                                 "round2":  "46",
+                                                                                 "round3":  null,
+                                                                                 "confidence":  "HIGH",
+                                                                                 "sourceCount":  1,
+                                                                                 "verified":  true,
+                                                                                 "detectedAt":  null,
+                                                                                 "createdAt":  "2026-04-22T05:59:23.387Z",
+                                                                                 "updatedAt":  "2026-04-22T05:59:23.387Z",
+                                                                                 "game":  {
+                                                                                              "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                              "name":  "shillong",
+                                                                                              "displayName":  "Shillong Teer"
+                                                                                          }
+                                                                             },
+                                                                             {
+                                                                                 "id":  "d99a9a3c-bd42-40a9-983f-8ebf80209718",
+                                                                                 "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                 "date":  "2026-04-21T00:00:00.000Z",
+                                                                                 "round1":  "91",
+                                                                                 "round2":  "78",
+                                                                                 "round3":  null,
+                                                                                 "confidence":  "HIGH",
+                                                                                 "sourceCount":  1,
+                                                                                 "verified":  true,
+                                                                                 "detectedAt":  null,
+                                                                                 "createdAt":  "2026-04-22T05:59:23.429Z",
+                                                                                 "updatedAt":  "2026-04-22T05:59:23.429Z",
+                                                                                 "game":  {
+                                                                                              "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                              "name":  "shillong",
+                                                                                              "displayName":  "Shillong Teer"
+                                                                                          }
+                                                                             },
+                                                                             {
+                                                                                 "id":  "9cdf198d-1aa6-40e0-a18a-df57fac7ed1b",
+                                                                                 "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                 "date":  "2026-04-20T00:00:00.000Z",
+                                                                                 "round1":  "39",
+                                                                                 "round2":  "14",
+                                                                                 "round3":  null,
+                                                                                 "confidence":  "HIGH",
+                                                                                 "sourceCount":  1,
+                                                                                 "verified":  true,
+                                                                                 "detectedAt":  null,
+                                                                                 "createdAt":  "2026-04-22T05:59:23.432Z",
+                                                                                 "updatedAt":  "2026-04-22T05:59:23.432Z",
+                                                                                 "game":  {
+                                                                                              "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                              "name":  "shillong",
+                                                                                              "displayName":  "Shillong Teer"
+                                                                                          }
+                                                                             },
+                                                                             {
+                                                                                 "id":  "190dd5b8-e7b1-40f4-b9ed-ea41e0d6b1b6",
+                                                                                 "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                 "date":  "2026-04-19T00:00:00.000Z",
+                                                                                 "round1":  "14",
+                                                                                 "round2":  "84",
+                                                                                 "round3":  null,
+                                                                                 "confidence":  "HIGH",
+                                                                                 "sourceCount":  1,
+                                                                                 "verified":  true,
+                                                                                 "detectedAt":  null,
+                                                                                 "createdAt":  "2026-04-22T05:59:23.436Z",
+                                                                                 "updatedAt":  "2026-04-22T05:59:23.436Z",
+                                                                                 "game":  {
+                                                                                              "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                              "name":  "shillong",
+                                                                                              "displayName":  "Shillong Teer"
+                                                                                          }
+                                                                             },
+                                                                             {
+                                                                                 "id":  "f7ce739a-f1a1-43a7-b61d-f618fd15a0d8",
+                                                                                 "gameId":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                 "date":  "2026-04-18T00:00:00.000Z",
+                                                                                 "round1":  "55",
+                                                                                 "round2":  "14",
+                                                                                 "round3":  null,
+                                                                                 "confidence":  "HIGH",
+                                                                                 "sourceCount":  1,
+                                                                                 "verified":  true,
+                                                                                 "detectedAt":  null,
+                                                                                 "createdAt":  "2026-04-22T05:59:23.439Z",
+                                                                                 "updatedAt":  "2026-04-22T05:59:23.439Z",
+                                                                                 "game":  {
+                                                                                              "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                                                                              "name":  "shillong",
+                                                                                              "displayName":  "Shillong Teer"
+                                                                                          }
+                                                                             }
+                                                                         ]
+                            },
+                 "games":  [
+                               {
+                                   "id":  "d602ddf5-23bb-400a-82e4-9faa99daa0e4",
+                                   "name":  "shillong",
+                                   "displayName":  "Shillong Teer",
+                                   "description":  null,
+                                   "location":  null,
+                                   "startTime":  null,
+                                   "frTime":  null,
+                                   "srTime":  null,
+                                   "trTime":  null,
+                                   "closeTime":  null,
+                                   "hasRound3":  false,
+                                   "isEnabled":  true,
+                                   "createdAt":  "2026-04-22T05:18:30.970Z",
+                                   "updatedAt":  "2026-04-22T05:18:30.970Z",
+                                   "_count":  {
+                                                  "results":  5
+                                              }
+                               },
+                               {
+                                   "id":  "eaae3090-fb8e-46a2-91e7-51bfe75dad36",
+                                   "name":  "khanapara",
+                                   "displayName":  "Khanapara Teer",
+                                   "description":  null,
+                                   "location":  null,
+                                   "startTime":  null,
+                                   "frTime":  null,
+                                   "srTime":  null,
+                                   "trTime":  null,
+                                   "closeTime":  null,
+                                   "hasRound3":  false,
+                                   "isEnabled":  true,
+                                   "createdAt":  "2026-04-22T05:18:31.082Z",
+                                   "updatedAt":  "2026-04-22T05:18:31.082Z",
+                                   "_count":  {
+                                                  "results":  61
+                                              }
+                               },
+                               {
+                                   "id":  "b39d98f1-aa44-4f54-8137-8f7ff0e03ae5",
+                                   "name":  "juwai",
+                                   "displayName":  "Juwai Teer",
+                                   "description":  null,
+                                   "location":  null,
+                                   "startTime":  null,
+                                   "frTime":  null,
+                                   "srTime":  null,
+                                   "trTime":  null,
+                                   "closeTime":  null,
+                                   "hasRound3":  false,
+                                   "isEnabled":  true,
+                                   "createdAt":  "2026-04-22T05:18:31.121Z",
+                                   "updatedAt":  "2026-04-22T05:18:31.121Z",
+                                   "_count":  {
+                                                  "results":  0
+                                              }
+                               },
+                               {
+                                   "id":  "1ab18bec-446d-428e-8cca-77123fd7cf49",
+                                   "name":  "jowai-ladrymbai",
+                                   "displayName":  "Jowai Ladrymbai Teer",
+                                   "description":  null,
+                                   "location":  null,
+                                   "startTime":  null,
+                                   "frTime":  null,
+                                   "srTime":  null,
+                                   "trTime":  null,
+                                   "closeTime":  null,
+                                   "hasRound3":  false,
+                                   "isEnabled":  true,
+                                   "createdAt":  "2026-04-22T05:18:31.164Z",
+                                   "updatedAt":  "2026-04-22T05:18:31.164Z",
+                                   "_count":  {
+                                                  "results":  0
+                                              }
+                               },
+                               {
+                                   "id":  "0538c558-c1f0-45f6-bd65-634b8c23da5f",
+                                   "name":  "laitlyngkot",
+                                   "displayName":  "Laitlyngkot Teer",
+                                   "description":  null,
+                                   "location":  null,
+                                   "startTime":  null,
+                                   "frTime":  null,
+                                   "srTime":  null,
+                                   "trTime":  null,
+                                   "closeTime":  null,
+                                   "hasRound3":  false,
+                                   "isEnabled":  true,
+                                   "createdAt":  "2026-04-22T05:18:31.204Z",
+                                   "updatedAt":  "2026-04-22T05:18:31.204Z",
+                                   "_count":  {
+                                                  "results":  0
+                                              }
+                               },
+                               {
+                                   "id":  "d1758af5-fe4c-4aba-b8a4-ba2b899a8b2c",
+                                   "name":  "bhutan-day",
+                                   "displayName":  "Bhutan Day Teer",
+                                   "description":  null,
+                                   "location":  null,
+                                   "startTime":  null,
+                                   "frTime":  null,
+                                   "srTime":  null,
+                                   "trTime":  null,
+                                   "closeTime":  null,
+                                   "hasRound3":  false,
+                                   "isEnabled":  true,
+                                   "createdAt":  "2026-04-22T05:18:31.243Z",
+                                   "updatedAt":  "2026-04-22T05:18:31.243Z",
+                                   "_count":  {
+                                                  "results":  0
+                                              }
+                               },
+                               {
+                                   "id":  "73708646-dc74-411e-b69e-63fcafa33f88",
+                                   "name":  "arunachal",
+                                   "displayName":  "Arunachal Teer",
+                                   "description":  null,
+                                   "location":  null,
+                                   "startTime":  null,
+                                   "frTime":  null,
+                                   "srTime":  null,
+                                   "trTime":  null,
+                                   "closeTime":  null,
+                                   "hasRound3":  false,
+                                   "isEnabled":  true,
+                                   "createdAt":  "2026-04-22T05:18:31.286Z",
+                                   "updatedAt":  "2026-04-22T05:18:31.286Z",
+                                   "_count":  {
+                                                  "results":  0
+                                              }
+                               },
+                               {
+                                   "id":  "1a2c71cc-7df2-48a3-9c95-213d9896d9ff",
+                                   "name":  "manipur",
+                                   "displayName":  "Manipur Teer",
+                                   "description":  null,
+                                   "location":  null,
+                                   "startTime":  null,
+                                   "frTime":  null,
+                                   "srTime":  null,
+                                   "trTime":  null,
+                                   "closeTime":  null,
+                                   "hasRound3":  false,
+                                   "isEnabled":  true,
+                                   "createdAt":  "2026-04-22T05:18:31.319Z",
+                                   "updatedAt":  "2026-04-22T05:18:31.319Z",
+                                   "_count":  {
+                                                  "results":  0
+                                              }
+                               }
+                           ],
+                 "nextCursor":  null
+             }
+}

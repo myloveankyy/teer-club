@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Game {
+  id               String       @id @default(uuid())
+  name             String       @unique
+  displayName      String
+  description      String?
+  location         String?
+  startTime        String?
+  frTime           String?
+  srTime           String?
+  trTime           String?
+  closeTime        String?
+  hasRound3        Boolean      @default(false)
+  isEnabled        Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  historySourceUrl String?
+  liveSourceUrl    String?
+  
+  // Live Scraping / Cron Configuration
+  isLiveScrapingEnabled Boolean @default(true)
+  lastLiveScrapeAt      DateTime?
+  lastLiveScrapeStatus  String?   // "SUCCESS", "FAILED", "NO_NEW_DATA"
+  
+  predictions      Prediction[]
+  results          Result[]
+}
+
+model Result {
+  id          String    @id @default(uuid())
+  gameId      String
+  date        DateTime
+  round1      String?
+  round2      String?
+  round3      String?
+  confidence  String    @default("LOW")
+  sourceCount Int       @default(1)
+  verified    Boolean   @default(false)
+  detectedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  game        Game      @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, date])
+  @@index([gameId])
+  @@index([date])
+  @@index([verified])
+}
+
+model Page {
+  id               String   @id @default(uuid())
+  title            String
+  slug             String   @unique
+  url              String   @unique
+  type             String   @default("STATIC")
+  status           String   @default("ACTIVE")
+  source           String   @default("AUTO")
+  meta_title       String?
+  meta_description String?
+  seo_score        Int      @default(0)
+  last_audit_at    DateTime?
+  audit_results    Json?
+  index_status     String   @default("DISCOVERED")
+  h1_count         Int?
+  h2_count         Int?
+  content_length   Int?
+  internal_links   Int?
+  performance_score Int?
+  indexed          Boolean  @default(true)
+  views            Int      @default(0)
+  likes            Int      @default(0)
+  last_updated     DateTime @default(now()) @updatedAt
+  createdAt        DateTime @default(now())
+
+  @@index([url])
+  @@index([type])
+  @@index([status])
+  @@index([seo_score])
+  @@index([index_status])
+}
+
+model Prediction {
+  id            String   @id @default(uuid())
+  gameId        String
+  date          DateTime
+  commonNumbers String[]
+  house         String
+  ending        String
+  directNumber  String
+  status        String   @default("GENERATED")
+  actualResult  String?
+  houseMatch    Boolean  @default(false)
+  endingMatch   Boolean  @default(false)
+  directMatch   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  game          Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@unique([gameId, date])
+  @@index([gameId, date])
+  @@index([date])
+  @@index([gameId])
+  @@index([status])
+}
+
+model SiteSettings {
+  id                String   @id @default("global")
+  youtubeUrl        String?
+  youtubeEnabled    Boolean  @default(true)
+  whatsappUrl       String?
+  whatsappEnabled   Boolean  @default(true)
+  telegramUrl       String?
+  telegramEnabled   Boolean  @default(true)
+  bannerText        String?
+  bannerVisible     Boolean  @default(false)
+  bannerColor       String?  @default("#2563eb")
+  resultAwaitedText String?  @default("Result Awaited")
+  sundayOffText     String?  @default("Sunday Off")
+  primaryColor      String?  @default("#2563eb")
+  accentColor       String?  @default("#22c55e")
+  backgroundColor   String?  @default("#ffffff")
+  textColor         String?  @default("#111827")
+  cardStyle         String?  @default("soft")
+  borderRadius      String?  @default("lg")
+  updatedAt         DateTime @updatedAt
+  playLiveEnabled   Boolean  @default(false)
+  playLiveUrl       String?
+}
+
+model CronLog {
+  id         String   @id @default(uuid())
+  game       String
+  status     String
+  round1     String?
+  round2     String?
+  resultDate String?
+  duration   Int
+  error      String?
+  details    String?
+  createdAt  DateTime @default(now())
+
+  @@index([game])
+  @@index([status])
+  @@index([createdAt])
+}
