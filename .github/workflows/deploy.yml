@@ -160,7 +160,6 @@ jobs:
             echo "Starting Apps via PM2..."
             cd /var/www/teer.club/backend
             pm2 start dist/index.js --name "api" --node-args="-r dotenv/config"
-            pm2 start dist/worker.js --name "worker" --node-args="-r dotenv/config"
 
             cd /var/www/teer.club/frontend
             pm2 start npm --name "frontend" -- run start -- -p 3000
