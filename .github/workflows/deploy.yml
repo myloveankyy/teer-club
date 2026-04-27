@@ -32,7 +32,7 @@ jobs:
       - name: Install & Build Frontend
         working-directory: ./frontend
         env:
-          NEXT_PUBLIC_API_URL: https://api.teer.club
+          NEXT_PUBLIC_API_URL: https://api.teer.club/api
         run: |
           npm install
           npm run build
@@ -41,7 +41,7 @@ jobs:
       - name: Install & Build Admin Panel
         working-directory: ./admin-panel
         env:
-          NEXT_PUBLIC_API_URL: https://api.teer.club
+          NEXT_PUBLIC_API_URL: https://api.teer.club/api
         run: |
           npm install
           npm run build
@@ -131,10 +131,10 @@ jobs:
             echo "REDIS_URL=redis://localhost:6379" >> backend/.env
             echo "DATABASE_URL=postgresql://teerclub:TeerClub_Prod_2026!@localhost:5432/teer_club?schema=public" >> backend/.env
             
-            echo "NEXT_PUBLIC_API_URL=https://api.teer.club" > frontend/.env
-            echo "INTERNAL_API_URL=http://localhost:5000" >> frontend/.env
-            echo "NEXT_PUBLIC_API_URL=https://api.teer.club" > admin-panel/.env
-            echo "INTERNAL_API_URL=http://localhost:5000" >> admin-panel/.env
+            echo "NEXT_PUBLIC_API_URL=https://api.teer.club/api" > frontend/.env
+            echo "INTERNAL_API_URL=http://localhost:5000/api" >> frontend/.env
+            echo "NEXT_PUBLIC_API_URL=https://api.teer.club/api" > admin-panel/.env
+            echo "INTERNAL_API_URL=http://localhost:5000/api" >> admin-panel/.env
 
             echo "Ensuring Redis is running..."
             sudo apt-get install -y redis-server
