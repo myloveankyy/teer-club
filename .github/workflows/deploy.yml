@@ -118,7 +118,8 @@ jobs:
 
             # Recreate environment variables
             echo "Recreating environment variables..."
-            echo "DB_USER=teerclub" > backend/.env
+            echo "PORT=5000" > backend/.env
+            echo "DB_USER=teerclub" >> backend/.env
             echo "DB_HOST=localhost" >> backend/.env
             echo "DB_NAME=teer_club" >> backend/.env
             echo "DB_PASSWORD=TeerClub_Prod_2026!" >> backend/.env
@@ -142,6 +143,9 @@ jobs:
             echo "Installing Backend Dependencies..."
             cd backend
             npm install --omit=dev
+            
+            echo "Provisioning Headless Scraping Engines..."
+            npx playwright install chromium --with-deps || true
             
             echo "Generating Prisma Client..."
             npx prisma generate
