@@ -49,6 +49,9 @@ jobs:
       # ---- COMPRESS ARTIFACTS BEFORE SCP ----
       - name: Compress project
         run: |
+          echo "Freeing up GitHub Runner RAM..."
+          pkill -9 -f "node" 2>/dev/null || true
+          sleep 2
           tar --exclude='./deployment.tar.gz' --exclude='./.git' --ignore-failed-read -czf deployment.tar.gz . 2>/dev/null
 
       # ---- COPY ARCHIVE TO SERVER ----
@@ -85,7 +88,6 @@ jobs:
             # --- TOTAL ISOLATION PROTOCOL ---
             echo "Shutting down application layers to isolate registry..."
             pm2 delete all || true
-            pkill -9 -f "node" 2>/dev/null || true
             sleep 2
 
             # --- INFRASTRUCTURE SOVEREIGNTY (PORT RECOVERY) ---
