@@ -1,0 +1,175 @@
+@import "tailwindcss";
+
+:root {
+  /* Default Branding Tokens */
+  --primary: #2563eb;
+  --accent: #22c55e;
+  --bg: #ffffff;
+  --text: #111827;
+  --radius: 1rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter);
+
+  /* Centralized Dynamic Theme Tokens */
+  --color-primary: var(--primary);
+  --color-accent: var(--accent);
+  --color-background: var(--bg);
+  --color-foreground: var(--text);
+  --radius-theme: var(--radius);
+
+  /* Helper Variants */
+  --color-brand-100: color-mix(in srgb, var(--primary), white 85%);
+  --color-brand-500: var(--primary);
+  --color-brand-600: color-mix(in srgb, var(--primary), black 10%);
+
+  --color-surface: var(--bg);
+  --color-surface-secondary: color-mix(in srgb, var(--text), white 95%);
+  --color-text-primary: var(--text);
+  --color-text-secondary: color-mix(in srgb, var(--text), white 35%);
+
+  --color-teal-50: #f0fdfa;
+  --color-teal-500: #0ea5a9;
+  --color-teal-600: #0d9494;
+
+  --color-success: #16a34a;
+  --color-success-bg: #dcfce7;
+  --color-success-text: #15803d;
+
+  --color-warning: #f59e0b;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #b45309;
+
+  /* Linked to Primary */
+  --color-info: var(--primary);
+  --color-info-bg: color-mix(in srgb, var(--primary), white 90%);
+  --color-info-text: color-mix(in srgb, var(--primary), black 20%);
+
+  --color-error: #dc2626;
+  --color-error-bg: #fee2e2;
+  --color-error-text: #991b1b;
+
+  --color-purple: #8b5cf6;
+  --color-purple-bg: #ede9fe;
+  --color-purple-text: #5b21b6;
+
+  --color-neutral: #6b7280;
+  --color-neutral-bg: #f3f4f6;
+  --color-neutral-text: #4b5563;
+
+  --color-border: color-mix(in srgb, var(--text), white 90%);
+
+  /* Balanced Industry-Standard Typography Scale */
+  --text-h1: 1.75rem;     /* 28px */
+  --text-h1-md: 2.25rem;  /* 36px */
+  --text-h1-lg: 3rem;     /* 48px */
+
+  --text-h2: 1.5rem;      /* 24px */
+  --text-h2-md: 1.875rem; /* 30px */
+
+  --text-h3: 1.25rem;     /* 20px */
+  --text-h3-md: 1.5rem;   /* 24px */
+
+  --text-body: 0.9375rem; /* 15px */
+  --text-body-md: 1rem;   /* 16px */
+  
+  --tracking-tightest: -0.05em;
+  --tracking-tighter: -0.025em;
+  --tracking-tight: -0.0125em;
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
+
+@utility text-h1 {
+  font-size: var(--text-h1);
+  @media (min-width: 768px) { font-size: var(--text-h1-md); }
+  @media (min-width: 1024px) { font-size: var(--text-h1-lg); }
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: var(--tracking-tightest);
+}
+
+@utility text-h2 {
+  font-size: var(--text-h2);
+  @media (min-width: 768px) { font-size: var(--text-h2-md); }
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: var(--tracking-tighter);
+}
+
+@utility text-h3 {
+  font-size: var(--text-h3);
+  @media (min-width: 768px) { font-size: var(--text-h3-md); }
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: var(--tracking-tight);
+}
+
+@utility text-body {
+  font-size: var(--text-body);
+  @media (min-width: 768px) { font-size: var(--text-body-md); }
+  line-height: 1.5;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Keyboard-only focus indicator */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Brand selection color */
+::selection {
+  background-color: color-mix(in srgb, var(--primary), white 75%);
+  color: var(--text);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--primary), color-mix(in srgb, var(--primary), black 20%));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--primary), white 10%), var(--primary));
+  border-radius: 4px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) #f1f5f9;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
