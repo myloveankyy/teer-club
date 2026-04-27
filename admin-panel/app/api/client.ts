@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const getApiKey = () => {
   if (typeof window !== "undefined") {
     return localStorage.getItem("apiKey") || process.env.NEXT_PUBLIC_API_KEY || "";
@@ -94,6 +95,7 @@ export interface Result {
   date: string;
   round1: string | null;
   round2: string | null;
+  round3?: string | null;
   confidence: string;
   createdAt?: string;
   updatedAt?: string;

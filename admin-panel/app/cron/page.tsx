@@ -61,7 +61,7 @@ export default function CronDashboard() {
     const formatTime = (dateStr: string) => {
         try {
             return new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: true }).format(new Date(dateStr));
-        } catch (e) {
+        } catch {
             return "-";
         }
     };
@@ -103,10 +103,10 @@ export default function CronDashboard() {
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="font-semibold text-gray-900">{job.displayName}</h3>
                                 <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${job.lastStatus === "SUCCESS" ? "bg-green-50 text-green-700" :
-                                        job.lastStatus === "FAILED" ? "bg-red-50 text-red-700" : "bg-gray-50 text-gray-600"
+                                    job.lastStatus === "FAILED" ? "bg-red-50 text-red-700" : "bg-gray-50 text-gray-600"
                                     }`}>
                                     <span className={`w-2 h-2 rounded-full ${job.lastStatus === "SUCCESS" ? "bg-green-500 animate-pulse" :
-                                            job.lastStatus === "FAILED" ? "bg-red-500" : "bg-gray-400"
+                                        job.lastStatus === "FAILED" ? "bg-red-500" : "bg-gray-400"
                                         }`} />
                                     {job.lastStatus || "IDLE"}
                                 </span>
@@ -157,8 +157,8 @@ export default function CronDashboard() {
                                     <td className="px-6 py-4 font-medium text-gray-900 uppercase">{log.game}</td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded text-xs font-medium ${log.status === "SUCCESS" ? "text-green-700 bg-green-50" :
-                                                log.status === "FAILED" ? "text-red-700 bg-red-50" :
-                                                    log.status === "NO_NEW_DATA" ? "text-blue-700 bg-blue-50" : "text-gray-600 bg-gray-50"
+                                            log.status === "FAILED" ? "text-red-700 bg-red-50" :
+                                                log.status === "NO_NEW_DATA" ? "text-blue-700 bg-blue-50" : "text-gray-600 bg-gray-50"
                                             }`}>
                                             {log.status}
                                         </span>

@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SidebarProvider } from "@/components/SidebarContext";
-import { ToastProvider } from "@/components/Toast";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import MobileBlocker from "@/components/MobileBlocker";
