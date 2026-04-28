@@ -145,8 +145,8 @@ async function seedDefaultData() {
           closeTime: "5:00 PM",
           frTime: "4:00 PM",
           srTime: "4:50 PM",
-          historySourceUrl: "https://teerresults.com/shillong-teer-result",
-          liveSourceUrl: "https://teerresults.com",
+          historySourceUrl: "https://www.assamteerresults.com/shillong-previous-result/",
+          liveSourceUrl: "https://www.assamteerresults.com",
           hasRound3: false,
           isEnabled: true,
           isLiveScrapingEnabled: true
