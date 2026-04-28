@@ -43,6 +43,7 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
 
   if (apiKey) {
     headers["X-API-Key"] = apiKey;
+    headers["X-Admin-Key"] = apiKey;
   }
 
   try {

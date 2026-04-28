@@ -36,6 +36,7 @@ router.get("/:gameId", async (req: Request, res: Response) => {
         return;
     }
 
+    let heartbeat: ReturnType<typeof setInterval> | null = null;
     try {
         // Resolve the game and source URL
         const game = await prisma.game.findUnique({ where: { id: gameId } });
@@ -83,13 +84,15 @@ router.get("/:gameId", async (req: Request, res: Response) => {
 
         // Handle client disconnect
         let aborted = false;
-        const heartbeat = setInterval(() => {
-            if (!aborted) res.write(": heartbeat\n\n");
+        heartbeat = setInterval(() => {
+            if (!aborted) {
+                try { res.write(": heartbeat\n\n"); } catch { /* connection closed */ }
+            }
         }, 15000);
 
         req.on("close", () => {
             aborted = true;
-            clearInterval(heartbeat);
+            if (heartbeat) clearInterval(heartbeat);
             activeImports.delete(gameId);
             logger.info(`[ImportRoute] Client disconnected during import of ${game.displayName}`);
         });
@@ -101,6 +104,7 @@ router.get("/:gameId", async (req: Request, res: Response) => {
         }, force);
 
         // Send final result
+        clearInterval(heartbeat);
         if (!aborted) {
             sendEvent("result", result);
             res.end();
@@ -108,6 +112,7 @@ router.get("/:gameId", async (req: Request, res: Response) => {
 
         activeImports.delete(gameId);
     } catch (err: any) {
+        if (heartbeat) clearInterval(heartbeat);
         activeImports.delete(gameId);
         logger.error(`[ImportRoute] Import failed for ${gameId}`, err);
 

@@ -14,13 +14,13 @@ export function adminAuth(req: Request, res: Response, next: NextFunction) {
         return next();
     }
 
-    const adminKey = process.env.ADMIN_API_KEY;
+    const adminKey = process.env.ADMIN_API_KEY || process.env.API_KEY;
     if (!adminKey) {
-        logger.error("[Auth] ADMIN_API_KEY is not set in production! Rejecting request.");
+        logger.error("[Auth] ADMIN_API_KEY (or API_KEY fallback) is not set in production! Rejecting request.");
         return res.status(500).json({ success: false, error: "Server misconfigured" });
     }
 
-    const providedKey = (req.headers["x-admin-key"] as string) || (req.query.apiKey as string);
+    const providedKey = (req.headers["x-admin-key"] as string) || (req.headers["x-api-key"] as string) || (req.query.apiKey as string);
     if (!providedKey || providedKey !== adminKey) {
         logger.warn("[Auth] Unauthorized admin access attempt", {
             ip: req.ip,
