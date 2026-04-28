@@ -6,10 +6,15 @@ export default function robots(): MetadataRoute.Robots {
             {
                 userAgent: "*",
                 allow: "/",
-                disallow: ["/api/", "/_next/", "/admin/"],
+                disallow: [
+                    "/api/",
+                    "/_next/",
+                    "/admin/",
+                    "/admin-panel/",
+                    "/*.json$",
+                ],
             },
         ],
         sitemap: "https://teer.club/sitemap.xml",
-        host: "https://teer.club",
     };
 }

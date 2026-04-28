@@ -19,43 +19,61 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0f172a] flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
-                    Secure Login
+        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+            {/* Ambient Background Elements */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
+            <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/5 rounded-full blur-[120px]" />
+            <div className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-[120px]" />
+
+            <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+                <div className="flex justify-center mb-6">
+                    <div className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-blue-600 bg-blue-50 border border-blue-100 shadow-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+                        Secure Access
+                    </div>
+                </div>
+                <h2 className="text-center text-4xl font-black text-gray-900 tracking-tight uppercase">
+                    Admin <span className="text-blue-600">Console</span>
                 </h2>
-                <p className="mt-2 text-center text-sm text-gray-400">
-                    Sign in to the Teer Club Admin Console
+                <p className="mt-3 text-center text-sm font-medium text-gray-500">
+                    Sign in to the Teer Club Management System
                 </p>
             </div>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-[#1e293b] py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-gray-700">
-                    <form className="space-y-6" onSubmit={handleLogin}>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300">
-                                Admin ID
+            <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4">
+                <div className="bg-white py-12 px-8 shadow-[0_20px_50px_rgba(0,0,0,0.05)] sm:rounded-[2.5rem] border border-gray-100/50 backdrop-blur-sm">
+                    <form className="space-y-8" onSubmit={handleLogin}>
+                        <div className="space-y-2">
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] ml-1">
+                                Administrator ID
                             </label>
-                            <div className="mt-1">
+                            <div className="relative group">
                                 <input
                                     type="text"
                                     required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="Enter identifier"
+                                    className="block w-full px-5 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl text-gray-900 placeholder-gray-400 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white text-sm font-medium shadow-sm hover:border-gray-200"
                                     value={id}
                                     onChange={(e) => setId(e.target.value)}
                                 />
                             </div>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300">
-                                Passcode
-                            </label>
-                            <div className="mt-1">
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">
+                                    Secure Passcode
+                                </label>
+                                <a href="#" className="text-[10px] font-bold text-blue-600 uppercase tracking-widest hover:underline">
+                                    Forgot?
+                                </a>
+                            </div>
+                            <div className="relative group">
                                 <input
                                     type="password"
                                     required
-                                    className="appearance-none block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="••••••••"
+                                    className="block w-full px-5 py-4 bg-gray-50/50 border border-gray-100 rounded-2xl text-gray-900 placeholder-gray-400 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 focus:bg-white text-sm font-medium shadow-sm hover:border-gray-200"
                                     value={passcode}
                                     onChange={(e) => setPasscode(e.target.value)}
                                 />
@@ -63,20 +81,28 @@ export default function LoginPage() {
                         </div>
 
                         {error && (
-                            <div className="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded relative" role="alert">
-                                <span className="block sm:inline">{error}</span>
+                            <div className="flex items-center gap-3 bg-red-50 border border-red-100 text-red-600 px-5 py-4 rounded-2xl text-xs font-bold">
+                                <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{error}</span>
                             </div>
                         )}
 
-                        <div>
+                        <div className="pt-2">
                             <button
                                 type="submit"
-                                className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                                className="w-full flex justify-center py-4 px-6 rounded-2xl text-sm font-bold text-white bg-[#111827] hover:bg-black shadow-xl shadow-gray-200 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-gray-200"
                             >
-                                Sign in
+                                Authenticate System
                             </button>
                         </div>
                     </form>
+
+                    <div className="mt-10 pt-8 border-t border-gray-50 flex items-center justify-between text-[10px] font-bold text-gray-300 uppercase tracking-[0.2em]">
+                        <span>© 2026 TEER.CLUB</span>
+                        <span>V2.4 SERVER-SIDE</span>
+                    </div>
                 </div>
             </div>
         </div>

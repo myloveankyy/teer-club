@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { ResultsList } from "@/components/ResultsList";
 
 export const metadata: Metadata = {
-  title: "Previous Teer Results | Shillong Khanapara Juwai Teer Result History",
+  title: "Teer Results History – Shillong, Khanapara, Juwai Archive",
   description:
     "Browse previous Teer results for Shillong, Khanapara, Juwai and other Teer games. Check historical winning numbers and past results.",
   keywords: [
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     "Teer archives",
   ],
   alternates: {
-    canonical: "https://teer.club/results",
+    canonical: "/results",
   },
   openGraph: {
     title: "Previous Teer Results",
@@ -60,7 +60,7 @@ const breadcrumbJsonLd = {
   ],
 };
 
-import { PlayLiveWidget } from "@/components/PlayLiveWidget";
+import { LiveActionWidget } from "@/components/LiveActionWidget";
 
 export default function ResultsPage() {
   return (
@@ -109,13 +109,13 @@ export default function ResultsPage() {
               </div>
 
               <div className="w-full md:w-auto flex justify-center md:block">
-                <PlayLiveWidget
+                <LiveActionWidget
                   image="/images/teer-results-board.png"
-                  title="Official Teer Archives"
+                  title="Teer Result History"
                   subtitle="Explore the complete historical database of verified Shillong, Khanapara, and Juwai numbers."
-                  badgeText="Archive"
+                  badgeText="Verified Records"
                   buttonText="Share Results"
-                  showVideoIcon={false}
+                  showLiveIcon={false}
                   isUppercase={false}
                 />
               </div>

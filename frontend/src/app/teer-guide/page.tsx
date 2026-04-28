@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     "How to play Teer",
     "Teer guide",
   ],
+  alternates: {
+    canonical: "/teer-guide",
+  },
   openGraph: {
     title: "Teer Guide – Learn How Teer Game Works",
     description:

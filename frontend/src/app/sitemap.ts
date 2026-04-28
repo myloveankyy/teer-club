@@ -1,22 +1,26 @@
 import { MetadataRoute } from "next";
 import { blogPosts } from "@/data/blogs";
+import api from "@/lib/api";
 
 const BASE_URL = "https://teer.club";
 
-// Comprehensive game list — kept in sync with DB games
-const GAMES = [
-    "shillong",
-    "khanapara",
-    "juwai",
-    "jowai-ladrymbai",
-    "laitlyngkot",
-    "bhutan-day",
-    "arunachal",
-    "manipur",
-];
-
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const now = new Date();
+
+    // ─── Fetch Dynamic Data ───
+    let GAMES: string[] = [
+        "shillong", "khanapara", "juwai", "jowai-ladrymbai",
+        "laitlyngkot", "bhutan-day", "arunachal", "manipur"
+    ];
+
+    try {
+        const gamesRes = await api.games.getAll();
+        if (gamesRes.data.success) {
+            GAMES = gamesRes.data.data.map(g => g.name);
+        }
+    } catch (e) {
+        console.error("Sitemap: Failed to fetch games, using fallback list.");
+    }
 
     // ─── Static Pages ──────────────────────────────────────────────────────
     const staticPages: MetadataRoute.Sitemap = [
@@ -45,39 +49,39 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.85,
         },
         {
-            url: `${BASE_URL}/dream-numbers`,
+            url: `${BASE_URL}/dreams`,
             lastModified: now,
             changeFrequency: "monthly",
-            priority: 0.5,
+            priority: 0.6,
         },
         {
             url: `${BASE_URL}/teer-guide`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.5,
-        },
-        {
-            url: `${BASE_URL}/about`,
-            lastModified: now,
-            changeFrequency: "monthly",
-            priority: 0.3,
-        },
-        {
-            url: `${BASE_URL}/blogs`,
             lastModified: now,
             changeFrequency: "weekly",
             priority: 0.6,
         },
         {
+            url: `${BASE_URL}/about`,
+            lastModified: now,
+            changeFrequency: "weekly",
+            priority: 0.4,
+        },
+        {
+            url: `${BASE_URL}/blogs`,
+            lastModified: now,
+            changeFrequency: "daily",
+            priority: 0.7,
+        },
+        {
             url: `${BASE_URL}/disclaimer`,
             lastModified: now,
-            changeFrequency: "yearly",
+            changeFrequency: "monthly",
             priority: 0.2,
         },
         {
             url: `${BASE_URL}/privacy-policy`,
             lastModified: now,
-            changeFrequency: "yearly",
+            changeFrequency: "monthly",
             priority: 0.2,
         },
     ];
@@ -103,7 +107,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             priority: 0.7,
         },
         {
-            url: `${BASE_URL}/${game}`,
+            url: `${BASE_URL}/${game}/previous-results`,
             lastModified: now,
             changeFrequency: "daily" as const,
             priority: 0.7,

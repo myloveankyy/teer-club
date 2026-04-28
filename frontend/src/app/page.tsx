@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     "Teer Result Morning",
     "Teer Result Evening",
   ],
+  alternates: {
+    canonical: "/",
+  },
 };
 
 const jsonLd = {

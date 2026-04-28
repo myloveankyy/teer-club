@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     "Teer Predictive Analysis",
   ],
   alternates: {
-    canonical: "https://teer.club/common-numbers"
+    canonical: "/common-numbers",
   },
   openGraph: {
     title: "Official Teer Common Numbers Today | Today Target Numbers",

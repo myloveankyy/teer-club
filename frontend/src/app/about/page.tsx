@@ -15,6 +15,9 @@ export const metadata: Metadata = {
     "Teer Common Numbers",
     "Teer website",
   ],
+  alternates: {
+    canonical: "/about",
+  },
   openGraph: {
     title: "About Teer.club",
     description: "Fast and reliable Teer results website for major markets.",

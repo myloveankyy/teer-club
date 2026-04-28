@@ -52,7 +52,7 @@ export const blogPosts: BlogPost[] = [
       { id: "faq", title: "Frequently Asked Questions", level: 2 },
     ],
     relatedSlugs: [
-      "teer-dream-numbers-explained",
+      "teer-dreams-explained",
       "common-numbers-strategy",
       "predict-winning-teer-numbers",
     ],
@@ -136,7 +136,7 @@ Starting your Teer journey? Keep these tips in mind:
 
 - [Access Live Feed](/live) for real-time updates
 - [View Common Numbers](/common-numbers) for market projections
-- [Learn Dream Numbers](/dream-numbers) for traditional interpretations
+- [Learn Dream Numbers](/dreams) for traditional interpretations
 - [Read the Teer Guide](/teer-guide) for comprehensive understanding
 
 ## Conclusion
@@ -269,7 +269,7 @@ For best results, experienced players:
 - [Live Terminal Feed](/live) - Real-time result tracking
 - [Previous Results](/results) - Historical data for analysis
 - [Common Numbers](/common-numbers) - Game projections
-- [Dream Numbers](/dream-numbers) - Traditional interpretations
+- [Dream Numbers](/dreams) - Traditional interpretations
 
 ## Conclusion
 
@@ -418,7 +418,7 @@ Remember to play responsibly and within your means.
     relatedSlugs: [
       "shillong-teer-number-guide",
       "predict-winning-teer-numbers",
-      "teer-dream-numbers-explained",
+      "teer-dreams-explained",
     ],
     faq: [
       {
@@ -510,7 +510,7 @@ For best results:
 ### Recommended Resources
 
 - [Daily Common Numbers](/common-numbers) - Updated predictions
-- [Dream Numbers](/dream-numbers) - Traditional interpretations
+- [Dream Numbers](/dreams) - Traditional interpretations
 - [Live Results](/live) - Real-time updates
 
 ## Conclusion
@@ -519,7 +519,7 @@ Common numbers provide a structured approach to Teer prediction. While not guara
     `,
   },
   {
-    slug: "teer-dream-numbers-explained",
+    slug: "teer-dreams-explained",
     title: "Understanding Teer Dream Numbers",
     excerpt:
       "Explore the traditional practice of dream interpretation in Teer and learn how to use dream numbers effectively.",
@@ -535,10 +535,10 @@ Common numbers provide a structured approach to Teer prediction. While not guara
       "Traditional Teer",
     ],
     tableOfContents: [
-      { id: "dream-numbers-history", title: "History of Dream Numbers", level: 2 },
+      { id: "dreams-history", title: "History of Dream Numbers", level: 2 },
       { id: "how-dreams-become-numbers", title: "How Dreams Become Numbers", level: 2 },
       { id: "popular-dream-meanings", title: "Popular Dream Meanings", level: 3 },
-      { id: "using-dream-numbers", title: "Using Dream Numbers", level: 2 },
+      { id: "using-dreams", title: "Using Dream Numbers", level: 2 },
       { id: "tips-and-cautions", title: "Tips and Cautions", level: 2 },
       { id: "faq", title: "FAQs", level: 2 },
     ],
@@ -649,7 +649,7 @@ The practice of interpreting dreams to select numbers has deep cultural roots. I
 
 Dream numbers add an intuitive, traditional dimension to Teer prediction. While not scientifically proven, they remain a popular and culturally significant method for many players.
 
-Explore our comprehensive [Dream Numbers guide](/dream-numbers) for detailed interpretations.
+Explore our comprehensive [Dream Numbers guide](/dreams) for detailed interpretations.
     `,
   },
 ];

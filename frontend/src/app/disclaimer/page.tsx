@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     description:
         "Important disclaimer for Teer Club users. All Teer results, common numbers, and predictions are for informational and educational purposes only.",
     alternates: {
-        canonical: "https://teer.club/disclaimer",
+        canonical: "/disclaimer",
     },
     openGraph: {
         title: "Disclaimer | Teer Club",

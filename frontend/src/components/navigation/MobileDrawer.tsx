@@ -27,7 +27,7 @@ const navItems = [
   { href: "/", label: "Home", icon: HomeIcon },
   { href: "/results", label: "Results", icon: ResultsIcon },
   { href: "/common-numbers", label: "Common Numbers", icon: CommonNumbersIcon },
-  { href: "/dream-numbers", label: "Dream Numbers", icon: DreamIcon },
+  { href: "/dreams", label: "Dream Numbers", icon: DreamIcon },
   { href: "/teer-guide", label: "Guide", icon: GuideIcon },
   { href: "/about", label: "About", icon: AboutIcon },
   { href: "/blogs", label: "Blogs", icon: BlogIcon },

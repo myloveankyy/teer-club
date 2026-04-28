@@ -19,7 +19,7 @@ const navLinks = [
   { href: "/live", label: "Live" },
   { href: "/results", label: "Results" },
   { href: "/common-numbers", label: "Common Numbers" },
-  { href: "/dream-numbers", label: "Dreams" },
+  { href: "/dreams", label: "Dreams" },
 ];
 
 export function Header({ initialSettings }: { initialSettings?: SiteSettings }) {

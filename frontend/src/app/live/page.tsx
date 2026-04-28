@@ -10,9 +10,9 @@ import Link from "next/link";
 export const revalidate = 10; // ISR: Revalidate every 10 seconds
 
 export const metadata: Metadata = {
-  title: "Live Teer Result Today | Official Shillong, Khanapara, Juwai Results",
-  description: "Get the fastest live Teer Result Today for Shillong, Khanapara, and Juwai. Real-time archery result updates with official data synchronization.",
-  keywords: ["live teer result today", "Shillong teer live result", "Khanapara teer result live", "Juwai teer results"],
+  title: "LIVE Teer Result Today | Shillong Khanapara Juwai Teer Live Updates",
+  description: "Stay ahead with 100% verified LIVE Teer Result Today for Shillong, Khanapara, & Juwai. Get real-time FR & SR updates directly from official archery counters.",
+  keywords: ["live teer result today", "Shillong teer live result", "Khanapara teer result live", "Juwai teer results", "teer live updates"],
   alternates: {
     canonical: "https://teer.club/live",
   },
@@ -36,6 +36,8 @@ const breadcrumbJsonLd = {
     },
   ],
 };
+
+import { LiveActionWidget } from "@/components/LiveActionWidget";
 
 export default async function LiveResultsPage() {
   let initialData = null;
@@ -64,22 +66,50 @@ export default async function LiveResultsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <main className="flex-1 bg-surface">
-        {/* Minimal Header Section */}
-        <Section background="white" className="!py-20 border-b border-border/50 bg-[radial-gradient(#f1f5f9_1.5px,transparent_1.5px)] [background-size:32px_32px]">
-          <Container className="text-center">
-            <div className="mx-auto max-w-4xl">
-              <div className="mb-6 inline-flex">
-                <span className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[10px] font-black uppercase tracking-widest text-primary bg-primary/5 border border-primary/10 shadow-sm">
+        {/* Hero Section */}
+        <Section background="white" className="!py-14 md:!py-20 border-b border-gray-100 bg-[radial-gradient(#f1f5f9_1px,transparent_1px)] [background-size:24px_24px] overflow-hidden">
+          <Container>
+            <div className="flex flex-col gap-16 md:flex-row md:items-center md:justify-between py-8">
+              <div className="flex-1 text-center md:text-left max-w-2xl px-4 md:px-0">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold text-primary bg-primary/5 border border-primary/10 shadow-sm transition-all hover:scale-105">
                   <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                  Live Results Today
-                </span>
+                  Verified Live Updates
+                </div>
+                <h1 className="mb-6 text-h1 text-gray-900 leading-tight">
+                  Live <span className="text-primary">Teer Result</span> Today
+                </h1>
+                <p className="mx-auto md:mx-0 mb-10 max-w-2xl text-base font-medium text-gray-500 md:text-lg leading-relaxed">
+                  Real-time synchronization with official archery counters. Get 100% verified results for Shillong, Khanapara, and Juwai teer games instantly.
+                </p>
+                <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                  <Button
+                    href="/results"
+                    variant="primary"
+                    className="!px-8 !py-3.5 !rounded-2xl text-sm font-bold shadow-xl shadow-primary/20"
+                  >
+                    View Result History
+                  </Button>
+                  <Button
+                    href="/common-numbers"
+                    variant="secondary"
+                    className="!px-8 !py-3.5 !rounded-2xl text-sm font-bold"
+                  >
+                    Common Numbers
+                  </Button>
+                </div>
               </div>
-              <h1 className="mb-6 text-h1 text-gray-900 leading-[1.1] tracking-tightest">
-                Live <span className="text-primary italic">Teer Result</span> Today
-              </h1>
-              <p className="mx-auto max-w-2xl text-body text-gray-500 leading-relaxed font-medium">
-                Shillong, Khanapara, Jowai & All Teer Games Live Updates. Real-time synchronization with official archery counters.
-              </p>
+
+              <div className="w-full md:w-auto flex justify-center md:block">
+                <LiveActionWidget
+                  image="/images/live-market-premium.png"
+                  title="Official Teer Market"
+                  subtitle="Real-time verification link for active Teer markets and direct official counter results."
+                  badgeText="LIVE NOW"
+                  buttonText="Enter Live Market"
+                  showLiveIcon={true}
+                  isUppercase={false}
+                />
+              </div>
             </div>
           </Container>
         </Section>
@@ -98,7 +128,7 @@ export default async function LiveResultsPage() {
               </div>
               <div className="flex items-center gap-4">
                 <Button variant="outline" href="/results" className="text-[10px] font-bold uppercase tracking-widest px-8 py-3 rounded-lg border-border bg-white hover:bg-gray-50 shadow-sm transition-all">
-                  Archives
+                  Result History
                 </Button>
               </div>
             </div>
@@ -121,7 +151,7 @@ export default async function LiveResultsPage() {
                         Our platform uses a direct connection system with official association counters. This ensures you see the <strong className="text-gray-900">live teer result today</strong> before most other platforms.
                       </p>
                       <p>
-                        Results are declared in two rounds: <strong>First Round (FR)</strong> and <strong>Second Round (SR)</strong>. Once both rounds are verified, they are archived for historical reference.
+                        Results are declared in two rounds: <strong>First Round (FR)</strong> and <strong>Second Round (SR)</strong>. Once both rounds are verified, they are logged in our historical database for verification.
                       </p>
                     </div>
                   </div>

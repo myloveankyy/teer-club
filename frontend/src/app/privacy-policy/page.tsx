@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     description:
         "Privacy policy for Teer Club. Learn how we collect, use, and protect your data when using our Teer results and common numbers platform.",
     alternates: {
-        canonical: "https://teer.club/privacy-policy",
+        canonical: "/privacy-policy",
     },
     openGraph: {
         title: "Privacy Policy | Teer Club",

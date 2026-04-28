@@ -9,9 +9,12 @@ import { DreamNumberSearch } from "@/components/DreamNumberSearch";
 import { dreamNumbersData } from "@/data/dreamNumbers";
 
 export const metadata: Metadata = {
-  title: "Teer Dream Numbers List | Dream Meaning Numbers for Teer",
+  title: "Teer Dream Meanings & Numbers List | Teer Club",
   description:
     "Find dream numbers used in Teer games including snake, water, fire, marriage and more. Search dream meanings and corresponding Teer numbers.",
+  alternates: {
+    canonical: "/dreams",
+  },
   keywords: [
     "Dream Numbers Teer",
     "Teer Dream Numbers List",

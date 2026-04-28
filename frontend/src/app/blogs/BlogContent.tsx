@@ -116,7 +116,7 @@ export function BlogContent({ posts, featuredPost, trendingPosts }: BlogContentP
             </a>
 
             <a
-              href="/dream-numbers"
+              href="/dreams"
               className="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 transition-all hover:border-[#2563eb]/30 hover:shadow-lg"
             >
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#eff6ff] text-[#2563eb] transition-colors group-hover:bg-[#2563eb] group-hover:text-white">

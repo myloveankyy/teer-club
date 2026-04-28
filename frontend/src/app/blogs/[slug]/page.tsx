@@ -330,7 +330,7 @@ export default async function BlogPostPage({ params }: PageProps) {
                           <p className="text-sm text-gray-500">Daily predictions</p>
                         </div>
                       </a>
-                      <a href="/dream-numbers" className="group flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-4 transition-all hover:border-[#2563eb]/30 hover:shadow-md">
+                      <a href="/dreams" className="group flex items-center gap-4 rounded-xl border border-gray-100 bg-white p-4 transition-all hover:border-[#2563eb]/30 hover:shadow-md">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#eff6ff] text-[#2563eb] transition-colors group-hover:bg-[#2563eb] group-hover:text-white">
                           <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
