@@ -34,10 +34,24 @@ const ALLOWED_ORIGINS = [
 ];
 
 app.use(cors({
-  origin: process.env.NODE_ENV === "production"
-    ? ALLOWED_ORIGINS
-    : true,
+  origin: (origin, callback) => {
+    // In development or if no origin (server-to-server), allow
+    if (!origin || process.env.NODE_ENV !== "production") {
+      return callback(null, true);
+    }
+
+    // Explicitly check allowed origins or subdomains
+    const isAllowed = ALLOWED_ORIGINS.includes(origin) || origin.endsWith(".teer.club");
+
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      logger.warn(`[CORS] Blocked request from unauthorized origin: ${origin}`);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
+  optionsSuccessStatus: 200, // For legacy browser compatibility
 }));
 
 app.use(express.json());

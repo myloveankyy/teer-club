@@ -9,8 +9,8 @@ import { logger } from "../utils/logger";
  * without a key for ease of local development.
  */
 export function adminAuth(req: Request, res: Response, next: NextFunction) {
-    // Allow unauthenticated access in development
-    if (process.env.NODE_ENV !== "production") {
+    // Allow OPTIONS (preflight) or unauthenticated access in development
+    if (req.method === "OPTIONS" || process.env.NODE_ENV !== "production") {
         return next();
     }
 
