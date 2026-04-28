@@ -56,10 +56,15 @@ router.get("/:gameId", async (req: Request, res: Response) => {
 
         // Set up SSE headers (use setHeader so we don't overwrite the global cors middleware headers)
         res.setHeader("Content-Type", "text/event-stream");
-        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Cache-Control", "no-cache, no-transform");
         res.setHeader("Connection", "keep-alive");
         res.setHeader("X-Accel-Buffering", "no");
         res.flushHeaders();
+
+        // 🚨 CRITICAL: Disable Node.js socket timeouts for this long-running request
+        req.setTimeout(0);
+        res.setTimeout(0);
+        if (req.socket) req.socket.setTimeout(0);
 
         // Helper to send SSE events
         const sendEvent = (event: string, data: unknown) => {
