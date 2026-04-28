@@ -66,7 +66,7 @@ export async function runImport(
             gameId: game.id,
             gameName: game.name,
             useAI: true,
-            timeout: 60000,
+            timeout: 180000,
             maxPagesLimit: 500,
             chunkSize: 120000,
             stopOnNoNewData: true,

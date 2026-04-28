@@ -53,12 +53,17 @@ router.get("/:gameId", async (req: Request, res: Response) => {
             return;
         }
 
-        // Set up SSE headers
+        // Set up SSE headers + Explicit CORS to bypass proxy interference
+        const origin = req.headers.origin as string || "https://admin.teer.club";
         res.writeHead(200, {
             "Content-Type": "text/event-stream",
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",  // Disable nginx buffering
+            "X-Accel-Buffering": "no",
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, X-Admin-Key",
+            "Access-Control-Allow-Credentials": "true",
         });
 
         // Helper to send SSE events
@@ -78,8 +83,13 @@ router.get("/:gameId", async (req: Request, res: Response) => {
 
         // Handle client disconnect
         let aborted = false;
+        const heartbeat = setInterval(() => {
+            if (!aborted) res.write(": heartbeat\n\n");
+        }, 15000);
+
         req.on("close", () => {
             aborted = true;
+            clearInterval(heartbeat);
             activeImports.delete(gameId);
             logger.info(`[ImportRoute] Client disconnected during import of ${game.displayName}`);
         });

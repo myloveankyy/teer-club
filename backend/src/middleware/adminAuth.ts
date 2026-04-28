@@ -20,11 +20,14 @@ export function adminAuth(req: Request, res: Response, next: NextFunction) {
         return res.status(500).json({ success: false, error: "Server misconfigured" });
     }
 
-    const providedKey = req.headers["x-admin-key"] as string;
+    const providedKey = (req.headers["x-admin-key"] as string) || (req.query.apiKey as string);
     if (!providedKey || providedKey !== adminKey) {
         logger.warn("[Auth] Unauthorized admin access attempt", {
             ip: req.ip,
             path: req.path,
+            method: req.method,
+            hasHeader: !!req.headers["x-admin-key"],
+            hasQuery: !!req.query.apiKey,
         });
         return res.status(401).json({ success: false, error: "Unauthorized" });
     }
