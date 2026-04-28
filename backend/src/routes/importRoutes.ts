@@ -54,17 +54,12 @@ router.get("/:gameId", async (req: Request, res: Response) => {
             return;
         }
 
-        // Set up SSE headers + Explicit CORS to bypass proxy interference
-        const origin = req.headers.origin as string || "https://admin.teer.club";
+        // Set up SSE headers (omit CORS headers as they are handled by global CORS middleware)
         res.writeHead(200, {
             "Content-Type": "text/event-stream",
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
             "X-Accel-Buffering": "no",
-            "Access-Control-Allow-Origin": origin,
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type, X-Admin-Key",
-            "Access-Control-Allow-Credentials": "true",
         });
 
         // Helper to send SSE events
