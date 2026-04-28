@@ -130,6 +130,34 @@ async function seedDefaultData() {
     logger.error("[Seed] Failed to seed site settings", error);
   }
 
+  // Seed default game if DB is empty
+  try {
+    const gameCount = await prisma.game.count();
+    if (gameCount === 0) {
+      await prisma.game.create({
+        data: {
+          id: "shillong-teer",
+          name: "shillong-teer",
+          displayName: "Shillong Teer",
+          description: "Official Shillong Teer Results",
+          location: "Meghalaya",
+          startTime: "3:30 PM",
+          closeTime: "5:00 PM",
+          frTime: "4:00 PM",
+          srTime: "4:50 PM",
+          historySourceUrl: "https://teerresults.com/shillong-teer-result",
+          liveSourceUrl: "https://teerresults.com",
+          hasRound3: false,
+          isEnabled: true,
+          isLiveScrapingEnabled: true
+        }
+      });
+      logger.info("[Seed] Default game 'Shillong Teer' created");
+    }
+  } catch (error) {
+    logger.error("[Seed] Failed to seed default game", error);
+  }
+
   // Aggregate pages on startup
   try {
     await aggregatePages();
