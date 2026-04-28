@@ -42,6 +42,7 @@ jobs:
         working-directory: ./admin-panel
         env:
           NEXT_PUBLIC_API_URL: https://api.teer.club/api
+          NEXT_PUBLIC_API_KEY: teer-admin-prod-2026-X9k2mP
         run: |
           npm install
           npm run build

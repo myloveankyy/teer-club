@@ -12,6 +12,9 @@ export default function LoginPage() {
         e.preventDefault();
         if (id === "myloveankyy" && passcode === "8638019522") {
             document.cookie = "admin_auth=true; path=/; max-age=86400; secure; samesite=strict"; // 1 day secure
+            // Store the API key so all admin API calls include it
+            const apiKey = process.env.NEXT_PUBLIC_API_KEY || "dev-key-change-in-production";
+            localStorage.setItem("apiKey", apiKey);
             router.push("/");
         } else {
             setError("Invalid ID or passcode. Access denied.");
