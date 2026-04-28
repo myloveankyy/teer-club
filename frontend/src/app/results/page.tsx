@@ -77,8 +77,8 @@ export default function ResultsPage() {
         {/* Hero Section */}
         <Section background="white" className="!py-16 md:!py-24 border-b border-gray-100 bg-[radial-gradient(#f1f5f9_1px,transparent_1px)] [background-size:24px_24px] overflow-hidden">
           <Container>
-            <div className="flex flex-col gap-16 md:flex-row md:items-center md:justify-between py-8">
-              <div className="flex-1 text-center md:text-left max-w-2xl px-4 md:px-0">
+            <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between py-8">
+              <div className="flex-1 text-center lg:text-left max-w-2xl px-4 lg:px-0">
                 <div className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold text-primary bg-primary/5 border border-primary/10 shadow-sm transition-all hover:scale-105">
                   <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                   Official Archives
@@ -90,7 +90,7 @@ export default function ResultsPage() {
                   Explore Shillong, Khanapara, and Juwai historical Teer results.
                   We provide 100% verified records for all regional teer games.
                 </p>
-                <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4">
                   <Button
                     href="/live"
                     variant="primary"
@@ -108,7 +108,7 @@ export default function ResultsPage() {
                 </div>
               </div>
 
-              <div className="w-full md:w-auto flex justify-center md:block">
+              <div className="w-full lg:w-auto flex justify-center lg:block">
                 <LiveActionWidget
                   image="/images/teer-results-board.png"
                   title="Teer Result History"

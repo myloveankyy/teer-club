@@ -63,7 +63,7 @@ export function LiveActionWidget({
             : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white";
 
     return (
-        <div className="group relative mx-auto lg:mx-0 w-full max-w-xl bg-white border border-gray-200 overflow-hidden transition-all duration-300 hover:border-gray-900 min-h-[320px] flex flex-col">
+        <div className="group relative mx-auto lg:mx-0 w-full lg:max-w-xl bg-white border border-gray-200 overflow-hidden transition-all duration-300 hover:border-gray-900 min-h-[320px] flex flex-col shadow-sm">
             {/* Top Bar - Terminal Style */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                 <div className="flex items-center gap-3">
@@ -76,9 +76,9 @@ export function LiveActionWidget({
                 </div>
             </div>
 
-            <div className="flex flex-col md:flex-row flex-1">
+            <div className="flex flex-col sm:flex-row flex-1">
                 {/* Visual Area */}
-                <div className="relative w-full md:w-2/5 min-h-[160px] bg-gray-100 overflow-hidden border-b md:border-b-0 md:border-r border-gray-100">
+                <div className="relative w-full sm:w-2/5 md:w-2/5 min-h-[180px] bg-gray-100 overflow-hidden border-b sm:border-b-0 sm:border-r border-gray-100">
                     <Image
                         src={image}
                         alt={title}

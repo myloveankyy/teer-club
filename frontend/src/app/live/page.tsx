@@ -69,8 +69,8 @@ export default async function LiveResultsPage() {
         {/* Hero Section */}
         <Section background="white" className="!py-14 md:!py-20 border-b border-gray-100 bg-[radial-gradient(#f1f5f9_1px,transparent_1px)] [background-size:24px_24px] overflow-hidden">
           <Container>
-            <div className="flex flex-col gap-16 md:flex-row md:items-center md:justify-between py-8">
-              <div className="flex-1 text-center md:text-left max-w-2xl px-4 md:px-0">
+            <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between py-8">
+              <div className="flex-1 text-center lg:text-left max-w-2xl px-4 lg:px-0">
                 <div className="mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold text-primary bg-primary/5 border border-primary/10 shadow-sm transition-all hover:scale-105">
                   <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
                   Verified Live Updates
@@ -81,7 +81,7 @@ export default async function LiveResultsPage() {
                 <p className="mx-auto md:mx-0 mb-10 max-w-2xl text-base font-medium text-gray-500 md:text-lg leading-relaxed">
                   Real-time synchronization with official archery counters. Get 100% verified results for Shillong, Khanapara, and Juwai teer games instantly.
                 </p>
-                <div className="flex flex-wrap justify-center md:justify-start gap-4">
+                <div className="flex flex-wrap justify-center lg:justify-start gap-4">
                   <Button
                     href="/results"
                     variant="primary"
@@ -99,7 +99,7 @@ export default async function LiveResultsPage() {
                 </div>
               </div>
 
-              <div className="w-full md:w-auto flex justify-center md:block">
+              <div className="w-full lg:w-auto flex justify-center lg:block">
                 <LiveActionWidget
                   image="/images/live-market-premium.png"
                   title="Official Teer Market"
