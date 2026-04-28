@@ -54,13 +54,12 @@ router.get("/:gameId", async (req: Request, res: Response) => {
             return;
         }
 
-        // Set up SSE headers (omit CORS headers as they are handled by global CORS middleware)
-        res.writeHead(200, {
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",
-        });
+        // Set up SSE headers (use setHeader so we don't overwrite the global cors middleware headers)
+        res.setHeader("Content-Type", "text/event-stream");
+        res.setHeader("Cache-Control", "no-cache");
+        res.setHeader("Connection", "keep-alive");
+        res.setHeader("X-Accel-Buffering", "no");
+        res.flushHeaders();
 
         // Helper to send SSE events
         const sendEvent = (event: string, data: unknown) => {
