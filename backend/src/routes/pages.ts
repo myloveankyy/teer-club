@@ -82,7 +82,15 @@ router.get("/", async (req, res) => {
 // Create a page manually (for blogs)
 router.post("/", async (req, res) => {
     try {
-        const { title, slug, content, url, type, meta_title, meta_description } = req.body;
+        let { title, slug, content, url, type, meta_title, meta_description } = req.body;
+
+        // Prevent unique constraint violations
+        const existing = await prisma.page.findFirst({ where: { slug } });
+        if (existing) {
+            slug = `${slug}-${Date.now().toString().slice(-4)}`;
+            url = `/blogs/${slug}`;
+        }
+
         const page = await prisma.page.create({
             data: {
                 title,

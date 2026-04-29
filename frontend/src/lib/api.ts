@@ -152,6 +152,18 @@ export const api = {
         getToday: (gameIdentifier: string) =>
             apiClient.get<{ success: boolean; data: any }>(`/predictions/${gameIdentifier}/today`),
     },
+    pages: {
+        getAll: (params?: { page?: number; limit?: number; search?: string; status?: string; type?: string }) => {
+            const searchParams = new URLSearchParams();
+            if (params?.page) searchParams.append("page", params.page.toString());
+            if (params?.limit) searchParams.append("limit", params.limit.toString());
+            if (params?.search) searchParams.append("search", params.search);
+            if (params?.status) searchParams.append("status", params.status);
+            if (params?.type) searchParams.append("type", params.type);
+            const query = searchParams.toString();
+            return apiClient.get<{ success: boolean; data: { pages: any[]; pagination: any } }>(`/pages${query ? `?${query}` : ""}`);
+        }
+    },
     settings: {
         get: () => apiClient.get<{ success: boolean; data: any }>("/settings"),
     }

@@ -9,66 +9,62 @@ import {
   TableOfContents,
   RelatedPosts,
 } from "@/components/blog";
-import { blogPosts, getBlogBySlug, getRelatedPosts } from "@/data/blogs";
+import api from "@/lib/api";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  return blogPosts.map((post) => ({
-    slug: post.slug,
-  }));
+  return []; // Force dynamic rendering for generated DB blogs
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogBySlug(slug);
+  const res = await api.pages.getAll({ search: slug, type: "BLOG", limit: 3 });
+  const dbPage = res.data?.data?.pages?.find((p: any) => p.slug === slug);
 
-  if (!post) {
+  if (!dbPage) {
     return {
       title: "Blog Post Not Found | Teer.club",
     };
   }
 
+  const title = dbPage.meta_title || dbPage.title;
+  const description = dbPage.meta_description || "Read our latest analytical predictions and guides.";
+
   return {
-    title: `${post.title} | Teer.club Blog`,
-    description: post.excerpt,
-    keywords: post.keywords,
+    title: `${title} | Teer.club Blog`,
+    description: description,
+    keywords: title.split(" "),
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title: title,
+      description: description,
       type: "article",
-      publishedTime: post.publishedAt,
-      authors: [post.author],
+      publishedTime: dbPage.created_at || new Date().toISOString(),
+      authors: ["Teer.club Expert"],
       images: [
         {
-          url: post.coverImage,
+          url: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=1200&auto=format&fit=crop",
           width: 1200,
           height: 630,
-          alt: post.title,
+          alt: title,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
-      images: [post.coverImage],
+      title: title,
+      description: description,
+      images: ["https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=1200&auto=format&fit=crop"],
     },
     alternates: {
-      canonical: `/blogs/${post.slug}`,
+      canonical: `/blogs/${slug}`,
     },
   };
 }
 
-const categoryColors: Record<string, string> = {
-  Strategy: "bg-blue-600",
-  Guide: "bg-emerald-600",
-  Prediction: "bg-purple-600",
-  "Dream Numbers": "bg-amber-600",
-  Results: "bg-rose-600",
-};
+const categoryColor = "bg-blue-600";
 
 function renderContent(content: string): string {
   return content
@@ -113,20 +109,35 @@ function renderContent(content: string): string {
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = getBlogBySlug(slug);
+  const res = await api.pages.getAll({ search: slug, type: "BLOG", limit: 3 });
+  const dbPage = res.data?.data?.pages?.find((p: any) => p.slug === slug);
 
-  if (!post) {
+  if (!dbPage) {
     notFound();
   }
 
-  const relatedPosts = getRelatedPosts(post.relatedSlugs);
+  const post = {
+    title: dbPage.title,
+    excerpt: dbPage.meta_description || "",
+    coverImage: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=1200&auto=format&fit=crop",
+    author: "Teer.club Expert",
+    publishedAt: dbPage.created_at || new Date().toISOString(),
+    readingTime: Math.max(2, Math.ceil((dbPage.content_length || 500) / 200)),
+    category: "Insights",
+    content: dbPage.content || "",
+    keywords: (dbPage.meta_title || "").split(" "),
+    tableOfContents: [],
+    faq: [] as any[],
+    slug: dbPage.slug,
+    relatedSlugs: []
+  };
+
+  const relatedPosts: any[] = [];
   const formattedDate = new Date(post.publishedAt).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-
-  const categoryColor = categoryColors[post.category] || "bg-gray-600";
 
   const blogPostJsonLd = {
     "@context": "https://schema.org",
@@ -153,20 +164,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     keywords: post.keywords.join(", "),
   };
 
-  const faqJsonLd = post.faq
-    ? {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: post.faq.map((faq) => ({
-        "@type": "Question",
-        name: faq.question,
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: faq.answer,
-        },
-      })),
-    }
-    : null;
+  const faqJsonLd = null;
 
   return (
     <PageLayout>
@@ -295,7 +293,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
                   <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-gray-200 pt-8">
                     <span className="text-sm font-medium text-gray-700">Tags:</span>
-                    {post.keywords.slice(0, 5).map((keyword) => (
+                    {post.keywords.slice(0, 5).map((keyword: string) => (
                       <span
                         key={keyword}
                         className="rounded-full bg-gray-100 px-3 py-1.5 text-sm text-gray-600"

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageLayout } from "@/components/shared/PageLayout";
 import { BlogContent } from "./BlogContent";
-import { blogPosts } from "@/data/blogs";
+import api from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Teer Blog | Latest Insights, Strategies & Guides | Teer.club",
@@ -41,9 +41,28 @@ const articleJsonLd = {
   },
 };
 
-export default function BlogsPage() {
-  const featuredPost = blogPosts[0];
-  const trendingPosts = blogPosts.slice(1, 4);
+export default async function BlogsPage() {
+  const res = await api.pages.getAll({ type: "BLOG", status: "ACTIVE", limit: 20 });
+  const rawPages = res.data?.data?.pages || [];
+
+  const mappedPosts = rawPages.map((p: any) => ({
+    slug: p.slug,
+    title: p.title,
+    excerpt: p.meta_description || (p.content || "").substring(0, 150) + "...",
+    // Use an algorithmic or generic cover since we're generating AI blogs without media right now
+    coverImage: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=1200&auto=format&fit=crop",
+    author: "Teer.club Expert",
+    publishedAt: p.created_at || new Date().toISOString(),
+    readingTime: Math.max(2, Math.ceil((p.content_length || 500) / 200)),
+    category: "Insights",
+    content: p.content,
+    keywords: p.meta_title ? p.meta_title.split(" ") : [],
+    tableOfContents: [],
+    relatedSlugs: []
+  }));
+
+  const featuredPost = mappedPosts[0];
+  const trendingPosts = mappedPosts.slice(1, 4);
 
   return (
     <PageLayout>
@@ -52,11 +71,17 @@ export default function BlogsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
       <main className="flex-1">
-        <BlogContent
-          posts={blogPosts}
-          featuredPost={featuredPost}
-          trendingPosts={trendingPosts}
-        />
+        {mappedPosts.length > 0 ? (
+          <BlogContent
+            posts={mappedPosts}
+            featuredPost={featuredPost}
+            trendingPosts={trendingPosts}
+          />
+        ) : (
+          <div className="py-32 flex justify-center text-gray-500 font-medium">
+            No blog posts found in database. Please generate some using the Admin Panel.
+          </div>
+        )}
       </main>
     </PageLayout>
   );
