@@ -17,25 +17,46 @@ export const revalidate = 60; // ISR: Revalidate every 60 seconds
 
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Teer Result Today | Official Shillong, Khanapara & Juwai Teer Results",
-  description:
-    "Get the fastest Teer Result Today for Shillong, Khanapara and Juwai. View official Morning and Evening archery results, previous result archives, and daily common numbers.",
-  keywords: [
-    "Teer Result Today",
-    "Shillong Teer Result",
-    "Khanapara Teer Result",
-    "Juwai Teer Result Today",
-    "Shillong Teer Result Today",
-    "Teer Common Number",
-    "Teer Result List",
-    "Teer Result Morning",
-    "Teer Result Evening",
-  ],
-  alternates: {
-    canonical: "/",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const defaultMeta: Metadata = {
+    title: "Teer Result Today | Official Shillong, Khanapara & Juwai Teer Results",
+    description:
+      "Get the fastest Teer Result Today for Shillong, Khanapara and Juwai. View official Morning and Evening archery results, previous result archives, and daily common numbers.",
+    keywords: [
+      "Teer Result Today",
+      "Shillong Teer Result",
+      "Khanapara Teer Result",
+      "Juwai Teer Result Today",
+      "Shillong Teer Result Today",
+      "Teer Common Number",
+      "Teer Result List",
+      "Teer Result Morning",
+      "Teer Result Evening",
+    ],
+    alternates: {
+      canonical: "/",
+    },
+  };
+
+  try {
+    const res = await api.pages.getByUrl("/");
+    if (res.data?.success && res.data.data) {
+      const page = res.data.data;
+      return {
+        ...defaultMeta,
+        title: page.meta_title || defaultMeta.title,
+        description: page.meta_description || defaultMeta.description,
+        openGraph: page.featured_image ? {
+          images: [{ url: page.featured_image, alt: page.image_alt || "Teer Result" }]
+        } : undefined
+      };
+    }
+  } catch (error) {
+    console.error("Failed to fetch custom metadata", error);
+  }
+
+  return defaultMeta;
+}
 
 const jsonLd = {
   "@context": "https://schema.org",

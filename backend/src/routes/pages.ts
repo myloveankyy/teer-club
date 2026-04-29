@@ -27,6 +27,20 @@ const updateSchema = z.object({
     index_status: z.string().optional(),
 });
 
+// Get exact page by URL for SEO overrides
+router.get("/by-url", async (req, res) => {
+    try {
+        const { url } = req.query;
+        if (!url || typeof url !== "string") {
+            return res.status(400).json({ success: false, error: "Missing url parameter" });
+        }
+        const page = await prisma.page.findUnique({ where: { url } });
+        return res.json({ success: true, data: page });
+    } catch (error: any) {
+        return res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Get all pages with search, filters, and pagination
 router.get("/", async (req, res) => {
     try {

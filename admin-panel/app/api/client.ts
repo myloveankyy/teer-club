@@ -257,6 +257,8 @@ export const api = {
     triggerResults: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/debug/results", { method: "POST" })
   },
   seo: {
+    autoFix: (pageId: string) => fetchAPI<{ success: boolean; data: any }>("/admin/seo/auto-fix", { method: "POST", body: JSON.stringify({ pageId }) }),
+    updatePage: (id: string, data: any) => fetchAPI<{ success: boolean; data: any }>(`/admin/seo/page/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     sitemap: {
       upload: (xml: string) => fetchAPI<{ success: boolean; data: any }>("/admin/seo/sitemap/upload", { method: "POST", body: JSON.stringify({ xml }) }),
       getStatus: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo/sitemap/status"),
@@ -307,6 +309,11 @@ export interface Page {
   content_length?: number | null;
   internal_links?: number | null;
   performance_score?: number | null;
+  featured_image?: string | null;
+  image_alt?: string | null;
+  image_caption?: string | null;
+  image_seo_filename?: string | null;
+  content?: string | null;
   createdAt: string;
 }
 

@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { SitemapService } from '../services/sitemap.service';
+import { SeoService } from '../services/seo.service';
 import { logger } from '../utils/logger';
 import { adminAuth } from '../middleware/adminAuth';
 
@@ -56,6 +57,37 @@ router.get('/sitemap/status', adminAuth, (req: Request, res: Response) => {
         });
     } catch (error: any) {
         logger.error('[SEO Routes] Failed to get status', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * POST /api/admin/seo/auto-fix
+ * One-click auto optimize SEO metadata.
+ */
+router.post('/auto-fix', adminAuth, async (req: Request, res: Response) => {
+    try {
+        const { pageId } = req.body;
+        if (!pageId) {
+            return res.status(400).json({ success: false, error: 'Missing pageId' });
+        }
+        const result = await SeoService.autoFixPage(pageId);
+        res.json({ success: true, data: result });
+    } catch (error: any) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+/**
+ * PUT /api/admin/seo/page/:id
+ * Manual override for SEO metadata and image control.
+ */
+router.put('/page/:id', adminAuth, async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const result = await SeoService.updatePageManual(id, req.body);
+        res.json({ success: true, data: result });
+    } catch (error: any) {
         res.status(500).json({ success: false, error: error.message });
     }
 });

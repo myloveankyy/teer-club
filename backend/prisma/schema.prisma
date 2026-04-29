@@ -81,8 +81,14 @@ model Page {
   createdAt        DateTime @default(now())
   
   // Blog / Programmatic SEO Fields
-  content          String?  @db.Text
-  authorId         String?
+  content            String?  @db.Text
+  authorId           String?
+  
+  // Advanced Manual Controls
+  featured_image     String?
+  image_alt          String?
+  image_caption      String?
+  image_seo_filename String?
 
   @@index([url])
   @@index([type])

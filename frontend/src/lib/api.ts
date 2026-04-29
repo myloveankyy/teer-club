@@ -162,7 +162,8 @@ export const api = {
             if (params?.type) searchParams.append("type", params.type);
             const query = searchParams.toString();
             return apiClient.get<{ success: boolean; data: { pages: any[]; pagination: any } }>(`/pages${query ? `?${query}` : ""}`);
-        }
+        },
+        getByUrl: (url: string) => apiClient.get<{ success: boolean; data: any }>(`/pages/by-url`, { params: { url } })
     },
     settings: {
         get: () => apiClient.get<{ success: boolean; data: any }>("/settings"),
