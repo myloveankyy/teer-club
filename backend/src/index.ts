@@ -187,9 +187,10 @@ async function start() {
     await seedDefaultData();
     startAllCrons();
 
-
     app.listen(PORT, "0.0.0.0", () => {
       logger.info(`[Server] Running on http://localhost:${PORT}`);
+      logger.info(`[Server] Environment: ${process.env.NODE_ENV || "development"}`);
+      logger.info(`[Server] Process PID: ${process.pid}`);
     });
   } catch (error) {
     logger.error("[Startup] Failed to start", error);
@@ -199,11 +200,26 @@ async function start() {
 
 // ─── Graceful Shutdown ───────────────────────────────────────────────────────
 process.on("SIGINT", async () => {
-  logger.info("[Shutdown] Stopping server...");
+  logger.info("[Shutdown] SIGINT received. Stopping server...");
   stopAllCrons();
   await prisma.$disconnect();
-
   process.exit(0);
+});
+
+process.on("SIGTERM", async () => {
+  logger.info("[Shutdown] SIGTERM received. Graceful shutdown...");
+  stopAllCrons();
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+// ─── Global Error Handlers (prevent silent crashes) ──────────────────────────
+process.on("unhandledRejection", (reason: any) => {
+  logger.error(`[FATAL] Unhandled Promise Rejection: ${reason?.message || reason}`);
+});
+
+process.on("uncaughtException", (error) => {
+  logger.error(`[FATAL] Uncaught Exception: ${error.message}`);
 });
 
 if (require.main === module) {

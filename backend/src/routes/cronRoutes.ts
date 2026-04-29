@@ -5,7 +5,7 @@
  */
 
 import { Router } from "express";
-import { getCronStatus, triggerManualScrape, triggerAllLiveScrapes } from "../cron/cronScheduler";
+import { getCronStatus, triggerManualScrape, triggerAllLiveScrapes, restartAllCrons } from "../cron/cronScheduler";
 import { getRecentCronLogs } from "../cron/cronLogger";
 import { logger } from "../utils/logger";
 
@@ -105,6 +105,25 @@ router.post("/trigger/:game", async (req, res) => {
         });
     } catch (err: any) {
         logger.error(`[CronRoutes] Manual trigger failed for ${game}`, err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+/**
+ * POST /api/admin/cron/restart
+ * Force-restart all cron jobs (admin fail-safe).
+ */
+router.post("/restart", async (req, res) => {
+    try {
+        await restartAllCrons();
+        const status = getCronStatus();
+        res.json({
+            success: true,
+            message: "All cron jobs restarted successfully",
+            data: status,
+        });
+    } catch (err: any) {
+        logger.error("[CronRoutes] Restart failed", err);
         res.status(500).json({ success: false, error: err.message });
     }
 });

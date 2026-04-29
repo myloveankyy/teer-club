@@ -1,8 +1,9 @@
 import * as cheerio from "cheerio";
 import { ScrapeConfig, DeepCrawlResult, CrawlStats, PaginationLink } from "../types/scraper";
-import { fetchWithFallback } from "./fetchService";
+import { fetchWithFallback, isDynamicRenderRequired } from "./fetchService";
 import { cleanHtmlForAI, extractFromDOM, extractWithRegex } from "./extractorUtils";
 import { deduplicateResults } from "./validator";
+import { logger } from "../utils/logger";
 
 function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -236,6 +237,9 @@ export async function crawlAllPages(
 
     logs.push(`📄 [${visitedUrls.size}/${maxPagesLimit}] Fetching: ${currentUrl}`);
 
+    // Auto-detect if domain needs forced dynamic rendering
+    const forceDynamic = config.renderType === "DYNAMIC" || isDynamicRenderRequired(currentUrl);
+
     let fetchResult;
     let attempt = 0;
     let success = false;
@@ -245,7 +249,7 @@ export async function crawlAllPages(
       fetchResult = await fetchWithFallback(
         currentUrl,
         Math.max(timeout, 30000),
-        config.renderType === "DYNAMIC"
+        forceDynamic
       );
 
       if (fetchResult.success && fetchResult.html.length > 100) {

@@ -45,16 +45,19 @@ async function handleGameTick(gameId: string): Promise<void> {
 
     state.isRunning = true;
     state.lastRun = new Date();
+    const tickStart = Date.now();
 
     try {
         const game = await prisma.game.findUnique({ where: { id: gameId } });
         if (!game || !game.isLiveScrapingEnabled || !game.isEnabled) {
-            logger.info(`[CronScheduler] Disabling cron for ${state.gameName} (disabled in DB)`);
+            logger.info(`[CRON] Disabling cron for ${state.gameName} (disabled in DB)`);
             state.activeTask?.stop();
             return;
         }
 
+        logger.info(`[CRON] Tick started: ${state.gameName}`);
         const result = await scrapeLiveResult(game);
+        const tickDuration = Date.now() - tickStart;
 
         // Update Game health in DB
         await prisma.game.update({
@@ -87,8 +90,10 @@ async function handleGameTick(gameId: string): Promise<void> {
                     duration: result.duration,
                     details: { upsert }
                 });
+                logger.info(`[CRON] Completed: ${state.gameName} | SUCCESS | FR: ${result.round1} | SR: ${result.round2} | ${tickDuration}ms`);
             } else {
                 state.lastStatus = "NO_NEW_DATA";
+                logger.debug(`[CRON] Completed: ${state.gameName} | NO_NEW_DATA | ${tickDuration}ms`);
             }
         } else if (result.status === "FAILED") {
             state.errorCount++;
@@ -99,12 +104,16 @@ async function handleGameTick(gameId: string): Promise<void> {
                 error: result.error,
                 details: result.details
             });
+            logger.warn(`[CRON] Completed: ${state.gameName} | FAILED | ${result.error} | ${tickDuration}ms | Errors: ${state.errorCount}`);
+        } else {
+            logger.debug(`[CRON] Completed: ${state.gameName} | ${result.status} | ${tickDuration}ms`);
         }
 
         state.lastStatus = result.status;
     } catch (err: any) {
-        logger.error(`[CronScheduler] Error ticking ${state.gameName}`, err);
+        logger.error(`[CRON] Error ticking ${state.gameName}: ${err.message}`);
         state.lastStatus = "FAILED";
+        state.errorCount++;
     } finally {
         state.isRunning = false;
     }
@@ -159,27 +168,35 @@ export async function triggerAllLiveScrapes() {
 // ─── Lifecycle ───────────────────────────────────────────────────────────────
 
 export async function startAllCrons(): Promise<void> {
-    if (isInitialized) return;
+    if (isInitialized) {
+        logger.info("[CRON] Cron engine already initialized. Skipping.");
+        return;
+    }
 
-    logger.info("[CronScheduler] 🚀 Starting Dynamic Cron Engine...");
+    logger.info("[CRON] 🚀 Starting Dynamic Cron Engine...");
 
     const games = await prisma.game.findMany({ where: { isEnabled: true, isLiveScrapingEnabled: true } });
 
     for (const game of games) {
         const jobKey = game.id;
 
-        // Every 2 mins, but we'll use an internal IST window check to save resources
+        // Calculate time window for logging
+        const [frH, frM] = (game.frTime || "15:00").split(':').map(Number);
+        const frTime = frH * 60 + frM;
+        const startWindow = frTime - 30;
+        const endWindow = frTime + 300;
+        const startH = Math.floor(startWindow / 60);
+        const startM = startWindow % 60;
+        const endH = Math.floor(endWindow / 60);
+        const endM = endWindow % 60;
+
+        logger.info(`[CRON] Registering: ${game.displayName} | Window: ${String(startH).padStart(2, '0')}:${String(startM).padStart(2, '0')} - ${String(endH).padStart(2, '0')}:${String(endM).padStart(2, '0')} IST | Poll: every 2min`);
+
+        // Every 2 mins, with IST window check
         const task = cron.schedule("*/2 * * * *", async () => {
             if (!game.isLiveScrapingEnabled) return;
 
             const { totalMinutes: now } = getISTNow();
-
-            // Calculate active window from game times
-            // Default window: 1:00 PM (780m) to 9:00 PM (1260m)
-            const [frH, frM] = (game.frTime || "15:00").split(':').map(Number);
-            const frTime = frH * 60 + frM;
-            const startWindow = frTime - 30; // 30m before FR
-            const endWindow = frTime + 300;  // 5h after FR (covers SR and TR)
 
             if (now >= startWindow && now <= endWindow) {
                 await handleGameTick(game.id);
@@ -200,9 +217,8 @@ export async function startAllCrons(): Promise<void> {
     }
 
     // ── Fallback "OFF" Job: Runs at 9:15 PM IST every day ──
-    // 9:15 PM IST = 15:45 UTC
     cron.schedule("45 15 * * *", async () => {
-        logger.info("[CronScheduler] Running night fallback check...");
+        logger.info("[CRON] Running night fallback check...");
         const { dateStr: todayIST } = getISTNow();
         const dateObj = new Date(todayIST + "T00:00:00Z");
 
@@ -218,25 +234,42 @@ export async function startAllCrons(): Promise<void> {
                     update: { round1: "OFF", round2: "OFF", confidence: "HIGH" },
                     create: { gameId: game.id, date: dateObj, round1: "OFF", round2: "OFF", confidence: "HIGH" }
                 });
-                logger.info(`[CronScheduler] Marked ${game.name} as OFF for ${todayIST}`);
+                logger.info(`[CRON] Marked ${game.name} as OFF for ${todayIST}`);
             }
         }
     }, { timezone: "UTC" });
 
-    // ── Daily Prediction Engine: Runs at 12:00 AM IST ──
-    // 12:00 AM IST = 18:30 UTC previous day, so it will trigger correctly at midnight IST.
+    // ── Daily Prediction Engine: 12:00 AM IST = 18:30 UTC ──
     cron.schedule("30 18 * * *", async () => {
-        logger.info("[CronScheduler] Running midnight prediction engine...");
+        logger.info("[CRON] Running midnight prediction engine...");
         import("../services/predictionService").then(m => m.generateDailyPredictions());
     }, { timezone: "UTC" });
 
     // ── Log Cleanup: Weekly on Sunday ──
     cron.schedule("0 0 * * 0", async () => {
-        await cleanupOldLogs(14); // Keep 14 days
+        await cleanupOldLogs(14);
+    });
+
+    // ── Stall Recovery Heartbeat: Every 30 min, check if crons are healthy ──
+    cron.schedule("*/30 * * * *", async () => {
+        const { totalMinutes: now } = getISTNow();
+        // Only check during active hours (10 AM to 10 PM IST)
+        if (now < 600 || now > 1320) return;
+
+        const stalled = Array.from(cronJobs.values()).filter(j => {
+            if (!j.lastRun) return false;
+            const minutesSinceRun = (Date.now() - j.lastRun.getTime()) / 60000;
+            return minutesSinceRun > 15 && j.errorCount > 5;
+        });
+
+        if (stalled.length > 0) {
+            logger.warn(`[CRON] Stall detected for ${stalled.length} games. Resetting error counts.`);
+            stalled.forEach(j => { j.errorCount = 0; });
+        }
     });
 
     isInitialized = true;
-    logger.info(`[CronScheduler] ✅ Registered ${cronJobs.size} active polling jobs.`);
+    logger.info(`[CRON] ✅ Registered ${cronJobs.size} active polling jobs. Cron engine is LIVE.`);
 }
 
 export function stopAllCrons(): void {
@@ -253,6 +286,17 @@ export function getCronStatus() {
         displayName: j.displayName,
         lastRun: j.lastRun,
         lastStatus: j.lastStatus,
-        isRunning: j.isRunning
+        isRunning: j.isRunning,
+        errorCount: j.errorCount,
+        isInitialized,
     }));
+}
+
+/**
+ * Force restart all cron jobs (admin fail-safe).
+ */
+export async function restartAllCrons(): Promise<void> {
+    logger.info("[CRON] 🔄 Force-restarting all cron jobs...");
+    stopAllCrons();
+    await startAllCrons();
 }

@@ -9,7 +9,9 @@ import { logger } from "../utils/logger";
 import { getISTNow } from "../config/gameSchedule";
 import { extractFromDOM, extractWithRegex } from "./extractorUtils";
 
-const REQUEST_TIMEOUT = 45_000;
+const REQUEST_TIMEOUT = 60_000;
+const MAX_LIVE_RETRIES = 2;
+const RETRY_DELAYS = [2000, 4000];
 const USER_AGENTS = [
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
 ];
@@ -58,11 +60,15 @@ async function fetchHtmlDynamic(url: string): Promise<string> {
 function scoreResult(res: any): number {
     let score = 0;
     [res.round1, res.round2, res.round3].forEach(val => {
-        if (!val) return;
+        if (!val || val === "XX" || val === "--") return;
         if (/^\d{1,3}$/.test(val)) score += 10;
         else if (val.toUpperCase() === 'XX') score += 1;
     });
     return score;
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 export async function scrapeLiveResult(game: { name: string; liveSourceUrl: string | null }): Promise<ScrapeLiveResult> {
@@ -70,67 +76,88 @@ export async function scrapeLiveResult(game: { name: string; liveSourceUrl: stri
     const { dateStr: todayIST } = getISTNow();
 
     if (!game.liveSourceUrl) {
+        logger.warn(`[SCRAPER] Game: ${game.name} | Status: FAILED | Reason: No liveSourceUrl configured`);
         return {
             success: false, status: "FAILED", date: null, round1: null, round2: null, round3: null,
             error: "No liveSourceUrl configured", duration: Date.now() - startTime
         };
     }
 
-    try {
-        let html = await fetchHtmlStatic(game.liveSourceUrl);
-        let methodUsed = "STATIC";
+    let lastError = "";
 
-        const parse = (h: string) => {
-            const dom = extractFromDOM(h);
-            const reg = extractWithRegex(h);
-            return [...dom, ...reg];
-        };
+    for (let attempt = 0; attempt <= MAX_LIVE_RETRIES; attempt++) {
+        try {
+            if (attempt > 0) {
+                const delay = RETRY_DELAYS[attempt - 1] || 4000;
+                logger.info(`[SCRAPER] Game: ${game.name} | Retry ${attempt}/${MAX_LIVE_RETRIES} after ${delay}ms`);
+                await sleep(delay);
+            }
 
-        let results = html ? parse(html) : [];
-        const hasTodayData = results.some(r => r.date === todayIST && scoreResult(r) > 5);
+            let html = await fetchHtmlStatic(game.liveSourceUrl);
+            let methodUsed = "STATIC";
 
-        // If static failed or returned no real data for today, try DYNAMIC
-        if (!html || !hasTodayData) {
-            logger.debug(`[LiveScraper] Escalating to Dynamic for ${game.name}`);
-            html = await fetchHtmlDynamic(game.liveSourceUrl);
-            results = parse(html);
-            methodUsed = "DYNAMIC";
-        }
-
-        if (results.length === 0) {
-            return {
-                success: true, status: "NO_NEW_DATA", date: todayIST, round1: null, round2: null, round3: null,
-                duration: Date.now() - startTime, details: { method: methodUsed, reason: "No results found" }
+            const parse = (h: string) => {
+                const dom = extractFromDOM(h);
+                const reg = extractWithRegex(h);
+                return [...dom, ...reg];
             };
-        }
 
-        const todayMatches = results.filter(r => r.date === todayIST);
-        if (todayMatches.length > 0) {
-            todayMatches.sort((a, b) => scoreResult(b) - scoreResult(a));
-            const best = todayMatches[0];
+            let results = html ? parse(html) : [];
+            const hasTodayData = results.some(r => r.date === todayIST && scoreResult(r) > 5);
+
+            // If static failed or returned no real data for today, try DYNAMIC
+            if (!html || !hasTodayData) {
+                logger.debug(`[SCRAPER] Game: ${game.name} | Escalating to Playwright (static: ${html ? html.length : 0} bytes, todayData: ${hasTodayData})`);
+                html = await fetchHtmlDynamic(game.liveSourceUrl);
+                results = parse(html);
+                methodUsed = "DYNAMIC";
+            }
+
+            if (results.length === 0) {
+                if (attempt < MAX_LIVE_RETRIES) continue; // Retry
+                logger.info(`[SCRAPER] Game: ${game.name} | Status: NO_NEW_DATA | Method: ${methodUsed}`);
+                return {
+                    success: true, status: "NO_NEW_DATA", date: todayIST, round1: null, round2: null, round3: null,
+                    duration: Date.now() - startTime, details: { method: methodUsed, reason: "No results found" }
+                };
+            }
+
+            const todayMatches = results.filter(r => r.date === todayIST);
+            if (todayMatches.length > 0) {
+                todayMatches.sort((a, b) => scoreResult(b) - scoreResult(a));
+                const best = todayMatches[0];
+                logger.info(`[SCRAPER] Game: ${game.name} | Status: SUCCESS | FR: ${best.round1} | SR: ${best.round2} | Method: ${methodUsed}`);
+                return {
+                    success: true, status: "SUCCESS", date: todayIST, round1: best.round1, round2: best.round2, round3: best.round3,
+                    duration: Date.now() - startTime, details: { method: methodUsed, score: scoreResult(best) }
+                };
+            }
+
+            const bestOverall = [...results].sort((a, b) => scoreResult(b) - scoreResult(a))[0];
+            if (!bestOverall.date || bestOverall.date === todayIST) {
+                logger.info(`[SCRAPER] Game: ${game.name} | Status: SUCCESS (undated) | FR: ${bestOverall.round1} | SR: ${bestOverall.round2}`);
+                return {
+                    success: true, status: "SUCCESS", date: todayIST, round1: bestOverall.round1, round2: bestOverall.round2, round3: bestOverall.round3,
+                    duration: Date.now() - startTime, details: { method: methodUsed, score: scoreResult(bestOverall) }
+                };
+            }
+
+            logger.info(`[SCRAPER] Game: ${game.name} | Status: STALE_DATA | Found date: ${bestOverall.date} (expected: ${todayIST})`);
             return {
-                success: true, status: "SUCCESS", date: todayIST, round1: best.round1, round2: best.round2, round3: best.round3,
-                duration: Date.now() - startTime, details: { method: methodUsed, score: scoreResult(best) }
+                success: true, status: "STALE_DATA", date: bestOverall.date, round1: bestOverall.round1, round2: bestOverall.round2, round3: bestOverall.round3,
+                duration: Date.now() - startTime, details: { method: methodUsed, reason: `Found ${bestOverall.date}` }
             };
+
+        } catch (err: any) {
+            lastError = err.message;
+            logger.warn(`[SCRAPER] Game: ${game.name} | Attempt ${attempt + 1} error: ${err.message}`);
+            if (attempt < MAX_LIVE_RETRIES) continue;
         }
-
-        const bestOverall = [...results].sort((a, b) => scoreResult(b) - scoreResult(a))[0];
-        if (!bestOverall.date || bestOverall.date === todayIST) {
-            return {
-                success: true, status: "SUCCESS", date: todayIST, round1: bestOverall.round1, round2: bestOverall.round2, round3: bestOverall.round3,
-                duration: Date.now() - startTime, details: { method: methodUsed, score: scoreResult(bestOverall) }
-            };
-        }
-
-        return {
-            success: true, status: "STALE_DATA", date: bestOverall.date, round1: bestOverall.round1, round2: bestOverall.round2, round3: bestOverall.round3,
-            duration: Date.now() - startTime, details: { method: methodUsed, reason: `Found ${bestOverall.date}` }
-        };
-
-    } catch (err: any) {
-        return {
-            success: false, status: "FAILED", date: null, round1: null, round2: null, round3: null,
-            error: err.message, duration: Date.now() - startTime
-        };
     }
+
+    logger.error(`[SCRAPER] Game: ${game.name} | Status: FAILED | Reason: ${lastError} | Attempts: ${MAX_LIVE_RETRIES + 1}`);
+    return {
+        success: false, status: "FAILED", date: null, round1: null, round2: null, round3: null,
+        error: lastError, duration: Date.now() - startTime
+    };
 }

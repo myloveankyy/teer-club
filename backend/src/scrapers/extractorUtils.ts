@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import { TeerResult } from "../types/scraper";
 import { normalizeDate, normalizeRoundValue, validateAndCleanResult, deduplicateResults } from "./validator";
 import { regexExtract } from "./regexExtractor";
+import { logger } from "../utils/logger";
 
 // ─── HTML Cleaner for AI ─────────────────────────────────────────────────────
 export function cleanHtmlForAI(html: string): string {
@@ -27,9 +28,7 @@ export function extractFromDOM(html: string, config?: { selectors?: any, gameNam
     const seenDates = new Set<string>();
     const $ = cheerio.load(html);
 
-    console.log(`[DOM Debug] HTML Length: ${html.length}`);
-    console.log(`[DOM Debug] First 500 chars: ${html.substring(0, 500)}`);
-    console.log(`[DOM Debug] Table count: ${$("table").length}`);
+    logger.debug(`[SCRAPER][DOM] HTML Length: ${html.length} | Table count: ${$("table").length} | Game: ${config?.gameName || "unknown"}`);
 
     // If custom selectors are provided, try them first
     if (config?.selectors && (config.selectors.fr || config.selectors.sr)) {
@@ -89,7 +88,10 @@ export function extractFromDOM(html: string, config?: { selectors?: any, gameNam
             }
         }
 
-        if (results.length > 0) return deduplicateResults(results);
+        if (results.length > 0) {
+            logger.debug(`[SCRAPER][DOM] Targeted selector extraction found ${results.length} results`);
+            return deduplicateResults(results);
+        }
     }
 
     // Fallback: Generic Table/Grid Extraction
@@ -174,6 +176,59 @@ export function extractFromDOM(html: string, config?: { selectors?: any, gameNam
             });
             if (result) results.push(result);
         });
+    }
+
+    // ─── Fallback: Div/Card-Based Extraction (for sites like teerbhutan.com) ────
+    if (results.length === 0) {
+        // Strategy: Look for div-based result cards with date + number patterns
+        const cardSelectors = [
+            ".result-card", ".result-box", ".result-item",
+            "[class*='result']", "[class*='card']",
+            ".entry-content div", ".content div",
+            ".wp-block-group", ".elementor-widget-container",
+        ];
+
+        for (const selector of cardSelectors) {
+            $(selector).each((_: number, el: any) => {
+                const text = $(el).text().trim();
+                if (text.length < 10 || text.length > 1000) return;
+
+                // Try to find a date in the text
+                const dateMatch = text.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+                if (!dateMatch) return;
+
+                const normalizedDate = normalizeDate(dateMatch[0]);
+                if (!normalizedDate) return;
+
+                // Find 2-digit numbers that could be FR/SR values
+                const remainingText = text.replace(dateMatch[0], "");
+                const nums = remainingText.match(/\b(\d{2})\b/g);
+                if (!nums || nums.length < 1) return;
+
+                // Filter out numbers that are likely part of dates/years
+                const validNums = nums.filter(n => {
+                    const num = parseInt(n);
+                    return num >= 0 && num <= 99;
+                });
+
+                if (validNums.length >= 1) {
+                    const result = validateAndCleanResult({
+                        date: normalizedDate,
+                        round1: normalizeRoundValue(validNums[0]),
+                        round2: validNums.length > 1 ? normalizeRoundValue(validNums[1]) : null,
+                        round3: validNums.length > 2 ? normalizeRoundValue(validNums[2]) : null,
+                        sourceMethod: "DOM_CARD"
+                    });
+                    if (result) results.push(result);
+                }
+            });
+
+            if (results.length > 0) break;
+        }
+
+        if (results.length > 0) {
+            logger.debug(`[SCRAPER][DOM] Card/div extraction found ${results.length} results`);
+        }
     }
 
     return deduplicateResults(results);

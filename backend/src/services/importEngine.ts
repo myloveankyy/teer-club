@@ -11,6 +11,7 @@ import { scrapeWithHybrid } from "../scrapers/hybridEngine";
 import { smartUpsertBatch } from "./smartUpsert";
 import { logger } from "../utils/logger";
 import { ScrapeConfig, ParseResult } from "../types/scraper";
+import { isDynamicRenderRequired } from "../scrapers/fetchService";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -54,10 +55,16 @@ export async function runImport(
 
         logger.info(`[ImportEngine] Starting import for ${game.displayName} from ${sourceUrl}`);
 
+        // Auto-detect if source URL requires dynamic rendering
+        const needsDynamic = isDynamicRenderRequired(sourceUrl);
+        if (needsDynamic) {
+            logger.info(`[ImportEngine] Domain requires forced Playwright rendering: ${sourceUrl}`);
+        }
+
         // 2. FETCHING phase — Scrape using hybridEngine in deep mode
         onProgress({
             phase: "FETCHING",
-            message: `Fetching data from ${new URL(sourceUrl).hostname}…`,
+            message: `Fetching data from ${new URL(sourceUrl).hostname}${needsDynamic ? " (dynamic rendering)" : ""}…`,
             percentage: 5,
         });
 
@@ -73,8 +80,9 @@ export async function runImport(
             maxConsecutiveEmpty: 3,
             detectApiEndpoints: true,
             retryCount: 3,
-            deep: true,                // CRITICAL: deep mode fetches all historical pages
-            cacheEnabled: false,       // Always fetch fresh for imports
+            deep: true,
+            cacheEnabled: false,
+            renderType: needsDynamic ? "DYNAMIC" : undefined,  // Force Playwright for JS-heavy sites
         };
 
         const parseResult: ParseResult = await scrapeWithHybrid(scrapeConfig);

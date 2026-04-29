@@ -3,6 +3,27 @@ import * as cheerio from "cheerio";
 import { FetchResult } from "../types/scraper";
 import { logger } from "../utils/logger";
 
+// ─── Dynamic Rendering Domain Registry ──────────────────────────────────────
+// Sites that are 100% JS-rendered and MUST use Playwright (static HTML is empty/minimal)
+const DYNAMIC_RENDER_DOMAINS = [
+  "shillongteercalculator.in",
+  "teerbhutan.com",
+  "teerbhutan.co",
+  "teercommonnumber.com",
+];
+
+/**
+ * Check if a URL's domain requires forced dynamic (Playwright) rendering.
+ */
+export function isDynamicRenderRequired(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, "");
+    return DYNAMIC_RENDER_DOMAINS.some(d => hostname === d || hostname.endsWith(`.${d}`));
+  } catch {
+    return false;
+  }
+}
+
 const PROXIES = process.env.PROXY_LIST ? process.env.PROXY_LIST.split(",").map(p => p.trim()) : [];
 
 const MAX_RETRIES = 3;
@@ -179,39 +200,58 @@ export async function fetchWithFallback(
   timeout: number = 20000,
   forceDynamic: boolean = false
 ): Promise<FetchResult> {
-  logger.info(`Starting fetch chain: ${url} (forceDynamic: ${forceDynamic})`);
+  // Auto-detect if domain requires forced dynamic rendering
+  const domainRequiresDynamic = isDynamicRenderRequired(url);
+  const shouldForceDynamic = forceDynamic || domainRequiresDynamic;
 
-  if (forceDynamic) {
-    return await fetchDynamic(url, timeout);
+  logger.info(`[SCRAPER] Fetch chain: ${url} | forceDynamic: ${shouldForceDynamic}${domainRequiresDynamic ? " (domain registry)" : ""}`);
+
+  if (shouldForceDynamic) {
+    logger.info(`[SCRAPER] Bypassing static fetch — using Playwright for ${url}`);
+    const dynamicResult = await fetchDynamic(url, Math.max(timeout, 45000));
+    if (dynamicResult.success) return dynamicResult;
+
+    // If dynamic also failed, try static as last resort
+    logger.warn(`[SCRAPER] Dynamic fetch failed for forced-dynamic URL, trying static fallback: ${url}`);
+    const staticFallback = await fetchStatic(url, Math.max(timeout, 20000));
+    if (staticFallback.success && staticFallback.html.length > 500) return staticFallback;
+
+    return dynamicResult; // Return the dynamic error
   }
 
   const staticResult = await fetchStatic(url, Math.max(timeout, 20000));
 
   if (staticResult.success && staticResult.html.length > 500) {
     const $ = cheerio.load(staticResult.html);
+    const bodyText = $("body").text().replace(/\s+/g, " ").trim();
     const hasTable = $("table").length > 0;
     const hasResultElements = $("[class*='result'], [id*='result'], [class*='teer']").length > 0;
     const hasDataRows = $("tr td, tr th").length > 10;
 
-    // Check if it's a very small page that might need dynamic rendering
-    if (hasTable || hasResultElements || hasDataRows) {
-      logger.info(`Static fetch sufficient for ${url}`);
+    // Detect JS-rendered placeholder content
+    const hasLoadingPlaceholder = /loading\s*(results|data)?\s*\.{0,3}/i.test(bodyText);
+    const bodyTooShort = bodyText.length < 800;
+
+    if (hasLoadingPlaceholder || bodyTooShort) {
+      logger.warn(`[SCRAPER] Static HTML appears JS-rendered (bodyText: ${bodyText.length} chars, loading: ${hasLoadingPlaceholder}). Escalating to Playwright: ${url}`);
+    } else if (hasTable || hasResultElements || hasDataRows) {
+      logger.info(`[SCRAPER] Static fetch sufficient for ${url} (tables: ${$("table").length}, rows: $("tr").length)`);
       return staticResult;
     }
   }
 
-  logger.warn(`Static fetch insufficient or failed, trying Dynamic fetch for ${url}`);
-  const dynamicResult = await fetchDynamic(url, timeout);
+  logger.warn(`[SCRAPER] Static fetch insufficient, trying Playwright for ${url}`);
+  const dynamicResult = await fetchDynamic(url, Math.max(timeout, 45000));
 
   if (dynamicResult.success) return dynamicResult;
 
   // Return whatever we got (even partial static content)
   if (staticResult.success && staticResult.html.length > 0) {
-    logger.warn(`Returning partial static content for ${url} as dynamic failed`);
+    logger.warn(`[SCRAPER] Returning partial static content for ${url} as Playwright also failed`);
     return staticResult;
   }
 
-  logger.error(`All fetch strategies failed for: ${url}`);
+  logger.error(`[SCRAPER] ALL fetch strategies FAILED for: ${url}`);
   return {
     html: "",
     text: "",

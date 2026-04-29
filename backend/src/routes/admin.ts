@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import prisma from '../prisma';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -92,10 +93,13 @@ import { generateDailyPredictions } from '../services/predictionService';
 router.post('/predictions/generate', async (req, res) => {
   try {
     const { date, forceOverwrite } = req.body;
+    logger.info(`[Admin] Prediction generation triggered | date: ${date || 'today'} | force: ${forceOverwrite || false}`);
     const count = await generateDailyPredictions(date, forceOverwrite);
+    logger.info(`[Admin] Prediction generation complete | count: ${count}`);
     res.json({ success: true, message: `Generated ${count} predictions`, count });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error(`[Admin] Prediction generation FAILED: ${err.message}`, err);
+    res.status(500).json({ success: false, error: err.message, details: err.stack?.split('\n').slice(0, 3) });
   }
 });
 
