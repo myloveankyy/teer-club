@@ -24,6 +24,7 @@ import { aiRouter } from "./routes/ai";
 import { analyticsRouter } from "./routes/analytics";
 import { debugRouter } from "./routes/debug";
 import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
+import { SitemapService } from "./services/sitemap.service";
 
 
 const app: Express = express();
@@ -63,8 +64,27 @@ app.use(cors({
 app.use(express.json());
 app.use(compression());
 
-// Serve Sitemap statically
-app.use("/sitemap.xml", express.static("public/sitemap.xml"));
+// Serve Sitemap dynamically with proper headers and fallback
+app.get("/sitemap.xml", (req: Request, res: Response) => {
+  try {
+    const xml = SitemapService.readXml();
+    res.set("Content-Type", "application/xml");
+    res.set("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=600");
+    res.status(200).send(xml);
+
+    // If file was missing (empty sitemap returned), trigger background regeneration
+    if (xml.includes("</urlset>") && !xml.includes("<url>")) {
+      logger.info("[SITEMAP] Serving empty fallback, triggering background regeneration...");
+      SitemapService.generate().catch((err) =>
+        logger.error("[SITEMAP] Background regeneration failed", err)
+      );
+    }
+  } catch (err) {
+    logger.error("[SITEMAP] Failed to serve sitemap.xml", err);
+    res.set("Content-Type", "application/xml");
+    res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>`);
+  }
+});
 
 // ─── Rate Limiting ───────────────────────────────────────────────────────────
 const apiLimiter = rateLimit({

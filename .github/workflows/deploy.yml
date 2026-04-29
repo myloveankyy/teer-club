@@ -91,7 +91,7 @@ jobs:
             echo "Force-Purging Server Side Build Cache..."
             rm -rf frontend/.next/cache || true
             rm -rf admin-panel/.next/cache || true
-            find . -name "sitemap.xml" -delete || true
+            # sitemap.xml is now served dynamically — no need to delete
 
 
             # --- TOTAL ISOLATION PROTOCOL ---

@@ -8,17 +8,31 @@ const BASE_URL = 'https://teer.club';
 const SITEMAP_PATH = path.join(process.cwd(), 'public', 'sitemap.xml');
 const METADATA_PATH = path.join(process.cwd(), 'public', 'sitemap-metadata.json');
 
+export interface SitemapLogEntry {
+    level: 'INFO' | 'SUCCESS' | 'ERROR' | 'WARN';
+    message: string;
+    timestamp: string;
+}
+
 export interface SitemapMetadata {
     lastUpdated: string;
     totalUrls: number;
+    previousUrlCount: number;
+    newUrlsAdded: number;
+    removedUrlsCount: number;
     durationMs: number;
+    logs: SitemapLogEntry[];
+    urls: string[];
 }
+
+const EMPTY_SITEMAP_XML = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>`;
 
 export class SitemapService {
     private static isGenerating = false;
 
     /**
      * Generate sitemap.xml from all indexable pages, games, and results.
+     * Tracks incremental changes vs previous generation.
      */
     static async generate(): Promise<SitemapMetadata | null> {
         if (this.isGenerating) {
@@ -28,7 +42,18 @@ export class SitemapService {
 
         const startTime = Date.now();
         this.isGenerating = true;
-        logger.info('[SITEMAP] Starting generation...');
+        const logs: SitemapLogEntry[] = [];
+
+        const log = (level: SitemapLogEntry['level'], message: string) => {
+            logs.push({ level, message, timestamp: new Date().toISOString() });
+            if (level === 'ERROR') {
+                logger.error(`[SITEMAP] ${message}`);
+            } else {
+                logger.info(`[SITEMAP] ${message}`);
+            }
+        };
+
+        log('INFO', 'Generation started');
 
         try {
             // Ensure public directory exists
@@ -36,6 +61,11 @@ export class SitemapService {
             if (!fs.existsSync(publicDir)) {
                 fs.mkdirSync(publicDir, { recursive: true });
             }
+
+            // Load previous URL list for diff tracking
+            const previousUrls = this.getPreviousUrls();
+            const previousUrlCount = previousUrls.size;
+            log('INFO', `Previous sitemap had ${previousUrlCount} URLs`);
 
             const root = create({ version: '1.0', encoding: 'UTF-8' })
                 .ele('urlset', { xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
@@ -47,9 +77,9 @@ export class SitemapService {
             const pages = await prisma.page.findMany({
                 where: { status: 'ACTIVE', indexed: true }
             });
+            log('INFO', `Fetched ${pages.length} active pages from database`);
 
             for (const page of pages) {
-                // Clean URL: trim parts to remove internal spaces like '/results/Khanapara /live'
                 const url = page.url.split('/').map(p => p.trim()).join('/');
                 if (processedUrls.has(url)) continue;
 
@@ -63,8 +93,9 @@ export class SitemapService {
                 urlCount++;
             }
 
-            // 2. Game Landing Pages (Ensure all enabled games are included)
+            // 2. Game Landing Pages
             const games = await prisma.game.findMany({ where: { isEnabled: true } });
+            log('INFO', `Fetched ${games.length} active games`);
 
             for (const game of games) {
                 const gameName = game.name.trim();
@@ -83,9 +114,7 @@ export class SitemapService {
                 }
             }
 
-            // 3. Dynamic Result Pages (/results/[game]/[date])
-            // To prevent sitemap from becoming too large, we include results from the last 90 days.
-            // A production-grade sitemap usually has a limit (e.g. 50k URLs).
+            // 3. Dynamic Result Pages (/results/[game]/[date]) — last 90 days
             const ninetyDaysAgo = new Date();
             ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
@@ -96,6 +125,7 @@ export class SitemapService {
                 include: { game: true },
                 orderBy: { date: 'desc' }
             });
+            log('INFO', `Fetched ${results.length} results from last 90 days`);
 
             for (const result of results) {
                 const gameName = result.game.name.trim();
@@ -109,32 +139,63 @@ export class SitemapService {
                 }
             }
 
+            // Compute incremental diff
+            const newUrlsAdded = [...processedUrls].filter(u => !previousUrls.has(u)).length;
+            const removedUrlsCount = [...previousUrls].filter(u => !processedUrls.has(u)).length;
+
+            if (newUrlsAdded > 0) {
+                log('INFO', `+${newUrlsAdded} new pages added`);
+            }
+            if (removedUrlsCount > 0) {
+                log('WARN', `${removedUrlsCount} pages removed`);
+            }
+
             // Finalize XML
             const xml = root.end({ prettyPrint: true });
             fs.writeFileSync(SITEMAP_PATH, xml);
 
             const durationMs = Date.now() - startTime;
+            log('SUCCESS', `Sitemap updated — ${urlCount} URLs in ${durationMs}ms`);
+
             const metadata: SitemapMetadata = {
                 lastUpdated: new Date().toISOString(),
                 totalUrls: urlCount,
-                durationMs
+                previousUrlCount,
+                newUrlsAdded,
+                removedUrlsCount,
+                durationMs,
+                logs,
+                urls: [...processedUrls],
             };
 
             fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata));
 
-            logger.info(`[SITEMAP] Generated successfully. URLs: ${urlCount} | Duration: ${durationMs}ms`);
+            logger.info(`[SITEMAP] Generated successfully. URLs: ${urlCount} | New: +${newUrlsAdded} | Removed: -${removedUrlsCount} | Duration: ${durationMs}ms`);
             return metadata;
 
-        } catch (error) {
+        } catch (error: any) {
+            log('ERROR', `Generation failed: ${error.message}`);
             logger.error('[SITEMAP] Generation failed', error);
-            throw error;
+
+            // Return logs even on failure so admin UI can display them
+            const durationMs = Date.now() - startTime;
+            const failedMetadata: SitemapMetadata = {
+                lastUpdated: new Date().toISOString(),
+                totalUrls: 0,
+                previousUrlCount: 0,
+                newUrlsAdded: 0,
+                removedUrlsCount: 0,
+                durationMs,
+                logs,
+                urls: [],
+            };
+            throw { message: error.message, metadata: failedMetadata };
         } finally {
             this.isGenerating = false;
         }
     }
 
     private static addUrl(root: any, url: string, lastmod: Date, changefreq: string, priority: string) {
-        // Ensure URL starts with / and doesn't have double slashes
         const cleanUrl = url.startsWith('/') ? url : `/${url}`;
         const loc = `${BASE_URL}${cleanUrl}`;
 
@@ -157,5 +218,31 @@ export class SitemapService {
             }
         }
         return null;
+    }
+
+    /**
+     * Read the current sitemap XML from disk.
+     * Returns empty sitemap XML if file doesn't exist.
+     */
+    static readXml(): string {
+        if (fs.existsSync(SITEMAP_PATH)) {
+            try {
+                return fs.readFileSync(SITEMAP_PATH, 'utf-8');
+            } catch (err) {
+                logger.error('[SITEMAP] Failed to read sitemap.xml', err);
+            }
+        }
+        return EMPTY_SITEMAP_XML;
+    }
+
+    /**
+     * Load previous URL set from metadata for diff tracking.
+     */
+    private static getPreviousUrls(): Set<string> {
+        const status = this.getStatus();
+        if (status?.urls) {
+            return new Set(status.urls);
+        }
+        return new Set();
     }
 }

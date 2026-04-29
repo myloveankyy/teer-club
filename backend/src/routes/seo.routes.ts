@@ -25,7 +25,11 @@ router.post('/sitemap/generate', adminAuth, async (req: Request, res: Response) 
         });
     } catch (error: any) {
         logger.error('[SEO Routes] Manual generation failed', error);
-        res.status(500).json({ success: false, error: error.message });
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            data: error.metadata || null
+        });
     }
 });
 
