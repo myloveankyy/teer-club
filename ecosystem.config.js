@@ -2,9 +2,8 @@ module.exports = {
     apps: [
         {
             name: "teer-api",
-            script: "backend/dist/index.js",
-            node_args: "-r dotenv/config",
-            cwd: "./",
+            script: "dist/index.js",
+            cwd: "./backend",
             watch: false,
             env: {
                 NODE_ENV: "production",
@@ -32,3 +31,4 @@ module.exports = {
         }
     ]
 };
+
