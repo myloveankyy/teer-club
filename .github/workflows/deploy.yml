@@ -164,16 +164,10 @@ jobs:
             cd ../admin-panel
             npm install --omit=dev
 
-            echo "Starting Apps via PM2..."
-            cd /var/www/teer.club/backend
-            pm2 start dist/index.js --name "api" --node-args="-r dotenv/config"
-
-            cd /var/www/teer.club/frontend
-            pm2 start npm --name "frontend" -- run start -- -p 3000
-
-            cd /var/www/teer.club/admin-panel
-            pm2 start npm --name "admin-panel" -- run start -- -p 3001
-
+            echo "Starting Apps via PM2 Ecosystem..."
+            cd /var/www/teer.club
+            pm2 start ecosystem.config.js
             pm2 save
+            sudo env PATH=$PATH:/usr/bin pm2 startup ubuntu -u $USER --hp /home/$USER || pm2 startup
 
             echo "Fresh Launch Deployment Complete!"

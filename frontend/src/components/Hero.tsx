@@ -167,9 +167,9 @@ interface HeroProps {
 
 export function Hero({ initialGames }: HeroProps) {
   return (
-    <Section background="white" className="!py-20 md:!py-32 border-b border-gray-100 bg-[radial-gradient(#f1f5f9_1.5px,transparent_1.5px)] [background-size:32px_32px] overflow-hidden">
+    <Section background="white" className="!py-20 md:!py-32 border-b border-gray-100 bg-[radial-gradient(#f1f5f9_1.5px,transparent_1.5px)] [background-size:32px_32px]">
       <Container>
-        <div className="flex flex-col gap-16 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-12 md:gap-16 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1 text-center lg:text-left max-w-2xl">
             <div className="mb-8 inline-flex">
               <Badge variant="info" pulse>

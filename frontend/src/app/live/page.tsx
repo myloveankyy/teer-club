@@ -67,7 +67,7 @@ export default async function LiveResultsPage() {
       />
       <main className="flex-1 bg-surface">
         {/* Hero Section */}
-        <Section background="white" className="!py-14 md:!py-20 border-b border-gray-100 bg-[radial-gradient(#f1f5f9_1px,transparent_1px)] [background-size:24px_24px] overflow-hidden">
+        <Section background="white" className="!py-14 md:!py-20 border-b border-gray-100 bg-[radial-gradient(#f1f5f9_1px,transparent_1px)] [background-size:24px_24px]">
           <Container>
             <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between py-8">
               <div className="flex-1 text-center lg:text-left max-w-2xl px-4 lg:px-0">

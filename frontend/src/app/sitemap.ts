@@ -106,12 +106,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: "daily" as const,
             priority: 0.7,
         },
-        {
-            url: `${BASE_URL}/${game}/previous-results`,
-            lastModified: now,
-            changeFrequency: "daily" as const,
-            priority: 0.7,
-        },
     ]);
 
     // ─── Blog Pages ────────────────────────────────────────────────────────

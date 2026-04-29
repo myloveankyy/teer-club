@@ -78,7 +78,7 @@ export function LiveActionWidget({
 
             <div className="flex flex-col sm:flex-row flex-1">
                 {/* Visual Area */}
-                <div className="relative w-full sm:w-2/5 md:w-2/5 min-h-[180px] bg-gray-100 overflow-hidden border-b sm:border-b-0 sm:border-r border-gray-100">
+                <div className="relative w-full sm:w-2/5 md:w-2/5 min-h-[220px] bg-gray-100 border-b sm:border-b-0 sm:border-r border-gray-100">
                     <Image
                         src={image}
                         alt={title}
@@ -90,11 +90,11 @@ export function LiveActionWidget({
                 </div>
 
                 {/* Content Area */}
-                <div className="flex-1 p-8 flex flex-col justify-center">
-                    <h3 className={`mb-3 text-2xl font-bold text-gray-900 tracking-tight leading-tight ${isUppercase ? 'uppercase' : ''}`}>
+                <div className="flex-1 p-6 sm:p-8 flex flex-col justify-center">
+                    <h3 className={`mb-3 text-xl sm:text-2xl font-bold text-gray-900 tracking-tight leading-tight ${isUppercase ? 'uppercase' : ''}`}>
                         {title}
                     </h3>
-                    <p className={`mb-8 text-xs font-medium text-gray-500 leading-relaxed max-w-[240px] ${isUppercase ? 'uppercase' : ''}`}>
+                    <p className={`mb-8 text-xs font-medium text-gray-500 leading-relaxed sm:max-w-[240px] ${isUppercase ? 'uppercase' : ''}`}>
                         {subtitle}
                     </p>
 

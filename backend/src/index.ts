@@ -30,6 +30,7 @@ const ALLOWED_ORIGINS = [
   "https://www.teer.club",
   "https://admin.teer.club",
   "http://localhost:3000",
+  "http://localhost:3001",
   "http://localhost:3002",
 ];
 
@@ -170,6 +171,9 @@ async function seedDefaultData() {
 
 // ─── Global Error Handler ────────────────────────────────────────────────────
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  if (err.message === "Not allowed by CORS") {
+    return res.status(403).json({ success: false, error: "Origin not allowed by CORS" });
+  }
   logger.error("[Error] Unhandled route error", err);
   res.status(500).json({ success: false, error: "Internal server error" });
 });

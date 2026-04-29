@@ -123,7 +123,7 @@ export default async function CommonNumbersPage() {
       />
       <main className="flex-1">
         {/* Header Section (Cloned from daily page but with Global context) */}
-        <Section background="dark" className="bg-[#111827] !py-16 lg:!py-24 border-b border-white/5 overflow-hidden">
+        <Section background="dark" className="bg-[#111827] !py-16 lg:!py-24 border-b border-white/5">
           <Container className="text-center relative z-10">
             <div className="mb-6 flex justify-center">
               <StatusBadge status="declared" customLabels={{ declared: "LIVE TARGETS" }} />
