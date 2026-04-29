@@ -6,8 +6,8 @@ const EMPTY_SITEMAP = `<?xml version="1.0" encoding="UTF-8"?>
 
 export async function GET() {
     try {
-        const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3001';
-        const sitemapUrl = `${backendUrl}/sitemap.xml`;
+        const backendApiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+        const sitemapUrl = `${backendApiUrl}/sitemap.xml`;
 
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 5000);

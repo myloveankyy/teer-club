@@ -65,7 +65,7 @@ app.use(express.json({ limit: '15mb' }));
 app.use(compression());
 
 // Serve Sitemap dynamically with proper headers and fallback
-app.get("/sitemap.xml", (req: Request, res: Response) => {
+const serveSitemap = (req: Request, res: Response) => {
   try {
     const xml = SitemapService.readXml();
     res.set("Content-Type", "application/xml");
@@ -76,7 +76,10 @@ app.get("/sitemap.xml", (req: Request, res: Response) => {
     res.set("Content-Type", "application/xml");
     res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>`);
   }
-});
+};
+
+app.get("/sitemap.xml", serveSitemap);
+app.get("/api/sitemap.xml", serveSitemap); // Ensures NGINX wildcard /api configurations pass through
 
 // ─── Rate Limiting ───────────────────────────────────────────────────────────
 const apiLimiter = rateLimit({
