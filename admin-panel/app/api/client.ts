@@ -255,6 +255,12 @@ export const api = {
   },
   debug: {
     triggerResults: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/debug/results", { method: "POST" })
+  },
+  seo: {
+    sitemap: {
+      generate: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo/sitemap/generate", { method: "POST" }),
+      getStatus: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo/sitemap/status"),
+    }
   }
 };
 

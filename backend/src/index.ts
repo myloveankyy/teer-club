@@ -19,6 +19,7 @@ import settingsRouter from "./routes/settings";
 import cronRouter from "./routes/cronRoutes";
 import importRouter from "./routes/importRoutes";
 import { seoJournalRouter } from "./routes/seoJournal";
+import seoRoutes from "./routes/seo.routes";
 import { aiRouter } from "./routes/ai";
 import { analyticsRouter } from "./routes/analytics";
 import { debugRouter } from "./routes/debug";
@@ -61,6 +62,9 @@ app.use(cors({
 
 app.use(express.json());
 app.use(compression());
+
+// Serve Sitemap statically
+app.use("/sitemap.xml", express.static("public/sitemap.xml"));
 
 // ─── Rate Limiting ───────────────────────────────────────────────────────────
 const apiLimiter = rateLimit({
@@ -106,6 +110,7 @@ app.use("/api/admin/import", adminAuth, importRouter);
 app.use("/api/admin/journal", seoJournalRouter);
 app.use("/api/admin/ai", adminAuth, aiRouter);
 app.use("/api/admin/debug", debugRouter);
+app.use("/api/admin/seo", seoRoutes);
 app.use("/api/analytics", analyticsRouter);
 
 

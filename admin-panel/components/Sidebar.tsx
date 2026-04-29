@@ -103,6 +103,15 @@ const navItems: Array<{
         </svg>
       )
     },
+    {
+      label: "Sitemap",
+      href: "/seo/sitemap",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A2 2 0 013 15.483V6a2 2 0 011.023-1.743L9 1.5l5.977 2.757A2 2 0 0116 6v9.483a2 2 0 01-1.553 1.944L9 20zm0-13v13m0-13l5-2.5m-5 2.5L4 4.5" />
+        </svg>
+      )
+    },
   ];
 
 export default function Sidebar() {

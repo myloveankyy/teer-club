@@ -1,6 +1,7 @@
 import prisma from "../prisma";
 import { logger } from "../utils/logger";
 import { AuditEngine } from "./auditEngine";
+import { SitemapService } from "./sitemap.service";
 
 const STATIC_ROUTES = [
     { url: "/", title: "Home | Teer Club", type: "STATIC" },
@@ -122,4 +123,7 @@ export async function aggregatePages() {
     // Assuming Blogs are just static files. I will skip them or they can be manually added in the Admin Panel later.
 
     logger.info(`[Aggregator] Finished. Created: ${createdCount} | Updated: ${updatedCount}`);
+
+    // Trigger Sitemap Sync
+    SitemapService.generate().catch(err => logger.error('[Aggregator] Sitemap trigger failed', err));
 }
