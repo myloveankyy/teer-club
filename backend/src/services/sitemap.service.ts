@@ -1,5 +1,3 @@
-import { create } from 'xmlbuilder2';
-import prisma from '../prisma';
 import fs from 'fs';
 import path from 'path';
 import { logger } from '../utils/logger';
@@ -14,13 +12,20 @@ export interface SitemapLogEntry {
     timestamp: string;
 }
 
+export interface SitemapDiff {
+    added: string[];
+    removed: string[];
+    unchanged: number;
+}
+
 export interface SitemapMetadata {
     lastUpdated: string;
     totalUrls: number;
     previousUrlCount: number;
     newUrlsAdded: number;
     removedUrlsCount: number;
-    durationMs: number;
+    fileSize: number;
+    diff: SitemapDiff;
     logs: SitemapLogEntry[];
     urls: string[];
 }
@@ -28,182 +33,157 @@ export interface SitemapMetadata {
 const EMPTY_SITEMAP_XML = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>`;
 
 export class SitemapService {
-    private static isGenerating = false;
+    private static isUploading = false;
 
     /**
-     * Generate sitemap.xml from all indexable pages, games, and results.
-     * Tracks incremental changes vs previous generation.
+     * Upload and deploy a sitemap.xml from external content.
+     * Validates XML, extracts URLs, computes diff, saves to disk.
      */
-    static async generate(): Promise<SitemapMetadata | null> {
-        if (this.isGenerating) {
-            logger.info('[SITEMAP] Already generating, skipping...');
-            return null;
+    static async upload(xmlContent: string): Promise<SitemapMetadata> {
+        if (this.isUploading) {
+            throw new Error('A sitemap upload is already in progress.');
         }
 
-        const startTime = Date.now();
-        this.isGenerating = true;
+        this.isUploading = true;
         const logs: SitemapLogEntry[] = [];
+        const startTime = Date.now();
 
         const log = (level: SitemapLogEntry['level'], message: string) => {
             logs.push({ level, message, timestamp: new Date().toISOString() });
-            if (level === 'ERROR') {
-                logger.error(`[SITEMAP] ${message}`);
-            } else {
-                logger.info(`[SITEMAP] ${message}`);
-            }
+            logger.info(`[SITEMAP] [${level}] ${message}`);
         };
 
-        log('INFO', 'Generation started');
-
         try {
-            // Ensure public directory exists
+            log('INFO', 'Upload started — validating XML...');
+
+            // ── Validate XML structure ──
+            const trimmed = xmlContent.trim();
+            if (!trimmed.startsWith('<?xml')) {
+                throw new Error('Invalid XML: missing <?xml declaration');
+            }
+            if (!trimmed.includes('<urlset')) {
+                throw new Error('Invalid XML: missing <urlset> root element');
+            }
+            if (!trimmed.includes('</urlset>')) {
+                throw new Error('Invalid XML: missing closing </urlset> tag');
+            }
+
+            log('SUCCESS', 'XML structure validated');
+
+            // ── Extract URLs from uploaded content ──
+            const newUrls = this.extractUrls(trimmed);
+            log('INFO', `Extracted ${newUrls.length} URLs from uploaded sitemap`);
+
+            if (newUrls.length === 0) {
+                log('WARN', 'Uploaded sitemap contains 0 URLs — proceeding anyway');
+            }
+
+            // ── Load previous URLs for diff ──
+            const previousUrls = this.getPreviousUrls();
+            const previousUrlCount = previousUrls.size;
+            log('INFO', `Previous sitemap had ${previousUrlCount} URLs`);
+
+            // ── Compute diff ──
+            const newUrlSet = new Set(newUrls);
+            const added = newUrls.filter(u => !previousUrls.has(u));
+            const removed = [...previousUrls].filter(u => !newUrlSet.has(u));
+            const unchanged = newUrls.length - added.length;
+
+            if (added.length > 0) {
+                log('INFO', `+${added.length} new URLs added`);
+                // Log first 10 new URLs for visibility
+                added.slice(0, 10).forEach(u => log('INFO', `  + ${u}`));
+                if (added.length > 10) {
+                    log('INFO', `  ... and ${added.length - 10} more`);
+                }
+            }
+
+            if (removed.length > 0) {
+                log('WARN', `${removed.length} URLs removed`);
+                removed.slice(0, 10).forEach(u => log('WARN', `  - ${u}`));
+                if (removed.length > 10) {
+                    log('WARN', `  ... and ${removed.length - 10} more`);
+                }
+            }
+
+            if (added.length === 0 && removed.length === 0 && previousUrlCount > 0) {
+                log('INFO', 'No changes detected — sitemap is identical to previous version');
+            }
+
+            // ── Ensure public directory exists ──
             const publicDir = path.join(process.cwd(), 'public');
             if (!fs.existsSync(publicDir)) {
                 fs.mkdirSync(publicDir, { recursive: true });
             }
 
-            // Load previous URL list for diff tracking
-            const previousUrls = this.getPreviousUrls();
-            const previousUrlCount = previousUrls.size;
-            log('INFO', `Previous sitemap had ${previousUrlCount} URLs`);
+            // ── Write sitemap to disk ──
+            fs.writeFileSync(SITEMAP_PATH, trimmed, 'utf-8');
+            const fileSize = Buffer.byteLength(trimmed, 'utf-8');
+            log('SUCCESS', `Sitemap saved (${(fileSize / 1024).toFixed(1)} KB)`);
 
-            const root = create({ version: '1.0', encoding: 'UTF-8' })
-                .ele('urlset', { xmlns: 'http://www.sitemaps.org/schemas/sitemap/0.9' });
-
-            let urlCount = 0;
-            const processedUrls = new Set<string>();
-
-            // 1. Static & Dynamic Pages from 'Page' model
-            const pages = await prisma.page.findMany({
-                where: { status: 'ACTIVE', indexed: true }
-            });
-            log('INFO', `Fetched ${pages.length} active pages from database`);
-
-            for (const page of pages) {
-                const url = page.url.split('/').map(p => p.trim()).join('/');
-                if (processedUrls.has(url)) continue;
-
-                const priority = page.type === 'STATIC' && url === '/' ? '1.0' :
-                    page.type === 'BLOG' ? '0.7' : '0.8';
-                const freq = url === '/' ? 'daily' :
-                    page.type === 'BLOG' ? 'weekly' : 'daily';
-
-                this.addUrl(root, url, page.last_updated, freq, priority);
-                processedUrls.add(url);
-                urlCount++;
-            }
-
-            // 2. Game Landing Pages
-            const games = await prisma.game.findMany({ where: { isEnabled: true } });
-            log('INFO', `Fetched ${games.length} active games`);
-
-            for (const game of games) {
-                const gameName = game.name.trim();
-                const liveUrl = `/results/${gameName}/live`;
-                const resultsUrl = `/results/${gameName}`;
-
-                if (!processedUrls.has(liveUrl)) {
-                    this.addUrl(root, liveUrl, game.updatedAt, 'hourly', '0.9');
-                    processedUrls.add(liveUrl);
-                    urlCount++;
-                }
-                if (!processedUrls.has(resultsUrl)) {
-                    this.addUrl(root, resultsUrl, game.updatedAt, 'daily', '0.8');
-                    processedUrls.add(resultsUrl);
-                    urlCount++;
-                }
-            }
-
-            // 3. Dynamic Result Pages (/results/[game]/[date]) — last 90 days
-            const ninetyDaysAgo = new Date();
-            ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
-
-            const results = await prisma.result.findMany({
-                where: {
-                    date: { gte: ninetyDaysAgo }
-                },
-                include: { game: true },
-                orderBy: { date: 'desc' }
-            });
-            log('INFO', `Fetched ${results.length} results from last 90 days`);
-
-            for (const result of results) {
-                const gameName = result.game.name.trim();
-                const dateStr = result.date.toISOString().split('T')[0];
-                const url = `/results/${gameName}/${dateStr}`;
-
-                if (!processedUrls.has(url)) {
-                    this.addUrl(root, url, result.updatedAt, 'daily', '0.8');
-                    processedUrls.add(url);
-                    urlCount++;
-                }
-            }
-
-            // Compute incremental diff
-            const newUrlsAdded = [...processedUrls].filter(u => !previousUrls.has(u)).length;
-            const removedUrlsCount = [...previousUrls].filter(u => !processedUrls.has(u)).length;
-
-            if (newUrlsAdded > 0) {
-                log('INFO', `+${newUrlsAdded} new pages added`);
-            }
-            if (removedUrlsCount > 0) {
-                log('WARN', `${removedUrlsCount} pages removed`);
-            }
-
-            // Finalize XML
-            const xml = root.end({ prettyPrint: true });
-            fs.writeFileSync(SITEMAP_PATH, xml);
-
+            // ── Save metadata ──
             const durationMs = Date.now() - startTime;
-            log('SUCCESS', `Sitemap updated — ${urlCount} URLs in ${durationMs}ms`);
+            const diff: SitemapDiff = { added, removed, unchanged };
 
             const metadata: SitemapMetadata = {
                 lastUpdated: new Date().toISOString(),
-                totalUrls: urlCount,
+                totalUrls: newUrls.length,
                 previousUrlCount,
-                newUrlsAdded,
-                removedUrlsCount,
-                durationMs,
+                newUrlsAdded: added.length,
+                removedUrlsCount: removed.length,
+                fileSize,
+                diff,
                 logs,
-                urls: [...processedUrls],
+                urls: newUrls,
             };
 
             fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata));
 
-            logger.info(`[SITEMAP] Generated successfully. URLs: ${urlCount} | New: +${newUrlsAdded} | Removed: -${removedUrlsCount} | Duration: ${durationMs}ms`);
+            log('SUCCESS', `Upload complete — ${newUrls.length} URLs deployed in ${durationMs}ms`);
+
+            // Update logs in metadata after final log entry
+            metadata.logs = logs;
+            fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata));
+
+            logger.info(`[SITEMAP] Upload complete. URLs: ${newUrls.length} | New: +${added.length} | Removed: -${removed.length}`);
             return metadata;
 
         } catch (error: any) {
-            log('ERROR', `Generation failed: ${error.message}`);
-            logger.error('[SITEMAP] Generation failed', error);
-
-            // Return logs even on failure so admin UI can display them
-            const durationMs = Date.now() - startTime;
-            const failedMetadata: SitemapMetadata = {
-                lastUpdated: new Date().toISOString(),
-                totalUrls: 0,
-                previousUrlCount: 0,
-                newUrlsAdded: 0,
-                removedUrlsCount: 0,
-                durationMs,
-                logs,
-                urls: [],
-            };
-            throw { message: error.message, metadata: failedMetadata };
+            log('ERROR', `Upload failed: ${error.message}`);
+            throw { message: error.message, logs };
         } finally {
-            this.isGenerating = false;
+            this.isUploading = false;
         }
     }
 
-    private static addUrl(root: any, url: string, lastmod: Date, changefreq: string, priority: string) {
-        const cleanUrl = url.startsWith('/') ? url : `/${url}`;
-        const loc = `${BASE_URL}${cleanUrl}`;
+    /**
+     * Extract all <loc> URLs from sitemap XML using regex.
+     */
+    private static extractUrls(xml: string): string[] {
+        const locRegex = /<loc>\s*(.*?)\s*<\/loc>/gi;
+        const urls: string[] = [];
+        let match;
+        while ((match = locRegex.exec(xml)) !== null) {
+            const url = match[1].trim();
+            if (url && !urls.includes(url)) {
+                urls.push(url);
+            }
+        }
+        return urls;
+    }
 
-        const node = root.ele('url');
-        node.ele('loc').txt(loc);
-        node.ele('lastmod').txt(lastmod.toISOString().split('T')[0]);
-        node.ele('changefreq').txt(changefreq);
-        node.ele('priority').txt(priority);
+    /**
+     * Read the current sitemap XML from disk.
+     */
+    static readXml(): string {
+        if (fs.existsSync(SITEMAP_PATH)) {
+            try {
+                return fs.readFileSync(SITEMAP_PATH, 'utf-8');
+            } catch (err) {
+                logger.error('[SITEMAP] Failed to read sitemap.xml', err);
+            }
+        }
+        return EMPTY_SITEMAP_XML;
     }
 
     /**
@@ -218,21 +198,6 @@ export class SitemapService {
             }
         }
         return null;
-    }
-
-    /**
-     * Read the current sitemap XML from disk.
-     * Returns empty sitemap XML if file doesn't exist.
-     */
-    static readXml(): string {
-        if (fs.existsSync(SITEMAP_PATH)) {
-            try {
-                return fs.readFileSync(SITEMAP_PATH, 'utf-8');
-            } catch (err) {
-                logger.error('[SITEMAP] Failed to read sitemap.xml', err);
-            }
-        }
-        return EMPTY_SITEMAP_XML;
     }
 
     /**

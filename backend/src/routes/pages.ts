@@ -2,7 +2,6 @@ import { Router } from "express";
 import prisma from "../prisma";
 import { aggregatePages } from "../services/pageAggregator";
 import { AuditEngine } from "../services/auditEngine";
-import { SitemapService } from "../services/sitemap.service";
 
 const router = Router();
 
@@ -106,8 +105,6 @@ router.post("/", async (req, res) => {
             }
         });
 
-        // Trigger Sitemap Sync
-        SitemapService.generate().catch(err => logger.error('[Pages API] Sitemap trigger failed', err));
 
         return res.json({ success: true, data: page });
     } catch (error: any) {

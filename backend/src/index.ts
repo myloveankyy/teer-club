@@ -61,7 +61,7 @@ app.use(cors({
   optionsSuccessStatus: 200, // For legacy browser compatibility
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '15mb' }));
 app.use(compression());
 
 // Serve Sitemap dynamically with proper headers and fallback
@@ -71,14 +71,6 @@ app.get("/sitemap.xml", (req: Request, res: Response) => {
     res.set("Content-Type", "application/xml");
     res.set("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=600");
     res.status(200).send(xml);
-
-    // If file was missing (empty sitemap returned), trigger background regeneration
-    if (xml.includes("</urlset>") && !xml.includes("<url>")) {
-      logger.info("[SITEMAP] Serving empty fallback, triggering background regeneration...");
-      SitemapService.generate().catch((err) =>
-        logger.error("[SITEMAP] Background regeneration failed", err)
-      );
-    }
   } catch (err) {
     logger.error("[SITEMAP] Failed to serve sitemap.xml", err);
     res.set("Content-Type", "application/xml");

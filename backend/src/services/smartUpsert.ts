@@ -1,6 +1,5 @@
 import prisma from '../prisma';
 import { TeerResult } from '../types/scraper';
-import { SitemapService } from './sitemap.service';
 
 export interface SmartUpsertResult {
   created: number;
@@ -120,10 +119,7 @@ export async function smartUpsertResults(
     stats.errors.push(`Global SmartUpsert Error: ${globalErr.message}`);
   }
 
-  // Trigger Sitemap Sync (Non-blocking)
-  if (stats.created > 0 || stats.updated > 0) {
-    SitemapService.generate().catch(err => console.error('[SmartUpsert] Sitemap trigger failed', err));
-  }
+
 
   return stats;
 }

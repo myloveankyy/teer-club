@@ -6,36 +6,46 @@ import { adminAuth } from '../middleware/adminAuth';
 const router = Router();
 
 /**
- * POST /api/admin/seo/sitemap/generate
- * Manually trigger sitemap generation.
+ * POST /api/admin/seo/sitemap/upload
+ * Upload a sitemap.xml file (raw XML in request body).
  */
-router.post('/sitemap/generate', adminAuth, async (req: Request, res: Response) => {
+router.post('/sitemap/upload', adminAuth, async (req: Request, res: Response) => {
     try {
-        const metadata = await SitemapService.generate();
-        if (!metadata) {
-            return res.status(409).json({
+        const { xml } = req.body;
+
+        if (!xml || typeof xml !== 'string') {
+            return res.status(400).json({
                 success: false,
-                message: 'Sitemap generation is already in progress.'
+                error: 'Missing or invalid "xml" field. Send { "xml": "<xml content>" }'
             });
         }
+
+        if (xml.length > 10 * 1024 * 1024) {
+            return res.status(413).json({
+                success: false,
+                error: 'Sitemap too large. Maximum size is 10 MB.'
+            });
+        }
+
+        const metadata = await SitemapService.upload(xml);
         res.json({
             success: true,
-            message: 'Sitemap generated successfully.',
+            message: 'Sitemap uploaded and deployed successfully.',
             data: metadata
         });
     } catch (error: any) {
-        logger.error('[SEO Routes] Manual generation failed', error);
+        logger.error('[SEO Routes] Sitemap upload failed', error);
         res.status(500).json({
             success: false,
             error: error.message,
-            data: error.metadata || null
+            logs: error.logs || null
         });
     }
 });
 
 /**
  * GET /api/admin/seo/sitemap/status
- * Get the status of the last sitemap generation.
+ * Get the status of the last sitemap upload.
  */
 router.get('/sitemap/status', adminAuth, (req: Request, res: Response) => {
     try {
