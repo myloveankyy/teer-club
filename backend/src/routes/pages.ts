@@ -79,6 +79,30 @@ router.get("/", async (req, res) => {
     }
 });
 
+// Create a page manually (for blogs)
+router.post("/", async (req, res) => {
+    try {
+        const { title, slug, content, url, type, meta_title, meta_description } = req.body;
+        const page = await prisma.page.create({
+            data: {
+                title,
+                slug,
+                url: url || `/blogs/${slug}`,
+                type: type || "BLOG",
+                status: "ACTIVE",
+                content,
+                meta_title,
+                meta_description,
+                source: "MANUAL",
+            }
+        });
+        return res.json({ success: true, data: page });
+    } catch (error: any) {
+        logger.error("[Pages API POST] Error", error);
+        return res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Update a page
 router.put("/:id", async (req, res) => {
     try {

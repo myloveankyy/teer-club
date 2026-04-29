@@ -1,5 +1,4 @@
 import { MetadataRoute } from "next";
-import { blogPosts } from "@/data/blogs";
 import api from "@/lib/api";
 
 const BASE_URL = "https://teer.club";
@@ -12,14 +11,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         "shillong", "khanapara", "juwai", "jowai-ladrymbai",
         "laitlyngkot", "bhutan-day", "arunachal", "manipur"
     ];
+    let BLOGS: any[] = [];
 
     try {
-        const gamesRes = await api.games.getAll();
-        if (gamesRes.data.success) {
+        const [gamesRes, pagesRes] = await Promise.all([
+            api.games.getAll(),
+            api.pages.getAll({ type: "BLOG", limit: 50000, status: "ACTIVE" })
+        ]);
+        if (gamesRes?.data?.success) {
             GAMES = gamesRes.data.data.map(g => g.name);
         }
+        if (pagesRes?.data?.success) {
+            BLOGS = pagesRes.data.data.pages || [];
+        }
     } catch (e) {
-        console.error("Sitemap: Failed to fetch games, using fallback list.");
+        console.error("Sitemap: Failed to fetch dynamic data.");
     }
 
     // ─── Static Pages ──────────────────────────────────────────────────────
@@ -109,9 +115,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]);
 
     // ─── Blog Pages ────────────────────────────────────────────────────────
-    const blogPages: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+    const blogPages: MetadataRoute.Sitemap = BLOGS.map((post) => ({
         url: `${BASE_URL}/blogs/${post.slug}`,
-        lastModified: new Date(post.publishedAt),
+        lastModified: new Date(post.last_updated || post.createdAt || now),
         changeFrequency: "monthly" as const,
         priority: 0.6,
     }));

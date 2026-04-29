@@ -1,0 +1,78 @@
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { PageLayout } from "@/components/shared/PageLayout";
+import { Section, Container } from "@/components/ui/Grid";
+import { ResultsList } from "@/components/ResultsList";
+
+interface PageProps {
+    params: {
+        market: string;
+    };
+}
+
+// ─── Extract programmatic SEO tokens from URL ───
+// e.g. "shillong-teer-result-2026" => { title: "Shillong Teer Result 2026", market: "shillong" }
+function parseMarketSlug(slug: string) {
+    const segments = slug.split("-");
+    const game = segments[0] || slug;
+
+    // Auto-generate capitalizations for keywords
+    const title = slug.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");
+
+    return {
+        gameId: game,
+        displayTitle: title,
+    };
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+    const { displayTitle } = parseMarketSlug(params.market);
+
+    return {
+        title: `${displayTitle} | Verified Records`,
+        description: `Complete historical dataset and insights for ${displayTitle}. View live updates, previous records, and algorithmic analysis.`,
+        keywords: [
+            displayTitle,
+            `${displayTitle} prediction`,
+            `${displayTitle} live`,
+            `${displayTitle} common numbers`
+        ],
+        alternates: {
+            canonical: `/results/${params.market}`,
+        },
+    };
+}
+
+export default function ProgrammaticMarketPage({ params }: PageProps) {
+    const { gameId, displayTitle } = parseMarketSlug(params.market);
+
+    return (
+        <PageLayout>
+            <main className="flex-1 bg-surface">
+                <Section background="white" className="!py-16 md:!py-24 border-b border-gray-100">
+                    <Container>
+                        <div className="max-w-3xl">
+                            <div className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold text-primary bg-primary/5 uppercase">
+                                Programmatic SEO Record
+                            </div>
+                            <h1 className="text-h1 text-gray-900 leading-tight mb-6">
+                                {displayTitle}
+                            </h1>
+                            <p className="text-lg text-gray-600 mb-8">
+                                Welcome to the official dataset for {displayTitle}.
+                                Here you can analyze recent outcomes, study long-term patterns, and access our optimized programmatic SEO hub for this specific query.
+                            </p>
+                        </div>
+                    </Container>
+                </Section>
+                {/* Render a filtered ResultsList by gameId */}
+                <Section className="!py-16" background="gray">
+                    <Container>
+                        <h2 className="text-xl font-bold mb-6">Historical Data Archive</h2>
+                        <ResultsList />
+                    </Container>
+                </Section>
+            </main>
+        </PageLayout>
+    );
+}

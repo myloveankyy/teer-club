@@ -167,6 +167,7 @@ export const api = {
       const query = searchParams.toString();
       return fetchAPI<{ success: boolean; data: { pages: Page[]; pagination: any } }>(`/pages${query ? `?${query}` : ""}`);
     },
+    create: (data: any) => fetchAPI<{ success: boolean; data: Page }>("/pages", { method: "POST", body: JSON.stringify(data) }),
     update: (id: string, data: Partial<Page>) =>
       fetchAPI<{ success: boolean; data: Page }>(`/pages/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     sync: () => fetchAPI<{ success: boolean; message: string }>("/pages/sync", { method: "POST" }),
@@ -241,6 +242,14 @@ export const api = {
         fetchAPI<{ success: boolean; message: string }>(`/admin/journal/notes/${id}`, { method: "DELETE" }),
     }
   },
+
+  ai: {
+    generateBlog: (topic: string) => fetchAPI<{ success: boolean; data: any }>("/admin/ai/generate-blog", { method: "POST", body: JSON.stringify({ topic }) }),
+  },
+
+  analytics: {
+    getTopPages: () => fetchAPI<{ success: boolean; data: any[] }>("/analytics/admin/top-pages")
+  }
 };
 
 

@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import { validateEnv } from "@/lib/env";
 import api from "@/lib/api";
+import { Tracker } from "@/components/shared/Tracker";
 
 // Run validation when the server process boots
 if (typeof window === "undefined") {
@@ -93,6 +94,7 @@ export default async function RootLayout({
           Skip to main content
         </a>
         <Providers initialSettings={settings}>
+          <Tracker />
           {children}
         </Providers>
       </body>

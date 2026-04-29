@@ -79,6 +79,10 @@ model Page {
   likes            Int      @default(0)
   last_updated     DateTime @default(now()) @updatedAt
   createdAt        DateTime @default(now())
+  
+  // Blog / Programmatic SEO Fields
+  content          String?  @db.Text
+  authorId         String?
 
   @@index([url])
   @@index([type])
