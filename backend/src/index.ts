@@ -18,6 +18,7 @@ import predictionsRouter from "./routes/predictions";
 import settingsRouter from "./routes/settings";
 import cronRouter from "./routes/cronRoutes";
 import importRouter from "./routes/importRoutes";
+import { seoJournalRouter } from "./routes/seoJournal";
 import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
 
 
@@ -99,6 +100,7 @@ app.use("/api/predictions", predictionsRouter);
 app.use("/api/settings", settingsRouter);
 app.use("/api/admin/cron", adminAuth, cronRouter);
 app.use("/api/admin/import", adminAuth, importRouter);
+app.use("/api/admin/journal", seoJournalRouter);
 
 
 // ─── Seed Default Data ───────────────────────────────────────────────────────

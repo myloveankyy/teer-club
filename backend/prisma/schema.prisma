@@ -151,3 +151,26 @@ model CronLog {
   @@index([status])
   @@index([createdAt])
 }
+
+model SeoProfile {
+  id        String    @id @default(uuid())
+  name      String
+  role      String    @default("SEO Expert")
+  avatar    String?
+  notes     SeoNote[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model SeoNote {
+  id        String      @id @default(uuid())
+  profileId String
+  title     String
+  content   String      @db.Text
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  profile   SeoProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@index([createdAt])
+}

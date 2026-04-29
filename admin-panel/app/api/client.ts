@@ -218,7 +218,31 @@ export const api = {
     trigger: (game: string) => fetchAPI<{ success: boolean; message: string }>(`/admin/cron/trigger/${game}`, { method: "POST" }),
     triggerAll: () => fetchAPI<{ success: boolean; message: string }>("/admin/cron/trigger-all", { method: "POST" }),
   },
+
+  journal: {
+    profiles: {
+      getAll: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/journal/profiles"),
+      create: (data: { name: string; role?: string; avatar?: string }) => fetchAPI<{ success: boolean; data: any }>("/admin/journal/profiles", { method: "POST", body: JSON.stringify(data) }),
+    },
+    notes: {
+      getAll: (params?: { profileId?: string; page?: number; limit?: number }) => {
+        const searchParams = new URLSearchParams();
+        if (params?.profileId) searchParams.append("profileId", params.profileId);
+        if (params?.page) searchParams.append("page", params.page.toString());
+        if (params?.limit) searchParams.append("limit", params.limit.toString());
+        const query = searchParams.toString();
+        return fetchAPI<{ success: boolean; data: { notes: any[]; total: number; page: number; pages: number } }>(`/admin/journal/notes${query ? `?${query}` : ""}`);
+      },
+      create: (data: { profileId: string; title: string; content: string }) =>
+        fetchAPI<{ success: boolean; data: any }>("/admin/journal/notes", { method: "POST", body: JSON.stringify(data) }),
+      update: (id: string, data: { title: string; content: string }) =>
+        fetchAPI<{ success: boolean; data: any }>(`/admin/journal/notes/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+      delete: (id: string) =>
+        fetchAPI<{ success: boolean; message: string }>(`/admin/journal/notes/${id}`, { method: "DELETE" }),
+    }
+  },
 };
+
 
 
 export interface DashboardData {
