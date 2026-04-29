@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -26,6 +23,16 @@ const nextConfig: NextConfig = {
         hostname: "teer.club",
       },
     ],
+  },
+
+  // Rewrites: Proxy sitemap to avoid metadata naming conflicts
+  async rewrites() {
+    return [
+      {
+        source: "/sitemap.xml",
+        destination: "/sitemap-static",
+      },
+    ];
   },
 
   // Headers: Security, caching, and performance
