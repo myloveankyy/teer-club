@@ -29,12 +29,10 @@ const getApiUrl = (): string => {
   return process.env.NEXT_PUBLIC_API_URL || DEFAULT_API_URL;
 };
 
-async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
+async function fetchAPI<T>(endpoint: string, options?: RequestInit, maxRetries = 2): Promise<T> {
   const apiKey = getApiKey();
   const apiUrl = getApiUrl();
-
   const fullUrl = `${apiUrl}${endpoint}`;
-  console.log(`[API] ${options?.method || "GET"} ${fullUrl}`);
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -46,26 +44,46 @@ async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> 
     headers["X-Admin-Key"] = apiKey;
   }
 
-  try {
-    const response = await fetch(fullUrl, {
-      ...options,
-      headers,
-    });
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const abortController = new AbortController();
+      const timeoutId = setTimeout(() => abortController.abort(), 10000); // 10s timeout
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || `HTTP ${response.status}`);
-    }
+      const response = await fetch(fullUrl, {
+        ...options,
+        headers,
+        signal: abortController.signal
+      });
 
-    return response.json();
-  } catch (error: any) {
-    if (error.name === "TypeError" && error.message.includes("Failed to fetch")) {
-      console.error(`[API Error] ${endpoint}: Unable to connect to server at ${apiUrl}`);
-      throw new Error(`Unable to connect to server. Please check if the backend is running at ${apiUrl}`);
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        if (response.status >= 500 && attempt < maxRetries) {
+          await new Promise(res => setTimeout(res, Math.pow(2, attempt) * 1000));
+          continue;
+        }
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error: any) {
+      if ((error.name === "TypeError" || error.name === "AbortError") && attempt < maxRetries) {
+        await new Promise(res => setTimeout(res, Math.pow(2, attempt) * 1000));
+        continue;
+      }
+      if (error.name === "TypeError" && error.message.includes("Failed to fetch")) {
+        console.error(`[API Error] ${endpoint}: Unable to connect to server at ${apiUrl}`);
+        throw new Error(`Unable to connect to server. Please check if the backend is running at ${apiUrl}`);
+      }
+      if (error.name === "AbortError") {
+        throw new Error(`Request to ${endpoint} timed out after 10000ms`);
+      }
+      console.error(`[API Error] ${endpoint}:`, error);
+      throw error;
     }
-    console.error(`[API Error] ${endpoint}:`, error);
-    throw error;
   }
+  throw new Error("Failed after retries");
 }
 
 export interface Game {

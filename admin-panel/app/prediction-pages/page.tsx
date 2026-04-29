@@ -14,7 +14,10 @@ export default function PredictionPages() {
     const { data: response, isLoading } = useQuery({
         queryKey: ["admin-prediction-pages", page],
         queryFn: async () => {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/pages?type=PREDICTION&page=${page}&limit=20`);
+            const apiKey = localStorage.getItem("apiKey") || process.env.NEXT_PUBLIC_API_KEY || "";
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/pages?type=PREDICTION&page=${page}&limit=20`, {
+                headers: { "X-Admin-Key": apiKey }
+            });
             const json = await res.json();
             return json.data;
         }
@@ -22,9 +25,13 @@ export default function PredictionPages() {
 
     const generateMutation = useMutation({
         mutationFn: async () => {
+            const apiKey = localStorage.getItem("apiKey") || process.env.NEXT_PUBLIC_API_KEY || "";
             const res = await fetch(`${API_BASE_URL}/predictions/generate`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Admin-Key": apiKey
+                },
                 body: JSON.stringify({
                     forceOverwrite: true
                 })
@@ -44,9 +51,13 @@ export default function PredictionPages() {
 
     const indexMutation = useMutation({
         mutationFn: async (id: string) => {
+            const apiKey = localStorage.getItem("apiKey") || process.env.NEXT_PUBLIC_API_KEY || "";
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api"}/pages/${id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Admin-Key": apiKey
+                },
                 body: JSON.stringify({ indexed: true })
             });
             return res.json();

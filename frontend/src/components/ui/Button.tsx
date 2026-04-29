@@ -18,7 +18,7 @@ export const Button = ({
     className = "",
     fullWidth = false,
 }: ButtonProps) => {
-    const baseStyles = "inline-flex items-center justify-center rounded-xl px-7 py-3.5 text-sm font-semibold transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]";
+    const baseStyles = "inline-flex items-center justify-center min-h-[44px] rounded-xl px-7 py-3.5 text-sm font-semibold transition-all duration-200 ease-out disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]";
 
     const variants = {
         primary: "bg-primary text-white hover:bg-primary/95 shadow-lg shadow-primary/10 hover:shadow-primary/20 border border-primary/10",

@@ -82,7 +82,7 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"} />
       </head>
       <body
-        className="min-h-screen flex flex-col bg-white text-gray-900"
+        className="min-h-screen flex flex-col bg-white text-gray-900 overflow-x-hidden"
         suppressHydrationWarning
       >
         {/* Accessibility: skip-to-content link */}

@@ -8,7 +8,35 @@ const apiClient = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
+    timeout: 10000, // 10 seconds timeout control
 });
+
+// Resiliency: Retry mechanisms and clear API error mapping
+apiClient.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const config = error.config as any;
+        if (!config || config._isRetryAttempt === undefined) {
+            if (config) config._isRetryAttempt = 0;
+        }
+
+        // Retry mechanism: up to 3 times on network errors or 5xx server errors
+        if (config && config._isRetryAttempt < 3 && (!error.response || error.response.status >= 500)) {
+            config._isRetryAttempt += 1;
+            const delayRetry = new Promise((resolve) => setTimeout(resolve, Math.pow(2, config._isRetryAttempt) * 1000));
+            await delayRetry;
+            return apiClient(config);
+        }
+
+        // Ensure clear API responses
+        const structuredError = new Error(
+            error.response?.data?.error || error.message || "An unexpected error occurred during API communication"
+        );
+        (structuredError as any).status = error.response?.status;
+        (structuredError as any).originalBody = error.response?.data;
+        return Promise.reject(structuredError);
+    }
+);
 
 export interface Game {
     id: string;
