@@ -1,6 +1,8 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express, { Express, Request, Response, NextFunction } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
 import prisma from "./prisma";
@@ -18,8 +20,6 @@ import cronRouter from "./routes/cronRoutes";
 import importRouter from "./routes/importRoutes";
 import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
 
-
-dotenv.config();
 
 const app: Express = express();
 const PORT = parseInt(process.env.PORT || "3001", 10);
