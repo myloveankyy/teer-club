@@ -85,7 +85,8 @@ jobs:
             echo "Force-Purging Server Side Build Cache..."
             rm -rf frontend/.next/cache || true
             rm -rf admin-panel/.next/cache || true
-            rm frontend/public/sitemap.xml || true
+            find /var/www/teer.club -name "sitemap.xml" -delete || true
+
 
             # --- TOTAL ISOLATION PROTOCOL ---
             echo "Shutting down application layers to isolate registry..."
