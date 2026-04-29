@@ -78,6 +78,12 @@ jobs:
             mkdir -p /var/www/teer.club
             cd /var/www/teer.club
             
+            echo "Clean Slate Protocol: Purging target directory..."
+            # Move archive to temp, clear dir, move back
+            mv deployment.tar.gz ../deployment_backup.tar.gz
+            rm -rf ./* || true
+            mv ../deployment_backup.tar.gz ./deployment.tar.gz
+
             echo "Extracting deployment archive..."
             tar -xzf deployment.tar.gz
             rm deployment.tar.gz
@@ -85,7 +91,7 @@ jobs:
             echo "Force-Purging Server Side Build Cache..."
             rm -rf frontend/.next/cache || true
             rm -rf admin-panel/.next/cache || true
-            find /var/www/teer.club -name "sitemap.xml" -delete || true
+            find . -name "sitemap.xml" -delete || true
 
 
             # --- TOTAL ISOLATION PROTOCOL ---
