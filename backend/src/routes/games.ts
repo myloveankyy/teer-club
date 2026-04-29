@@ -1,5 +1,6 @@
 import { Router } from "express";
 import prisma from "../prisma";
+import { adminAuth } from "../middleware/adminAuth";
 
 const router = Router();
 
@@ -71,7 +72,7 @@ const updateGameSchema = z.object({
   hasRound3: z.boolean().optional(),
 });
 
-router.post("/", async (req, res) => {
+router.post("/", adminAuth, async (req, res) => {
   try {
     const result = createGameSchema.safeParse(req.body);
     if (!result.success) {
@@ -88,7 +89,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const result = updateGameSchema.safeParse(req.body);
@@ -107,11 +108,20 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
-    await prisma.game.delete({ where: { id } });
-    return res.json({ success: true, message: "Game deleted" });
+
+    // Explicit transaction: since Prisma 'db push' often resists applying 
+    // ON DELETE CASCADE to pre-existing live relations, we manually execute it.
+    await prisma.$transaction([
+      prisma.result.deleteMany({ where: { gameId: id } }),
+      prisma.prediction.deleteMany({ where: { gameId: id } }),
+      prisma.cronLog.deleteMany({ where: { game: id } }), // game string fallback
+      prisma.game.delete({ where: { id } })
+    ]);
+
+    return res.json({ success: true, message: "Game and all relational references deleted safely" });
   } catch (err: any) {
     return res.status(500).json({ success: false, error: err.message });
   }
