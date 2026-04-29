@@ -21,6 +21,7 @@ import importRouter from "./routes/importRoutes";
 import { seoJournalRouter } from "./routes/seoJournal";
 import { aiRouter } from "./routes/ai";
 import { analyticsRouter } from "./routes/analytics";
+import { debugRouter } from "./routes/debug";
 import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
 
 
@@ -104,6 +105,7 @@ app.use("/api/admin/cron", adminAuth, cronRouter);
 app.use("/api/admin/import", adminAuth, importRouter);
 app.use("/api/admin/journal", seoJournalRouter);
 app.use("/api/admin/ai", adminAuth, aiRouter);
+app.use("/api/admin/debug", debugRouter);
 app.use("/api/analytics", analyticsRouter);
 
 

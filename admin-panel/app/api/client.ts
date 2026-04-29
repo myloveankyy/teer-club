@@ -203,6 +203,9 @@ export const api = {
       const query = searchParams.toString();
       return fetchAPI<{ success: boolean; data: AdminResultsData }>(`/admin/results${query ? `?${query}` : ""}`);
     },
+    debug: {
+      triggerResults: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/debug/results", { method: "POST" })
+    }
   },
 
   cron: {
@@ -249,6 +252,9 @@ export const api = {
 
   analytics: {
     getTopPages: () => fetchAPI<{ success: boolean; data: any[] }>("/analytics/admin/top-pages")
+  },
+  debug: {
+    triggerResults: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/debug/results", { method: "POST" })
   }
 };
 

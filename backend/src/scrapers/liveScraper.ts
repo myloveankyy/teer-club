@@ -71,9 +71,10 @@ function sleep(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export async function scrapeLiveResult(game: { name: string; liveSourceUrl: string | null }): Promise<ScrapeLiveResult> {
+export async function scrapeLiveResult(game: { name: string; liveSourceUrl: string | null }, targetDate?: string): Promise<ScrapeLiveResult> {
     const startTime = Date.now();
     const { dateStr: todayIST } = getISTNow();
+    const effectiveTargetDate = targetDate || todayIST;
 
     if (!game.liveSourceUrl) {
         logger.warn(`[SCRAPER] Game: ${game.name} | Status: FAILED | Reason: No liveSourceUrl configured`);
@@ -103,11 +104,11 @@ export async function scrapeLiveResult(game: { name: string; liveSourceUrl: stri
             };
 
             let results = html ? parse(html) : [];
-            const hasTodayData = results.some(r => r.date === todayIST && scoreResult(r) > 5);
+            const hasTargetData = results.some(r => r.date === effectiveTargetDate && scoreResult(r) > 5);
 
-            // If static failed or returned no real data for today, try DYNAMIC
-            if (!html || !hasTodayData) {
-                logger.debug(`[SCRAPER] Game: ${game.name} | Escalating to Playwright (static: ${html ? html.length : 0} bytes, todayData: ${hasTodayData})`);
+            // If static failed or returned no real data for target, try DYNAMIC
+            if (!html || !hasTargetData) {
+                logger.debug(`[SCRAPER] Game: ${game.name} | Escalating to Playwright (static: ${html ? html.length : 0} bytes, targetData: ${hasTargetData})`);
                 html = await fetchHtmlDynamic(game.liveSourceUrl);
                 results = parse(html);
                 methodUsed = "DYNAMIC";
@@ -117,32 +118,32 @@ export async function scrapeLiveResult(game: { name: string; liveSourceUrl: stri
                 if (attempt < MAX_LIVE_RETRIES) continue; // Retry
                 logger.info(`[SCRAPER] Game: ${game.name} | Status: NO_NEW_DATA | Method: ${methodUsed}`);
                 return {
-                    success: true, status: "NO_NEW_DATA", date: todayIST, round1: null, round2: null, round3: null,
+                    success: true, status: "NO_NEW_DATA", date: effectiveTargetDate, round1: null, round2: null, round3: null,
                     duration: Date.now() - startTime, details: { method: methodUsed, reason: "No results found" }
                 };
             }
 
-            const todayMatches = results.filter(r => r.date === todayIST);
-            if (todayMatches.length > 0) {
-                todayMatches.sort((a, b) => scoreResult(b) - scoreResult(a));
-                const best = todayMatches[0];
-                logger.info(`[SCRAPER] Game: ${game.name} | Status: SUCCESS | FR: ${best.round1} | SR: ${best.round2} | Method: ${methodUsed}`);
+            const targetMatches = results.filter(r => r.date === effectiveTargetDate);
+            if (targetMatches.length > 0) {
+                targetMatches.sort((a, b) => scoreResult(b) - scoreResult(a));
+                const best = targetMatches[0];
+                logger.info(`[SCRAPER] Game: ${game.name} | Status: SUCCESS | FR: ${best.round1} | SR: ${best.round2} | Method: ${methodUsed} | Date: ${effectiveTargetDate}`);
                 return {
-                    success: true, status: "SUCCESS", date: todayIST, round1: best.round1, round2: best.round2, round3: best.round3,
+                    success: true, status: "SUCCESS", date: effectiveTargetDate, round1: best.round1, round2: best.round2, round3: best.round3,
                     duration: Date.now() - startTime, details: { method: methodUsed, score: scoreResult(best) }
                 };
             }
 
             const bestOverall = [...results].sort((a, b) => scoreResult(b) - scoreResult(a))[0];
-            if (!bestOverall.date || bestOverall.date === todayIST) {
-                logger.info(`[SCRAPER] Game: ${game.name} | Status: SUCCESS (undated) | FR: ${bestOverall.round1} | SR: ${bestOverall.round2}`);
+            if (!bestOverall.date || (targetDate && bestOverall.date === targetDate) || (!targetDate && bestOverall.date === todayIST)) {
+                logger.info(`[SCRAPER] Game: ${game.name} | Status: SUCCESS (undated/matched) | FR: ${bestOverall.round1} | SR: ${bestOverall.round2}`);
                 return {
-                    success: true, status: "SUCCESS", date: todayIST, round1: bestOverall.round1, round2: bestOverall.round2, round3: bestOverall.round3,
+                    success: true, status: "SUCCESS", date: effectiveTargetDate, round1: bestOverall.round1, round2: bestOverall.round2, round3: bestOverall.round3,
                     duration: Date.now() - startTime, details: { method: methodUsed, score: scoreResult(bestOverall) }
                 };
             }
 
-            logger.info(`[SCRAPER] Game: ${game.name} | Status: STALE_DATA | Found date: ${bestOverall.date} (expected: ${todayIST})`);
+            logger.info(`[SCRAPER] Game: ${game.name} | Status: STALE_DATA | Found date: ${bestOverall.date} (expected: ${effectiveTargetDate})`);
             return {
                 success: true, status: "STALE_DATA", date: bestOverall.date, round1: bestOverall.round1, round2: bestOverall.round2, round3: bestOverall.round3,
                 duration: Date.now() - startTime, details: { method: methodUsed, reason: `Found ${bestOverall.date}` }
