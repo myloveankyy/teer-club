@@ -26,7 +26,9 @@ router.get('/logs', async (req: Request, res: Response) => {
     try {
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 50;
-        const data = await ValidationService.getLogs(page, limit);
+        const gameId = req.query.gameId as string;
+        const status = req.query.status as string;
+        const data = await ValidationService.getLogs(page, limit, gameId, status);
         return res.json({ success: true, data });
     } catch (error: any) {
         logger.error('[Validation Routes] Failed to fetch logs', error);

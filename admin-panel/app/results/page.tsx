@@ -730,47 +730,56 @@ export default function ResultsPage() {
                   {validationReport.length === 0 && (
                     <div className="text-center py-6 text-gray-500">No results found today to validate.</div>
                   )}
-                  {validationReport.map((log: any) => (
-                    <div key={log.id} className={`p-4 rounded-xl border transition-all ${log.status === 'VALID' ? 'bg-green-50/50 border-green-100' : 'bg-red-50/50 border-red-100'}`}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full ${log.status === 'VALID' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                          <span className="font-bold text-gray-900">{log.game?.displayName || log.gameId}</span>
-                        </div>
-                        <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${log.status === 'VALID' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                          {log.status === 'VALID' ? "✅ Valid" : "❌ Invalid"}
-                        </span>
-                      </div>
-
-                      <div className="mt-2 text-sm">
-                        <p className={`font-bold ${log.status === 'VALID' ? 'text-green-800' : 'text-red-800'}`}>
-                          Reason: {log.reason}
-                        </p>
-                        <p className="text-gray-500 text-xs mt-1">Source: <a href={log.sourceUrl} target="_blank" className="underline hover:text-indigo-500">{log.sourceUrl}</a></p>
-                        <p className="text-gray-600 font-mono text-xs mt-1 mb-3">
-                          Data: r1: {log.scrapedResult?.r1 || '--'}, r2: {log.scrapedResult?.r2 || '--'} &nbsp;&bull;&nbsp; Confidence: {log.confidenceScore}%
-                        </p>
-
-                        {log.layerResults && (
-                          <div className="mt-3 bg-white rounded-lg border border-gray-100 divide-y divide-gray-50">
-                            {Object.entries(log.layerResults).map(([layerKey, layer]: any) => (
-                              <div key={layerKey} className="px-3 py-2 flex items-start gap-2">
-                                <span className={`shrink-0 w-4 h-4 mt-0.5 rounded-full flex items-center justify-center text-[10px] font-bold ${layer.passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                  {layer.passed ? '✓' : '✗'}
-                                </span>
-                                <div>
-                                  <p className={`text-[11px] uppercase tracking-wider font-bold ${layer.passed ? 'text-gray-600' : 'text-red-700'}`}>
-                                    {layerKey.replace(/layer\d+/, 'Layer ' + layerKey.match(/\d+/)?.[0] + ': ')}
-                                  </p>
-                                  <p className="text-[11px] text-gray-500 leading-snug">{layer.reason}</p>
+                  <div className="overflow-x-auto rounded-xl border border-gray-200">
+                    <table className="w-full text-sm text-left">
+                      <thead className="bg-gray-50 border-b border-gray-100 uppercase text-[10px] font-bold text-gray-500 tracking-wider">
+                        <tr>
+                          <th className="px-4 py-3">Game</th>
+                          <th className="px-4 py-3 text-center">Diagnostics Checklist</th>
+                          <th className="px-4 py-3 text-center">Verdict</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 bg-white">
+                        {validationReport.map((log: any) => (
+                          <tr key={log.id} className={log.status === 'VALID' ? 'hover:bg-green-50/30' : 'hover:bg-red-50/30'}>
+                            <td className="px-4 py-4 min-w-[140px]">
+                              <p className="font-bold text-gray-900">{log.game?.displayName || log.gameId}</p>
+                              <p className="font-mono text-xs text-gray-500 mt-1">Data: {log.scrapedResult?.r1 || '--'} / {log.scrapedResult?.r2 || '--'}</p>
+                              <p className="text-xs text-indigo-500 underline mt-1"><a href={log.sourceUrl} target="_blank">Source ID</a></p>
+                            </td>
+                            <td className="px-4 py-2">
+                              {log.layerResults ? (
+                                <div className="grid grid-cols-2 gap-2 text-xs">
+                                  {Object.entries(log.layerResults).map(([key, layer]: any) => (
+                                    <div key={key} className="flex gap-2 p-2 bg-gray-50 rounded items-start">
+                                      <span className={`shrink-0 font-bold ${layer.passed ? 'text-green-500' : 'text-red-500'}`}>{layer.passed ? '✓' : '✗'}</span>
+                                      <div>
+                                        <p className="font-bold uppercase tracking-wide text-[10px] text-gray-700">{key}</p>
+                                        <p className="text-[10px] leading-tight text-gray-500 mt-0.5">{layer.reason}</p>
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
+                              ) : (
+                                <p className="text-xs text-gray-500 italic my-4 text-center">Legacy Report Format</p>
+                              )}
+                            </td>
+                            <td className="px-4 py-4 text-center align-top">
+                              <span className={`inline-flex items-center justify-center px-3 py-1 text-xs font-bold rounded-full mb-2 ${log.status === 'VALID' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                {log.status}
+                              </span>
+                              <div className="text-[11px] font-bold text-gray-600 block mt-1">
+                                CF: {log.confidenceScore}%
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                              <p className={`text-[10px] mx-auto text-balance mt-2 leading-tight ${log.status === 'VALID' ? 'text-green-600' : 'text-red-600 font-medium'}`}>
+                                {log.reason}
+                              </p>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               ) : null}
             </div>

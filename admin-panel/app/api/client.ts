@@ -266,10 +266,12 @@ export const api = {
   },
   validation: {
     checkToday: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/validation/check", { method: "POST" }),
-    getLogs: (params?: { page?: number; limit?: number }) => {
+    getLogs: (params?: { page?: number; limit?: number; gameId?: string; status?: string }) => {
       const searchParams = new URLSearchParams();
       if (params?.page) searchParams.append("page", params.page.toString());
       if (params?.limit) searchParams.append("limit", params.limit.toString());
+      if (params?.gameId) searchParams.append("gameId", params.gameId);
+      if (params?.status) searchParams.append("status", params.status);
       const query = searchParams.toString();
       return fetchAPI<{ success: boolean; data: any }>(`/admin/validation/logs${query ? `?${query}` : ""}`);
     }

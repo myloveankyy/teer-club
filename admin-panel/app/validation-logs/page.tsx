@@ -12,11 +12,24 @@ export default function ValidationLogsPage() {
     const [totalPages, setTotalPages] = useState(1);
     const [totalLogs, setTotalLogs] = useState(0);
 
-    const loadData = useCallback(async (page = 1) => {
+    const [filterGameId, setFilterGameId] = useState("");
+    const [filterStatus, setFilterStatus] = useState("");
+
+    // Add games for filter
+    const [games, setGames] = useState<any[]>([]);
+
+    const loadData = useCallback(async (page = 1, gId = filterGameId, status = filterStatus) => {
         try {
             setLoading(true);
             setError(null);
-            const res = await api.validation.getLogs({ page, limit: 50 });
+
+            // fetch games once
+            if (games.length === 0) {
+                const gRes = await api.games.getAll();
+                setGames(gRes.data);
+            }
+
+            const res = await api.validation.getLogs({ page, limit: 50, gameId: gId, status });
             setLogs(res.data.logs);
             setCurrentPage(res.data.page);
             setTotalPages(res.data.totalPages);
@@ -26,7 +39,7 @@ export default function ValidationLogsPage() {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [filterGameId, filterStatus, games.length]);
 
     useEffect(() => {
         loadData(1);
@@ -47,17 +60,45 @@ export default function ValidationLogsPage() {
 
     return (
         <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold text-gray-900">Auto-Check Logs</h1>
                     <p className="text-sm text-gray-500 mt-1">Historical audit trail of all validation checks • {totalLogs} records</p>
                 </div>
-                <button
-                    onClick={() => loadData(currentPage)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
-                >
-                    Refresh
-                </button>
+
+                <div className="flex flex-wrap items-center gap-3">
+                    <select
+                        value={filterGameId}
+                        onChange={(e) => {
+                            setFilterGameId(e.target.value);
+                            loadData(1, e.target.value, filterStatus);
+                        }}
+                        className="bg-white border text-sm text-gray-900 border-gray-300 rounded-lg px-3 py-2 cursor-pointer outline-none focus:border-indigo-500 min-w-[140px]"
+                    >
+                        <option value="">All Games</option>
+                        {games.map(g => <option key={g.id} value={g.id}>{g.displayName}</option>)}
+                    </select>
+
+                    <select
+                        value={filterStatus}
+                        onChange={(e) => {
+                            setFilterStatus(e.target.value);
+                            loadData(1, filterGameId, e.target.value);
+                        }}
+                        className="bg-white border text-sm text-gray-900 border-gray-300 rounded-lg px-3 py-2 cursor-pointer outline-none focus:border-indigo-500 min-w-[120px]"
+                    >
+                        <option value="">All Statuses</option>
+                        <option value="VALID">Valid ✅</option>
+                        <option value="INVALID">Invalid ❌</option>
+                    </select>
+
+                    <button
+                        onClick={() => loadData(currentPage)}
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                    >
+                        Refresh
+                    </button>
+                </div>
             </div>
 
             {loading && logs.length === 0 ? (
