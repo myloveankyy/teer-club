@@ -20,6 +20,7 @@ import cronRouter from "./routes/cronRoutes";
 import importRouter from "./routes/importRoutes";
 import { seoJournalRouter } from "./routes/seoJournal";
 import seoRoutes from "./routes/seo.routes";
+import validationRouter from "./routes/validation.routes";
 import { aiRouter } from "./routes/ai";
 import { analyticsRouter } from "./routes/analytics";
 import { debugRouter } from "./routes/debug";
@@ -126,6 +127,7 @@ app.use("/api/admin/journal", seoJournalRouter);
 app.use("/api/admin/ai", adminAuth, aiRouter);
 app.use("/api/admin/debug", debugRouter);
 app.use("/api/admin/seo", seoRoutes);
+app.use("/api/admin/validation", adminAuth, validationRouter);
 app.use("/api/analytics", analyticsRouter);
 
 

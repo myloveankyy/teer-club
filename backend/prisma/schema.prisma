@@ -32,6 +32,7 @@ model Game {
   
   predictions      Prediction[]
   results          Result[]
+  autoCheckLogs    AutoCheckLog[]
 }
 
 model Result {
@@ -183,4 +184,23 @@ model SeoNote {
 
   @@index([profileId])
   @@index([createdAt])
+}
+
+model AutoCheckLog {
+  id              String   @id @default(uuid())
+  gameId          String
+  dateChecked     DateTime
+  status          String   // "VALID" or "INVALID"
+  reason          String?
+  sourceUrl       String
+  scrapedDate     String?
+  scrapedResult   Json?
+  confidenceScore Int      @default(0)
+  createdAt       DateTime @default(now())
+
+  game            Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+
+  @@index([gameId])
+  @@index([dateChecked])
+  @@index([status])
 }

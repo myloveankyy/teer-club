@@ -32,6 +32,11 @@ export default function ResultsPage() {
   const [debugReport, setDebugReport] = useState<any[] | null>(null);
   const [showDebugModal, setShowDebugModal] = useState(false);
 
+  // Validation state
+  const [validationRunning, setValidationRunning] = useState(false);
+  const [validationReport, setValidationReport] = useState<any[] | null>(null);
+  const [showValidationModal, setShowValidationModal] = useState(false);
+
   const loadData = useCallback(async (page = 1) => {
     try {
       setLoading(true);
@@ -139,6 +144,23 @@ export default function ResultsPage() {
       }]);
     } finally {
       setDebugRunning(false);
+    }
+  };
+
+  const handleAutoCheck = async () => {
+    setValidationRunning(true);
+    setValidationReport(null);
+    setShowValidationModal(true);
+
+    try {
+      const res = await api.validation.checkToday();
+      setValidationReport(res.data);
+      // Reload results in background
+      loadData(currentPage);
+    } catch (err: any) {
+      console.error("[Validation Error]", err);
+    } finally {
+      setValidationRunning(false);
     }
   };
 
@@ -267,6 +289,20 @@ export default function ResultsPage() {
               </svg>
             )}
             Auto Debug
+          </button>
+          <button
+            onClick={handleAutoCheck}
+            disabled={validationRunning}
+            className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors flex items-center gap-2 disabled:opacity-50"
+          >
+            {validationRunning ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            )}
+            Auto Check
           </button>
         </div>
       </div>
@@ -638,6 +674,87 @@ export default function ResultsPage() {
               >
                 Close Report
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Auto-Check Validation Report Modal */}
+      {showValidationModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-2xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden">
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-indigo-50/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Validation & Authenticity Report</h3>
+                  <p className="text-sm text-gray-500">Auto-Check cross-referenced with live sources</p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <a
+                  href="/validation-logs"
+                  className="px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded-lg transition-colors"
+                >
+                  View Full Logs
+                </a>
+                <button
+                  onClick={() => !validationRunning && setShowValidationModal(false)}
+                  className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                  disabled={validationRunning}
+                >
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {validationRunning ? (
+                <div className="py-12 flex flex-col items-center justify-center text-center space-y-4">
+                  <div className="relative">
+                    <div className="w-16 h-16 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Validating Data...</h4>
+                    <p className="text-sm text-gray-500 mt-1 max-w-xs">Cross-checking dates and previous records to detect false fresh data.</p>
+                  </div>
+                </div>
+              ) : validationReport ? (
+                <div className="space-y-3">
+                  {validationReport.length === 0 && (
+                    <div className="text-center py-6 text-gray-500">No results found today to validate.</div>
+                  )}
+                  {validationReport.map((log: any) => (
+                    <div key={log.id} className={`p-4 rounded-xl border transition-all ${log.status === 'VALID' ? 'bg-green-50/50 border-green-100' : 'bg-red-50/50 border-red-100'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full ${log.status === 'VALID' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                          <span className="font-bold text-gray-900">{log.game?.displayName || log.gameId}</span>
+                        </div>
+                        <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full ${log.status === 'VALID' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                          {log.status === 'VALID' ? "✅ Valid" : "❌ Invalid"}
+                        </span>
+                      </div>
+
+                      <div className="mt-2 text-sm">
+                        <p className={`font-bold ${log.status === 'VALID' ? 'text-green-800' : 'text-red-800'}`}>
+                          Reason: {log.reason}
+                        </p>
+                        <p className="text-gray-500 text-xs mt-1">Source: <a href={log.sourceUrl} target="_blank" className="underline hover:text-indigo-500">{log.sourceUrl}</a></p>
+                        <p className="text-gray-600 font-mono text-xs mt-1">
+                          Data: r1: {log.scrapedResult?.r1 || '--'}, r2: {log.scrapedResult?.r2 || '--'} &nbsp;&bull;&nbsp; Confidence: {log.confidenceScore}%
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

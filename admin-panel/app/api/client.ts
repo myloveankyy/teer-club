@@ -263,6 +263,16 @@ export const api = {
       upload: (xml: string) => fetchAPI<{ success: boolean; data: any }>("/admin/seo/sitemap/upload", { method: "POST", body: JSON.stringify({ xml }) }),
       getStatus: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo/sitemap/status"),
     }
+  },
+  validation: {
+    checkToday: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/validation/check", { method: "POST" }),
+    getLogs: (params?: { page?: number; limit?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.append("page", params.page.toString());
+      if (params?.limit) searchParams.append("limit", params.limit.toString());
+      const query = searchParams.toString();
+      return fetchAPI<{ success: boolean; data: any }>(`/admin/validation/logs${query ? `?${query}` : ""}`);
+    }
   }
 };
 
