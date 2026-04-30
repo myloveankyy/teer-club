@@ -82,6 +82,9 @@ export class ValidationService {
                 logger.warn(`Failed to fetch source for ${game.id} during isolated check.`);
             }
 
+            let confidenceScore = 100;
+            let hasToday = false;
+
             if (textContent) {
                 // LAYER 2: STRICT DATE MATCHING (Enforcing Today)
                 const dFormat1 = today.toLocaleDateString('en-GB');
@@ -89,12 +92,15 @@ export class ValidationService {
                 const dFormat3 = today.toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' }).toLowerCase();
                 const dFormat4 = today.toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' }).toLowerCase();
 
-                const hasToday = textContent.includes(dFormat1) || textContent.includes(dFormat2) ||
+                hasToday = textContent.includes(dFormat1) || textContent.includes(dFormat2) ||
                     textContent.includes(dFormat3) || textContent.includes(dFormat4) || textContent.includes("today");
 
                 if (!hasToday) {
                     layers.layer2Date.passed = false;
-                    layers.layer2Date.reason = "Stale Content: External source does zero explicit publishing of today's date formats.";
+                    layers.layer2Date.reason = "Stale Content: The fetched source code does not explicitly contain today's date strings.";
+                } else {
+                    layers.layer2Date.passed = true;
+                    layers.layer2Date.reason = "Valid fresh date verified implicitly on page.";
                 }
 
                 // LAYER 4: ANTI-FAKE CONTENT & DOM HEURISTIC SEARCH
@@ -111,9 +117,15 @@ export class ValidationService {
                     layers.layer4Heuristics.passed = false;
                     layers.layer4Heuristics.reason = `Phantom Injection: Source declares 'Awaited' implicitly clashing mapped results.`;
                 }
+
+                // Content Update Signal Boost
+                const boostKeywords = ["last update", "updated", "live"];
+                if (boostKeywords.some(b => textContent.includes(b))) {
+                    confidenceScore = Math.min(100, confidenceScore + 10);
+                }
             }
 
-            // LAYER 3: 3-DAY STRONG CRYPTOGRAPHIC DUPLICATE DETECTION
+            // LAYER 3: SMART DUPLICATE HANDLING
             const threeDaysAgo = new Date(startOfDay);
             threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
@@ -122,15 +134,35 @@ export class ValidationService {
                 orderBy: { date: 'desc' }
             });
 
+            let isDuplicate = false;
+            let matchedPastDate = "";
             if (pastResults.length > 0 && currentResult.round1) {
                 const currHash = crypto.createHash('sha256').update(`${game.id}_${currentResult.round1}_${currentResult.round2 || ''}`).digest('hex');
                 for (const past of pastResults) {
                     const pastHash = crypto.createHash('sha256').update(`${game.id}_${past.round1}_${past.round2 || ''}`).digest('hex');
                     if (currHash === pastHash) {
-                        layers.layer3Fingerprint.passed = false;
-                        layers.layer3Fingerprint.reason = `Recycled Result: Hash directly matches structural historical capture from ${past.date.toLocaleDateString()}.`;
+                        isDuplicate = true;
+                        matchedPastDate = past.date.toLocaleDateString();
                         break;
                     }
+                }
+            }
+
+            if (isDuplicate) {
+                if (hasToday) {
+                    // Date was today, so we ignore duplication rejection, but drop confidence
+                    layers.layer3Fingerprint.passed = true;
+                    layers.layer3Fingerprint.reason = `Historical match bypassed: Date implicitly verified as today.`;
+                    confidenceScore -= 40;
+                } else {
+                    // No valid date + duplicate data == 100% INVALID
+                    layers.layer3Fingerprint.passed = false;
+                    layers.layer3Fingerprint.reason = `Invalid Replica: Structural fingerprint identically matched ${matchedPastDate} and no fresh date parsed.`;
+                }
+            } else {
+                if (hasToday) {
+                    layers.layer3Fingerprint.passed = true;
+                    layers.layer3Fingerprint.reason = `Perfect new node sequence structurally validated against historical index.`;
                 }
             }
 
@@ -145,8 +177,7 @@ export class ValidationService {
             }
 
             // Target Confidence Assignment Logic
-            let confidenceScore = 100;
-            let finalReason = "Verified organically through multi-node parallelism.";
+            let finalReason = "Zero errors detected. Verified valid source node.";
 
             if (hasFailure) {
                 confidenceScore = 0;
@@ -163,6 +194,8 @@ export class ValidationService {
                         verified: false
                     }
                 });
+            } else {
+                if (confidenceScore < 100) finalReason = "Results validated with lowered confidence (potential recurrence or edge timing).";
             }
 
             const formattedLayers = {
