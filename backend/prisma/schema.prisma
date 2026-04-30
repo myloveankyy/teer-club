@@ -195,6 +195,7 @@ model AutoCheckLog {
   sourceUrl       String
   scrapedDate     String?
   scrapedResult   Json?
+  layerResults    Json?
   confidenceScore Int      @default(0)
   createdAt       DateTime @default(now())
 

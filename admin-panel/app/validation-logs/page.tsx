@@ -80,25 +80,40 @@ export default function ValidationLogsPage() {
                                     <th className="px-4 py-3 font-semibold">Date Checked</th>
                                     <th className="px-4 py-3 font-semibold">Game</th>
                                     <th className="px-4 py-3 font-semibold">Status</th>
-                                    <th className="px-4 py-3 font-semibold">Reason</th>
+                                    <th className="px-4 py-3 font-semibold">Diagnostics</th>
                                     <th className="px-4 py-3 font-semibold">Confidence</th>
                                     <th className="px-4 py-3 font-semibold">Data (FR / SR)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {logs.map((log) => (
-                                    <tr key={log.id} className="hover:bg-gray-50/50">
-                                        <td className="px-4 py-3 text-gray-900 font-medium">{formatDate(log.dateChecked)}</td>
-                                        <td className="px-4 py-3 text-gray-700">{log.game?.displayName || log.gameId}</td>
-                                        <td className="px-4 py-3">
+                                    <tr key={log.id} className="hover:bg-gray-50/50 align-top">
+                                        <td className="px-4 py-3 text-gray-900 font-medium whitespace-nowrap">{formatDate(log.dateChecked)}</td>
+                                        <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{log.game?.displayName || log.gameId}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap">
                                             <span className={`px-2 py-1 text-xs font-bold rounded-full ${log.status === "VALID" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
                                                 }`}>
                                                 {log.status}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-3 text-gray-600 max-w-sm truncate" title={log.reason}>{log.reason}</td>
-                                        <td className="px-4 py-3 text-gray-600">{log.confidenceScore}%</td>
-                                        <td className="px-4 py-3 font-mono text-xs text-gray-500">
+                                        <td className="px-4 py-3 text-gray-600 max-w-xl">
+                                            <p className="font-semibold text-xs mb-2">{log.reason}</p>
+                                            {log.layerResults && (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 bg-gray-50 p-2 rounded border border-gray-100">
+                                                    {Object.entries(log.layerResults).map(([key, layer]: any) => (
+                                                        <div key={key} className="flex gap-1.5 items-start">
+                                                            <span className={`mt-0.5 shrink-0 text-xs font-bold ${layer.passed ? 'text-green-500' : 'text-red-500'}`}>{layer.passed ? '✓' : '✗'}</span>
+                                                            <div>
+                                                                <p className="text-[10px] font-bold text-gray-700 uppercase tracking-wider">{key.replace(/layer\d+/, 'L' + key.match(/\d+/)?.[0] + ': ')}</p>
+                                                                <p className="text-[10px] text-gray-500 leading-tight">{layer.reason}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3 text-gray-600 whitespace-nowrap align-middle text-center font-bold">{log.confidenceScore}%</td>
+                                        <td className="px-4 py-3 font-mono text-xs text-gray-500 whitespace-nowrap">
                                             {log.scrapedResult?.r1 || '--'} / {log.scrapedResult?.r2 || '--'}
                                         </td>
                                     </tr>
