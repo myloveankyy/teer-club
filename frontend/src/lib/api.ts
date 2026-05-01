@@ -167,6 +167,13 @@ export const api = {
     },
     settings: {
         get: () => apiClient.get<{ success: boolean; data: any }>("/settings"),
+        seo: {
+            get: () => apiClient.get<{ success: boolean; data: any }>("/settings/seo"),
+        },
+        notifications: {
+            get: () => apiClient.get<{ success: boolean; data: any }>("/settings/notifications"),
+            subscribe: (data: any) => apiClient.post("/settings/notifications/subscribe", data)
+        }
     }
 };
 

@@ -176,6 +176,18 @@ export const api = {
   settings: {
     get: () => fetchAPI<{ success: boolean; data: any }>("/settings"),
     update: (data: any) => fetchAPI<{ success: boolean; data: any }>("/settings", { method: "POST", body: JSON.stringify(data) }),
+    seo: {
+      get: () => fetchAPI<{ success: boolean; data: any }>("/settings/seo"),
+      update: (data: any) => fetchAPI<{ success: boolean; data: any }>("/settings/seo", { method: "POST", body: JSON.stringify(data) }),
+    },
+    notifications: {
+      get: () => fetchAPI<{ success: boolean; data: any }>("/settings/notifications"),
+      update: (data: any) => fetchAPI<{ success: boolean; data: any }>("/settings/notifications", { method: "POST", body: JSON.stringify(data) }),
+      getSubscribers: (params?: { deviceType?: string }) => {
+        const query = params?.deviceType ? `?deviceType=${params.deviceType}` : '';
+        return fetchAPI<{ success: boolean; data: { count: number } }>(`/settings/notifications/subscribers${query}`);
+      }
+    }
   },
   predictions: {
     getAll: (params?: { gameId?: string; date?: string }) => {

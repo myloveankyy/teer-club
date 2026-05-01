@@ -8,6 +8,7 @@ import axios from "axios";
 import { logger } from "../utils/logger";
 import { getISTNow } from "../config/gameSchedule";
 import { extractFromDOM, extractWithRegex } from "./extractorUtils";
+import { scrapeManipurLive } from "./manipurScraper";
 
 const REQUEST_TIMEOUT = 60_000;
 const MAX_LIVE_RETRIES = 2;
@@ -75,6 +76,10 @@ export async function scrapeLiveResult(game: { name: string; liveSourceUrl: stri
     const startTime = Date.now();
     const { dateStr: todayIST } = getISTNow();
     const effectiveTargetDate = targetDate || todayIST;
+
+    if (game.name.toLowerCase() === 'manipur') {
+        return await scrapeManipurLive(game, targetDate);
+    }
 
     if (!game.liveSourceUrl) {
         logger.warn(`[SCRAPER] Game: ${game.name} | Status: FAILED | Reason: No liveSourceUrl configured`);

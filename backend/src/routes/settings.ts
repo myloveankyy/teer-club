@@ -37,6 +37,8 @@ router.get("/", async (req: Request, res: Response) => {
                     borderRadius: "lg",
                     playLiveUrl: null,
                     playLiveEnabled: false,
+                    faviconUrl: null,
+                    appleTouchIconUrl: null,
                 },
             });
         }
@@ -72,6 +74,8 @@ router.post("/", adminAuth, async (req: Request, res: Response) => {
             borderRadius,
             playLiveUrl,
             playLiveEnabled,
+            faviconUrl,
+            appleTouchIconUrl,
         } = req.body;
 
         const settings = await prisma.siteSettings.upsert({
@@ -96,6 +100,8 @@ router.post("/", adminAuth, async (req: Request, res: Response) => {
                 borderRadius,
                 playLiveUrl,
                 playLiveEnabled,
+                faviconUrl,
+                appleTouchIconUrl,
             },
             create: {
                 id: "global",
@@ -118,6 +124,8 @@ router.post("/", adminAuth, async (req: Request, res: Response) => {
                 borderRadius,
                 playLiveUrl,
                 playLiveEnabled,
+                faviconUrl,
+                appleTouchIconUrl,
             },
         });
 

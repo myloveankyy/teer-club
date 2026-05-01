@@ -1,0 +1,174 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
+import api from "@/lib/api";
+
+type BeforeInstallPromptEvent = Event & {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed', platform: string }>;
+};
+
+export default function NotificationPrompt() {
+    const [settings, setSettings] = useState<{ a2hsEnabled: boolean; pushEnabled: boolean } | null>(null);
+    const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+    const [showA2HS, setShowA2HS] = useState(false);
+    const [showPushPermission, setShowPushPermission] = useState(false);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const res = await api.settings.notifications.get();
+                if (res.data?.success) {
+                    setSettings(res.data.data);
+                }
+            } catch (err) { }
+        };
+        fetchSettings();
+    }, []);
+
+    // A2HS Logic
+    useEffect(() => {
+        const handleBeforeInstallPrompt = (e: Event) => {
+            e.preventDefault();
+            setDeferredPrompt(e as BeforeInstallPromptEvent);
+            if (settings?.a2hsEnabled) {
+                const dismissed = localStorage.getItem("a2hs_dismissed");
+                if (!dismissed) setShowA2HS(true);
+            }
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    }, [settings?.a2hsEnabled]);
+
+    // Push Notifications Logic (Service Worker)
+    useEffect(() => {
+        if (!settings?.pushEnabled || typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+
+        const setupPush = async () => {
+            try {
+                const reg = await navigator.serviceWorker.register('/sw.js');
+                const permission = Notification.permission;
+                if (permission === 'default') {
+                    const dismissed = localStorage.getItem("push_dismissed");
+                    if (!dismissed) setShowPushPermission(true);
+                } else if (permission === 'granted') {
+                    await subscribeUser(reg);
+                }
+            } catch (error) {
+                console.error("Service Worker registration failed:", error);
+            }
+        };
+
+        // Delay prompt slightly to ensure rendering completes
+        setTimeout(setupPush, 2000);
+    }, [settings?.pushEnabled]);
+
+    const subscribeUser = async (swRegistration?: ServiceWorkerRegistration) => {
+        try {
+            const reg = swRegistration || await navigator.serviceWorker.ready;
+            const existingSub = await reg.pushManager.getSubscription();
+            if (existingSub) return;
+
+            // In production, vapidPublicKey should be fetched from backend or env
+            // Here we use a placeholder or handle it in backend directly using direct tokens if needed,
+            // but standard web-push requires applicationServerKey. We'll attempt a minimal subscribe.
+            // Note: Since VAPID isn't set, we won't pass applicationServerKey. Some browsers may reject this.
+            const subscription = await reg.pushManager.subscribe({
+                userVisibleOnly: true,
+            });
+
+            await api.settings.notifications.subscribe({
+                endpoint: subscription.endpoint,
+                keys: subscription.toJSON().keys,
+                deviceType: /Mobi|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop',
+                browser: navigator.userAgent.includes('Chrome') ? 'Chrome' : 'Other'
+            });
+        } catch (err) {
+            console.error("Push subscription failed", err);
+        }
+    };
+
+    const handleAcceptA2HS = async () => {
+        setShowA2HS(false);
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const choiceResult = await deferredPrompt.userChoice;
+            if (choiceResult.outcome === 'accepted') {
+                console.log('User accepted the A2HS prompt');
+            } else {
+                localStorage.setItem("a2hs_dismissed", "true");
+            }
+            setDeferredPrompt(null);
+        }
+    };
+
+    const handleDismissA2HS = () => {
+        setShowA2HS(false);
+        localStorage.setItem("a2hs_dismissed", "true");
+    };
+
+    const handleAcceptPush = async () => {
+        setShowPushPermission(false);
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+            await subscribeUser();
+        } else {
+            localStorage.setItem("push_dismissed", "true");
+        }
+    };
+
+    const handleDismissPush = () => {
+        setShowPushPermission(false);
+        localStorage.setItem("push_dismissed", "true");
+    };
+
+    // Render A2HS banner (prioritize over push if both trigger)
+    if (showA2HS) {
+        return (
+            <div className="fixed bottom-0 sm:bottom-6 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:w-[400px] z-[9999] p-4 bg-white/95 backdrop-blur-md sm:rounded-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-gray-100 flex items-center justify-between gap-4 animate-in slide-in-from-bottom-5 fade-in duration-500">
+                <div className="flex-1">
+                    <h4 className="text-gray-900 font-bold text-sm tracking-tight flex items-center gap-1.5">
+                        <span className="flex w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
+                        Get Fast Teer Updates
+                    </h4>
+                    <p className="text-xs text-gray-500 mt-0.5 leading-snug">Add Teer Club to your home screen for instant Shillong results.</p>
+                </div>
+                <div className="flex flex-col gap-2 shrink-0">
+                    <button onClick={handleAcceptA2HS} className="px-5 py-2 bg-black text-white text-xs font-bold rounded-xl hover:bg-gray-800 transition-colors shadow-lg shadow-black/20">
+                        Install App
+                    </button>
+                    <button onClick={handleDismissA2HS} className="text-[10px] uppercase font-bold text-gray-400 hover:text-gray-600 transition-colors text-center">
+                        Skip
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    if (showPushPermission && !showA2HS) {
+        return (
+            <div className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 w-[90%] sm:w-[420px] z-[9999] p-5 bg-black/90 backdrop-blur-xl rounded-3xl shadow-2xl flex items-center gap-4 animate-in slide-in-from-top-10 fade-in duration-500">
+                <div className="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center shrink-0 border border-indigo-500/30">
+                    <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                </div>
+                <div className="flex-1">
+                    <h4 className="text-white font-bold text-sm tracking-wide">Live VIP Targets</h4>
+                    <p className="text-xs text-gray-400 mt-0.5 leading-snug">Enable alerts to get winning numbers directly to your device.</p>
+                </div>
+                <div className="flex flex-col gap-2 shrink-0">
+                    <button onClick={handleAcceptPush} className="px-4 py-2 bg-indigo-500 text-white text-xs font-bold rounded-xl hover:bg-indigo-400 transition-colors shadow-lg shadow-indigo-500/30">
+                        Allow
+                    </button>
+                    <button onClick={handleDismissPush} className="text-[10px] text-gray-500 hover:text-gray-300 font-bold uppercase transition-colors text-center">
+                        Close
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return null;
+}

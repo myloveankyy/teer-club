@@ -144,6 +144,39 @@ model SiteSettings {
   updatedAt         DateTime @updatedAt
   playLiveEnabled   Boolean  @default(false)
   playLiveUrl       String?
+  
+  // Favicon & Branding
+  faviconUrl        String?
+  appleTouchIconUrl String?
+}
+
+model DomainSeoSettings {
+  id                 String   @id @default("global")
+  defaultMetaTitle   String?
+  metaDescription    String?
+  defaultKeywords    String?
+  canonicalUrlRule   String?  @default("AUTO")
+  indexEnabled       Boolean  @default(true)
+  followEnabled      Boolean  @default(true)
+  structuredDataJson String?  @db.Text
+  updatedAt          DateTime @updatedAt
+}
+
+model NotificationSettings {
+  id                 String   @id @default("global")
+  a2hsEnabled        Boolean  @default(true)
+  pushEnabled        Boolean  @default(false)
+  updatedAt          DateTime @updatedAt
+}
+
+model PushSubscriber {
+  id          String   @id @default(uuid())
+  endpoint    String   @unique
+  keys        Json
+  deviceType  String?
+  browser     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
 }
 
 model CronLog {
