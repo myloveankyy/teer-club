@@ -13,6 +13,7 @@ export default function NotificationPrompt() {
     const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
     const [showA2HS, setShowA2HS] = useState(false);
     const [showPushPermission, setShowPushPermission] = useState(false);
+    const [isIOS, setIsIOS] = useState(false);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -28,16 +29,38 @@ export default function NotificationPrompt() {
 
     // A2HS Logic
     useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const checkIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+        setIsIOS(checkIOS);
+
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+
+        if (isStandalone) {
+            return; // Already installed
+        }
+
         const handleBeforeInstallPrompt = (e: Event) => {
             e.preventDefault();
             setDeferredPrompt(e as BeforeInstallPromptEvent);
             if (settings?.a2hsEnabled) {
                 const dismissed = localStorage.getItem("a2hs_dismissed");
-                if (!dismissed) setShowA2HS(true);
+                if (!dismissed) {
+                    setTimeout(() => setShowA2HS(true), 2500); // Wait 2.5s to not bombard immediately
+                }
             }
         };
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+        // Fallback for iOS which doesn't support beforeinstallprompt natively
+        if (checkIOS && settings?.a2hsEnabled) {
+            const dismissed = localStorage.getItem("a2hs_dismissed");
+            if (!dismissed) {
+                setTimeout(() => setShowA2HS(true), 2500);
+            }
+        }
+
         return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     }, [settings?.a2hsEnabled]);
 
@@ -90,6 +113,13 @@ export default function NotificationPrompt() {
     };
 
     const handleAcceptA2HS = async () => {
+        if (isIOS) {
+            alert('To install: Tap the Share icon at the bottom of Safari, then choose "Add to Home Screen".');
+            setShowA2HS(false);
+            localStorage.setItem("a2hs_dismissed", "true");
+            return;
+        }
+
         setShowA2HS(false);
         if (deferredPrompt) {
             deferredPrompt.prompt();
