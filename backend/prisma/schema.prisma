@@ -272,3 +272,20 @@ model AutoCheckLog {
   @@index([dateChecked])
   @@index([status])
 }
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  author    String   @default("Anonymous")
+  status    String   @default("APPROVED") // PENDING, APPROVED, SPAM, DELETED
+  gameId    String?  // e.g. "shillong" to link to a specific game's live page
+  date      String?  // e.g. "2026-05-02" to link to a specific date
+  ipAddress String?  // basic spam prevention
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([gameId])
+  @@index([date])
+  @@index([createdAt])
+}

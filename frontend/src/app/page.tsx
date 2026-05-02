@@ -7,6 +7,8 @@ import api from "@/lib/api";
 import { TelegramBanner } from "@/components/TelegramBanner";
 import dynamic from "next/dynamic";
 
+import { LiveDiscussion } from "@/components/LiveDiscussion";
+
 // Code splitting for below-the-fold heavy components
 const MoreByTeerClub = dynamic(() => import("@/components/MoreByTeerClub").then((mod) => mod.MoreByTeerClub));
 const WhatIsTeer = dynamic(() => import("@/components/WhatIsTeer").then((mod) => mod.WhatIsTeer));
@@ -124,6 +126,14 @@ export default async function Home() {
         </Section>
 
         <TodaysResults initialGames={initialGames} initialDate={initialDate} />
+
+        <Section className="!py-10 bg-white">
+          <Container>
+            <div className="mx-auto max-w-5xl">
+               <LiveDiscussion date={initialDate} />
+            </div>
+          </Container>
+        </Section>
 
         {/* SEO Content Section */}
         <Section className="!py-16 bg-gray-50/30 border-y border-gray-100">

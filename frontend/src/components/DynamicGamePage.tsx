@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button";
 import api from "@/lib/api";
 import { notFound } from "next/navigation";
 import dynamic from "next/dynamic";
+import { LiveDiscussion } from "@/components/LiveDiscussion";
 
 const MoreByTeerClub = dynamic(() => import("@/components/MoreByTeerClub").then((mod) => mod.MoreByTeerClub));
 
@@ -140,6 +141,12 @@ export function DynamicGamePage({ gameName }: DynamicGamePageProps) {
                                 lastUpdateMessage={`Official ${game.displayName} numbers confirmed.`}
                             />
                         )}
+                    </div>
+                </section>
+
+                <section className="px-4 py-8 sm:px-6 lg:px-8 bg-surface-secondary/20">
+                    <div className="mx-auto max-w-7xl">
+                        <LiveDiscussion gameId={game.id} />
                     </div>
                 </section>
 

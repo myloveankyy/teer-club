@@ -206,6 +206,23 @@ export const api = {
     delete: (id: string) => fetchAPI<{ success: boolean; message: string }>(`/predictions/${id}`, { method: "DELETE" }),
   },
 
+  comments: {
+    admin: {
+      getAll: (params?: { page?: number; limit?: number; status?: string }) => {
+        const searchParams = new URLSearchParams();
+        if (params?.page) searchParams.append("page", params.page.toString());
+        if (params?.limit) searchParams.append("limit", params.limit.toString());
+        if (params?.status) searchParams.append("status", params.status);
+        const query = searchParams.toString();
+        return fetchAPI<{ success: boolean; data: any }>(`/comments/admin${query ? `?${query}` : ""}`);
+      },
+      update: (id: string, data: { status?: string; content?: string }) =>
+        fetchAPI<{ success: boolean; data: any }>(`/comments/admin/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+      delete: (id: string) =>
+        fetchAPI<{ success: boolean; message: string }>(`/comments/admin/${id}`, { method: "DELETE" }),
+    }
+  },
+
   admin: {
     triggerBackfill: (game: string) =>
       fetchAPI<{ success: boolean; data: BackfillResult }>(`/admin/backfill/${game}`, { method: "POST" }),
