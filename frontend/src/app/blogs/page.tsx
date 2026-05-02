@@ -42,24 +42,28 @@ const articleJsonLd = {
 };
 
 export default async function BlogsPage() {
-  const res = await api.pages.getAll({ type: "BLOG", status: "ACTIVE", limit: 20 });
-  const rawPages = res.data?.data?.pages || [];
+  let mappedPosts: any[] = [];
+  try {
+    const res = await api.pages.getAll({ type: "BLOG", status: "ACTIVE", limit: 20 });
+    const rawPages = res.data?.data?.pages || [];
 
-  const mappedPosts = rawPages.map((p: any) => ({
-    slug: p.slug,
-    title: p.title,
-    excerpt: p.meta_description || (p.content || "").substring(0, 150) + "...",
-    // Use an algorithmic or generic cover since we're generating AI blogs without media right now
-    coverImage: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=1200&auto=format&fit=crop",
-    author: "Teer.club Expert",
-    publishedAt: p.created_at || new Date().toISOString(),
-    readingTime: Math.max(2, Math.ceil((p.content_length || 500) / 200)),
-    category: "Insights",
-    content: p.content,
-    keywords: p.meta_title ? p.meta_title.split(" ") : [],
-    tableOfContents: [],
-    relatedSlugs: []
-  }));
+    mappedPosts = rawPages.map((p: any) => ({
+      slug: p.slug,
+      title: p.title,
+      excerpt: p.meta_description || (p.content || "").substring(0, 150) + "...",
+      coverImage: "https://images.unsplash.com/photo-1606326608606-aa0b62935f2b?q=80&w=1200&auto=format&fit=crop",
+      author: "Teer.club Expert",
+      publishedAt: p.created_at || new Date().toISOString(),
+      readingTime: Math.max(2, Math.ceil((p.content_length || 500) / 200)),
+      category: "Insights",
+      content: p.content,
+      keywords: p.meta_title ? p.meta_title.split(" ") : [],
+      tableOfContents: [],
+      relatedSlugs: []
+    }));
+  } catch {
+    // Silent fail during build — page renders with empty state
+  }
 
   const featuredPost = mappedPosts[0];
   const trendingPosts = mappedPosts.slice(1, 4);
