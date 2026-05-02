@@ -166,17 +166,51 @@ model NotificationSettings {
   id                 String   @id @default("global")
   a2hsEnabled        Boolean  @default(true)
   pushEnabled        Boolean  @default(false)
+  vapidPublicKey     String?
+  vapidPrivateKey    String?
   updatedAt          DateTime @updatedAt
 }
 
 model PushSubscriber {
-  id          String   @id @default(uuid())
-  endpoint    String   @unique
-  keys        Json
-  deviceType  String?
-  browser     String?
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id           String   @id @default(uuid())
+  endpoint     String   @unique
+  keys         Json
+  deviceType   String?
+  browser      String?
+  os           String?
+  isActive     Boolean  @default(true)
+  status       String   @default("active")
+  lastActive   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  deliveryLogs PushDeliveryLog[]
+}
+
+model PushCampaign {
+  id             String   @id @default(uuid())
+  title          String
+  body           String
+  url            String?
+  audienceSize   Int      @default(0)
+  deliveredCount Int      @default(0)
+  failedCount    Int      @default(0)
+  clickCount     Int      @default(0)
+  sentAt         DateTime @default(now())
+  logs           PushDeliveryLog[]
+}
+
+model PushDeliveryLog {
+  id           String   @id @default(uuid())
+  campaignId   String
+  subscriberId String
+  status       String
+  deliveredAt  DateTime?
+  clicked      Boolean  @default(false)
+  clickedAt    DateTime?
+  errorMessage String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  campaign   PushCampaign   @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subscriber PushSubscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
 }
 
 model CronLog {

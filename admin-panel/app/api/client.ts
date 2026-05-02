@@ -183,10 +183,14 @@ export const api = {
     notifications: {
       get: () => fetchAPI<{ success: boolean; data: any }>("/settings/notifications"),
       update: (data: any) => fetchAPI<{ success: boolean; data: any }>("/settings/notifications", { method: "POST", body: JSON.stringify(data) }),
-      getSubscribers: (params?: { deviceType?: string }) => {
-        const query = params?.deviceType ? `?deviceType=${params.deviceType}` : '';
-        return fetchAPI<{ success: boolean; data: { count: number } }>(`/settings/notifications/subscribers${query}`);
-      }
+      getSubscribers: () =>
+        fetchAPI<{ success: boolean; data: { subscribers: any[]; totalActive: number; totalInactive: number; total: number } }>("/settings/notifications/subscribers"),
+      getCampaigns: () =>
+        fetchAPI<{ success: boolean; data: { campaigns: any[] } }>("/settings/notifications/campaigns"),
+      getCampaignLogs: (id: string) =>
+        fetchAPI<{ success: boolean; data: { campaign: any; logs: any[] } }>(`/settings/notifications/campaigns/${id}/logs`),
+      sendPush: (data: { title: string; body: string; url?: string }) =>
+        fetchAPI<{ success: boolean; data: any }>("/settings/notifications/send-push", { method: "POST", body: JSON.stringify(data) }),
     }
   },
   predictions: {

@@ -172,6 +172,7 @@ export const api = {
         },
         notifications: {
             get: () => apiClient.get<{ success: boolean; data: any }>("/settings/notifications"),
+            getVapid: () => apiClient.get<{ success: boolean; data: { publicKey: string } }>("/settings/notifications/vapid-key"),
             subscribe: (data: any) => apiClient.post("/settings/notifications/subscribe", data)
         }
     }
