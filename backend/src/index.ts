@@ -2,6 +2,10 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import express, { Express, Request, Response, NextFunction } from "express";
+import http from "http";
+import { Server } from "socket.io";
+import { createAdapter } from "@socket.io/redis-adapter";
+import { redis } from "./utils/redis";
 import cors from "cors";
 import compression from "compression";
 import rateLimit from "express-rate-limit";
@@ -31,8 +35,8 @@ import { debugRouter } from "./routes/debug";
 import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
 import { SitemapService } from "./services/sitemap.service";
 
-
 const app: Express = express();
+const server = http.createServer(app);
 const PORT = parseInt(process.env.PORT || "3001", 10);
 
 // ─── CORS — restrict to known origins ────────────────────────────────────────
@@ -44,6 +48,32 @@ const ALLOWED_ORIGINS = [
   "http://localhost:3001",
   "http://localhost:3002",
 ];
+
+export const io = new Server(server, {
+  cors: {
+    origin: ALLOWED_ORIGINS,
+    credentials: true,
+  },
+});
+
+// Configure Redis adapter for horizontal scaling
+const pubClient = redis;
+const subClient = pubClient.duplicate();
+io.adapter(createAdapter(pubClient, subClient));
+
+io.on("connection", (socket) => {
+  logger.info(`[Socket.IO] Client connected: ${socket.id}`);
+  
+  // Clients will emit "join_game" to listen to a specific game's live comments
+  socket.on("join_game", (gameId: string) => {
+    socket.join(`game_${gameId}`);
+    logger.debug(`[Socket.IO] Client ${socket.id} joined room game_${gameId}`);
+  });
+
+  socket.on("disconnect", () => {
+    logger.debug(`[Socket.IO] Client disconnected: ${socket.id}`);
+  });
+});
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -225,7 +255,7 @@ async function start() {
     await seedDefaultData();
     startAllCrons();
 
-    app.listen(PORT, "0.0.0.0", () => {
+    server.listen(PORT, "0.0.0.0", () => {
       logger.info(`[Server] Running on http://localhost:${PORT}`);
       logger.info(`[Server] Environment: ${process.env.NODE_ENV || "development"}`);
       logger.info(`[Server] Process PID: ${process.pid}`);

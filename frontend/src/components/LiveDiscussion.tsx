@@ -2,6 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import api from "@/lib/api";
+import { io } from "socket.io-client";
+import { env } from "@/lib/env";
+
+const SOCKET_URL = env.NEXT_PUBLIC_API_URL?.replace('/api', '') || "http://localhost:3001";
 
 interface Comment {
   id: string;
@@ -25,10 +29,29 @@ export function LiveDiscussion({ gameId, date }: Props) {
 
   useEffect(() => {
     fetchComments();
-    
-    // Auto-refresh comments every 30 seconds
-    const interval = setInterval(fetchComments, 30000);
-    return () => clearInterval(interval);
+
+    if (!gameId) return;
+
+    // Connect to WebSockets for real-time updates
+    const socket = io(SOCKET_URL, {
+      withCredentials: true,
+      transports: ["websocket", "polling"],
+    });
+
+    socket.on("connect", () => {
+      socket.emit("join_game", gameId);
+    });
+
+    socket.on("new_comment", (comment: Comment) => {
+      // Append the new comment if it matches the current date scope (or if no date scope is set)
+      if (!date || comment.createdAt.startsWith(date)) {
+        setComments((prev) => [comment, ...prev]);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, [gameId, date]);
 
   const fetchComments = async () => {
@@ -65,7 +88,7 @@ export function LiveDiscussion({ gameId, date }: Props) {
 
       if (res.data?.success) {
         setNewComment("");
-        fetchComments(); // Refresh list immediately
+        // No need to fetchComments() because Socket.IO will broadcast the new comment to us instantly!
       } else {
         setError(res.data?.error || "Failed to post comment");
       }

@@ -2,6 +2,7 @@ import { Router } from "express";
 import prisma from "../prisma";
 import { z } from "zod";
 import crypto from "crypto";
+import { io } from "../index";
 
 const router = Router();
 
@@ -97,6 +98,10 @@ router.post("/", async (req, res) => {
         status,
       },
     });
+
+    if (status === "APPROVED" && gameId) {
+      io.to(`game_${gameId}`).emit("new_comment", comment);
+    }
 
     return res.json({ success: true, data: comment });
   } catch (err: any) {
