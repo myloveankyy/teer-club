@@ -25,6 +25,9 @@ interface SiteSettings {
     borderRadius: string;
     playLiveUrl: string;
     playLiveEnabled: boolean;
+    masterScrapeStartTime: string;
+    masterScrapeEndTime: string;
+    isMasterScrapeActive: boolean;
 }
 
 export default function SiteSettingsPage() {
@@ -381,6 +384,55 @@ export default function SiteSettingsPage() {
                                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-rose-500 outline-none font-medium transition-all"
                                 placeholder="https://external-partner-link.com/..."
                             />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Master Scraper Controls Section */}
+                <div className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+                    <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                        <div className="p-2 bg-red-50 rounded-lg">
+                            <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        Master Scraper Controls
+                    </h2>
+                    <div className="space-y-6">
+                        <div className="flex items-center justify-between p-6 bg-red-50 rounded-xl border border-red-200">
+                            <div>
+                                <h4 className="text-lg font-bold text-red-900">Force Master Scrape Active</h4>
+                                <p className="text-sm text-red-700 font-medium">WARNING: If ON, overrides daily schedule and scrapes 24/7 until turned off.</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, isMasterScrapeActive: !formData.isMasterScrapeActive })}
+                                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${formData.isMasterScrapeActive ? "bg-red-600 shadow-lg shadow-red-200" : "bg-gray-300"}`}
+                            >
+                                <span className={`inline-block h-6 w-6 transform rounded-full bg-white transition ${formData.isMasterScrapeActive ? "translate-x-7" : "translate-x-1"}`} />
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Daily Start Time (IST)</label>
+                                <input
+                                    type="time"
+                                    value={formData.masterScrapeStartTime || ""}
+                                    onChange={(e) => setFormData({ ...formData, masterScrapeStartTime: e.target.value })}
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none font-medium transition-all"
+                                />
+                                <p className="mt-1 text-xs text-gray-500">When to start auto-polling (e.g., 15:00 for 3:00 PM).</p>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Daily End Time (IST)</label>
+                                <input
+                                    type="time"
+                                    value={formData.masterScrapeEndTime || ""}
+                                    onChange={(e) => setFormData({ ...formData, masterScrapeEndTime: e.target.value })}
+                                    className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 outline-none font-medium transition-all"
+                                />
+                                <p className="mt-1 text-xs text-gray-500">When to stop auto-polling (e.g., 19:00 for 7:00 PM).</p>
+                            </div>
                         </div>
                     </div>
                 </div>

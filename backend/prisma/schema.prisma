@@ -145,6 +145,11 @@ model SiteSettings {
   playLiveEnabled   Boolean  @default(false)
   playLiveUrl       String?
   
+  // Master Scraper Controls
+  masterScrapeStartTime String?  @default("15:00")
+  masterScrapeEndTime   String?  @default("19:00")
+  isMasterScrapeActive  Boolean  @default(false)
+  
   // Favicon & Branding
   faviconUrl        String?
   appleTouchIconUrl String?
