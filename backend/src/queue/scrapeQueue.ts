@@ -1,5 +1,5 @@
 import { Queue, Worker, Job } from "bullmq";
-import Redis from "ioredis";
+import { redis } from "../utils/redis";
 import { logger } from "../utils/logger";
 import { scrapeLiveResult } from "../scrapers/liveScraper";
 import { smartUpsertResults } from "../services/smartUpsert";
@@ -7,17 +7,7 @@ import { writeCronLog } from "../cron/cronLogger";
 import { evaluateMatchProofs } from "../services/predictionService";
 import prisma from "../prisma";
 
-// Redis connection
-const redisOptions = {
-  host: process.env.REDIS_HOST || "127.0.0.1",
-  port: parseInt(process.env.REDIS_PORT || "6379", 10),
-  password: process.env.REDIS_PASSWORD || undefined,
-  maxRetriesPerRequest: null,
-};
-
-const connection = new Redis(redisOptions);
-
-export const scrapeQueue = new Queue("scrape-queue", { connection });
+export const scrapeQueue = new Queue("scrape-queue", { connection: redis });
 
 export interface ScrapeJobData {
   gameId: string;
@@ -107,7 +97,7 @@ export function startScrapeWorker() {
       throw error;
     }
   }, { 
-    connection, 
+    connection: redis, 
     concurrency: 1 // STRICT CONCURRENCY = 1 to prevent OOM
   });
 

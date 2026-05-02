@@ -3,12 +3,12 @@ import prisma from "../prisma";
 import { getISTNow, GAME_SCHEDULES } from "../config/gameSchedule";
 import { logger } from "../utils/logger";
 import { z } from "zod";
+import { redis } from "../utils/redis";
 
 const router = Router();
 
-// ─── Simple TTL Cache for High Traffic /today Endpoint ───────────────────────
-let todayCache: { data: any, expiry: number } | null = null;
-const CACHE_TTL_MS = 5000; // 5 seconds cache
+const CACHE_TTL_SEC = 5; // 5 seconds cache
+const CACHE_KEY = "cache:today";
 
 // ─── Helper: Get today's IST date as a UTC midnight Date ─────────────────────
 function getTodayISTDate(): { dateObj: Date; dateStr: string } {
@@ -19,9 +19,10 @@ function getTodayISTDate(): { dateObj: Date; dateStr: string } {
 // ─── GET /today — Returns ONLY today's results (IST-aware) ──────────────────
 router.get("/today", async (req, res) => {
   try {
-    if (todayCache && todayCache.expiry > Date.now()) {
+    const cachedData = await redis.get(CACHE_KEY);
+    if (cachedData) {
       res.setHeader("Cache-Control", "public, max-age=15, stale-while-revalidate=30");
-      return res.json({ success: true, data: todayCache.data, cached: true });
+      return res.json({ success: true, data: JSON.parse(cachedData), cached: true });
     }
 
     const { dateObj: todayDate, dateStr: todayStr } = getTodayISTDate();
@@ -150,10 +151,8 @@ router.get("/today", async (req, res) => {
       games: gamesWithResults,
     };
 
-    todayCache = {
-      data: responseData,
-      expiry: Date.now() + CACHE_TTL_MS
-    };
+    // Store in Redis with TTL
+    await redis.setex(CACHE_KEY, CACHE_TTL_SEC, JSON.stringify(responseData));
 
     res.setHeader("Cache-Control", "public, max-age=15, stale-while-revalidate=30");
     return res.json({
