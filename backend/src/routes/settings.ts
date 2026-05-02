@@ -42,6 +42,11 @@ router.get("/", async (req: Request, res: Response) => {
                     isMasterScrapeActive: false,
                     faviconUrl: null,
                     appleTouchIconUrl: null,
+                    isAdsEnabled: false,
+                    googleAdsenseClientId: null,
+                    headerAdUnit: null,
+                    inFeedAdUnit: null,
+                    stickyFooterAdUnit: null,
                 },
             });
         }
@@ -82,6 +87,11 @@ router.post("/", adminAuth, async (req: Request, res: Response) => {
             isMasterScrapeActive,
             faviconUrl,
             appleTouchIconUrl,
+            isAdsEnabled,
+            googleAdsenseClientId,
+            headerAdUnit,
+            inFeedAdUnit,
+            stickyFooterAdUnit,
         } = req.body;
 
         const settings = await prisma.siteSettings.upsert({
@@ -111,6 +121,11 @@ router.post("/", adminAuth, async (req: Request, res: Response) => {
                 isMasterScrapeActive,
                 faviconUrl,
                 appleTouchIconUrl,
+                isAdsEnabled,
+                googleAdsenseClientId,
+                headerAdUnit,
+                inFeedAdUnit,
+                stickyFooterAdUnit,
             },
             create: {
                 id: "global",
@@ -138,6 +153,11 @@ router.post("/", adminAuth, async (req: Request, res: Response) => {
                 isMasterScrapeActive,
                 faviconUrl,
                 appleTouchIconUrl,
+                isAdsEnabled,
+                googleAdsenseClientId,
+                headerAdUnit,
+                inFeedAdUnit,
+                stickyFooterAdUnit,
             },
         });
 

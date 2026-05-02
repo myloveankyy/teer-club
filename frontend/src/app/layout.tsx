@@ -108,6 +108,13 @@ export default async function RootLayout({
             dangerouslySetInnerHTML={{ __html: seoData.structuredDataJson }}
           />
         )}
+        {settings?.isAdsEnabled && settings?.googleAdsenseClientId && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${settings.googleAdsenseClientId}`}
+            crossOrigin="anonymous"
+          ></script>
+        )}
       </head>
       <body
         className="min-h-screen flex flex-col bg-white text-gray-900 overflow-x-hidden"

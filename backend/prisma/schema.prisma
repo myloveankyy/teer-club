@@ -153,6 +153,13 @@ model SiteSettings {
   // Favicon & Branding
   faviconUrl        String?
   appleTouchIconUrl String?
+
+  // Monetization (AdSense)
+  isAdsEnabled          Boolean @default(false)
+  googleAdsenseClientId String?
+  headerAdUnit          String?
+  inFeedAdUnit          String?
+  stickyFooterAdUnit    String?
 }
 
 model DomainSeoSettings {

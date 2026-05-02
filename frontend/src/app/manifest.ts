@@ -10,6 +10,9 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         }
     } catch (e) { }
 
+    const isIco = faviconUrl.toLowerCase().endsWith('.ico');
+    const iconType = isIco ? 'image/x-icon' : 'image/png';
+
     return {
         name: 'Teer Club',
         short_name: 'Teer Club',
@@ -22,12 +25,12 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
             {
                 src: faviconUrl,
                 sizes: '192x192',
-                type: 'image/png',
+                type: iconType,
             },
             {
                 src: faviconUrl,
                 sizes: '512x512',
-                type: 'image/png',
+                type: iconType,
             }
         ],
     }

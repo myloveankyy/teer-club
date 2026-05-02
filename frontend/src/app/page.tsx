@@ -8,6 +8,7 @@ import { TelegramBanner } from "@/components/TelegramBanner";
 import dynamic from "next/dynamic";
 
 import { LiveDiscussion } from "@/components/LiveDiscussion";
+import AdSlot from "@/components/ads/AdSlot";
 
 // Code splitting for below-the-fold heavy components
 const MoreByTeerClub = dynamic(() => import("@/components/MoreByTeerClub").then((mod) => mod.MoreByTeerClub));
@@ -122,10 +123,17 @@ export default async function Home() {
                 <TelegramBanner />
               </div>
             </div>
+            <div className="max-w-4xl mx-auto mt-6">
+               <AdSlot slotType="header" />
+            </div>
           </Container>
         </Section>
 
         <TodaysResults initialGames={initialGames} initialDate={initialDate} />
+
+        <Container>
+           <AdSlot slotType="inFeed" />
+        </Container>
 
         <Section className="!py-10 bg-white">
           <Container>
@@ -167,6 +175,11 @@ export default async function Home() {
         <WhyTeerPopular />
         <AboutTeer />
         <FAQ />
+        
+        {/* Mobile Sticky Footer Ad Wrapper */}
+        <div className="fixed bottom-0 left-0 right-0 z-[100] sm:hidden bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+            <AdSlot slotType="stickyFooter" format="rectangle" responsive={false} className="!m-0 max-h-[100px]" />
+        </div>
       </main>
     </PageLayout>
   );
