@@ -6,6 +6,7 @@ import { validateEnv } from "@/lib/env";
 import api from "@/lib/api";
 import { Tracker } from "@/components/shared/Tracker";
 import NotificationPrompt from "@/components/NotificationPrompt";
+import { RealtimeTracker } from "@/components/shared/RealtimeTracker";
 
 // Run validation when the server process boots
 if (typeof window === "undefined") {
@@ -122,6 +123,7 @@ export default async function RootLayout({
         <Providers initialSettings={settings}>
           <Tracker />
           <NotificationPrompt />
+          <RealtimeTracker />
           {children}
         </Providers>
       </body>

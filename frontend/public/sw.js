@@ -1,6 +1,5 @@
 // Teer Club Service Worker — Push Notifications + Click Tracking
 
-// Activate immediately and claim all clients
 self.addEventListener('install', function (event) {
     self.skipWaiting();
 });
@@ -24,68 +23,93 @@ self.addEventListener('push', function (event) {
             icon: '/favicon.ico',
             badge: '/favicon.ico',
             vibrate: [200, 100, 200],
-            data: { url: url, campaignId, apiUrl },
+            data: { url, campaignId, apiUrl },
             requireInteraction: true,
-            tag: campaignId || 'teer-notification' // Prevents duplicate notifications
+            tag: campaignId || 'teer-notification'
         })
     );
 });
 
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
-    const data = event.notification.data;
+    const data = event.notification.data || {};
 
-    // Construct the full target URL
+    // Build target URL for navigation
     const targetUrl = data.url && data.url.startsWith('http')
         ? data.url
         : (self.location.origin + (data.url || '/'));
 
-    event.waitUntil(
-        (async () => {
-            // 1. Click Tracking — report back to backend
-            if (data.campaignId && data.apiUrl) {
-                try {
-                    const subscription = await self.registration.pushManager.getSubscription();
-                    if (subscription) {
-                        const trackingUrl = data.apiUrl.endsWith('/api')
-                            ? `${data.apiUrl}/settings/notifications/click`
-                            : `${data.apiUrl}/api/settings/notifications/click`;
+    // Track click — fire-and-forget, does NOT block navigation
+    if (data.campaignId) {
+        event.waitUntil(trackClick(data));
+    }
 
-                        await fetch(trackingUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                endpoint: subscription.endpoint,
-                                campaignId: data.campaignId
-                            })
-                        });
-                    }
-                } catch (e) {
-                    // Silent fail — don't block user navigation for analytics
-                    console.warn("[SW] Click tracking failed:", e);
-                }
-            }
-
-            // 2. Navigate user to target URL
-            const windowClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-
-            // Try to focus an existing tab with matching URL
-            for (const client of windowClients) {
-                if (client.url === targetUrl && 'focus' in client) {
-                    return client.focus();
-                }
-            }
-
-            // Try to navigate an existing tab
-            for (const client of windowClients) {
-                if ('navigate' in client) {
-                    await client.navigate(targetUrl);
-                    return client.focus();
-                }
-            }
-
-            // Open new window as fallback
-            return clients.openWindow(targetUrl);
-        })()
-    );
+    // Navigate user immediately — separate waitUntil so it's not blocked by tracking
+    event.waitUntil(openTarget(targetUrl));
 });
+
+async function trackClick(data) {
+    // Build the tracking URL with multiple fallbacks
+    const baseUrl = data.apiUrl || self.location.origin;
+    const trackingUrl = baseUrl.includes('/api')
+        ? baseUrl.replace(/\/api\/?$/, '/api/settings/notifications/click')
+        : baseUrl + '/api/settings/notifications/click';
+
+    let subscription = null;
+    try {
+        subscription = await self.registration.pushManager.getSubscription();
+    } catch (e) {
+        // Can't get subscription — skip tracking
+        return;
+    }
+
+    if (!subscription) return;
+
+    const payload = JSON.stringify({
+        endpoint: subscription.endpoint,
+        campaignId: data.campaignId
+    });
+
+    // Attempt 1
+    try {
+        const res = await fetch(trackingUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload
+        });
+        if (res.ok) return; // Success
+    } catch (e) {
+        // First attempt failed
+    }
+
+    // Attempt 2 — retry after 1s
+    try {
+        await new Promise(r => setTimeout(r, 1000));
+        await fetch(trackingUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload
+        });
+    } catch (e) {
+        // Both attempts failed — silent fail, don't block user
+        console.warn('[SW] Click tracking failed after retry');
+    }
+}
+
+async function openTarget(targetUrl) {
+    try {
+        const windowClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+
+        // Focus existing matching tab
+        for (const client of windowClients) {
+            if (client.url === targetUrl && 'focus' in client) {
+                return client.focus();
+            }
+        }
+
+        // Open new window
+        return clients.openWindow(targetUrl);
+    } catch (e) {
+        return clients.openWindow(targetUrl);
+    }
+}

@@ -25,6 +25,7 @@ import seoRoutes from "./routes/seo.routes";
 import validationRouter from "./routes/validation.routes";
 import { aiRouter } from "./routes/ai";
 import { analyticsRouter } from "./routes/analytics";
+import realtimeAnalyticsRouter from "./routes/realtimeAnalytics";
 import { debugRouter } from "./routes/debug";
 import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
 import { SitemapService } from "./services/sitemap.service";
@@ -133,6 +134,7 @@ app.use("/api/admin/debug", debugRouter);
 app.use("/api/admin/seo", seoRoutes);
 app.use("/api/admin/validation", adminAuth, validationRouter);
 app.use("/api/analytics", analyticsRouter);
+app.use("/api/analytics", realtimeAnalyticsRouter);
 
 
 // ─── Seed Default Data ───────────────────────────────────────────────────────

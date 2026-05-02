@@ -267,7 +267,8 @@ export const api = {
   },
 
   analytics: {
-    getTopPages: () => fetchAPI<{ success: boolean; data: any[] }>("/analytics/admin/top-pages")
+    getTopPages: () => fetchAPI<{ success: boolean; data: any[] }>("/analytics/admin/top-pages"),
+    getRealtime: () => fetchAPI<{ success: boolean; data: any }>("/analytics/realtime"),
   },
   debug: {
     triggerResults: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/debug/results", { method: "POST" })

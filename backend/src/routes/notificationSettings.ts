@@ -143,39 +143,54 @@ router.post("/subscribe", async (req: Request, res: Response) => {
 router.post("/click", async (req: Request, res: Response) => {
     try {
         const { endpoint, campaignId } = req.body;
-        if (!endpoint || !campaignId) return res.status(400).json({ success: false });
+        logger.info(`[Push Click] Received — campaignId=${campaignId}, endpoint=${endpoint ? endpoint.slice(0, 50) + '...' : 'MISSING'}`);
+
+        if (!endpoint || !campaignId) {
+            logger.warn(`[Push Click] Rejected — missing endpoint or campaignId`);
+            return res.status(400).json({ success: false, error: "Missing endpoint or campaignId" });
+        }
 
         const subscriber = await prisma.pushSubscriber.findUnique({ where: { endpoint } });
-        if (subscriber) {
-            // Update last active
-            await prisma.pushSubscriber.update({
-                where: { id: subscriber.id },
-                data: { lastActive: new Date() }
-            });
-
-            // Try to find matching delivery log and mark as clicked
-            const log = await prisma.pushDeliveryLog.findFirst({
-                where: { subscriberId: subscriber.id, campaignId: campaignId }
-            });
-
-            if (log && !log.clicked) {
-                await prisma.pushDeliveryLog.update({
-                    where: { id: log.id },
-                    data: { clicked: true, clickedAt: new Date() }
-                });
-
-                // Increase click count on campaign
-                await prisma.pushCampaign.update({
-                    where: { id: campaignId },
-                    data: { clickCount: { increment: 1 } }
-                });
-
-                logger.info(`[Push] Click tracked for campaign ${campaignId} by subscriber ${subscriber.id}`);
-            }
+        if (!subscriber) {
+            logger.warn(`[Push Click] Subscriber not found for endpoint`);
+            return res.json({ success: true, tracked: false, reason: "subscriber_not_found" });
         }
-        res.json({ success: true });
+
+        // Update last active
+        await prisma.pushSubscriber.update({
+            where: { id: subscriber.id },
+            data: { lastActive: new Date() }
+        });
+
+        // Try to find matching delivery log and mark as clicked
+        const log = await prisma.pushDeliveryLog.findFirst({
+            where: { subscriberId: subscriber.id, campaignId: campaignId }
+        });
+
+        if (!log) {
+            logger.warn(`[Push Click] No delivery log found for subscriber=${subscriber.id} campaign=${campaignId}`);
+            return res.json({ success: true, tracked: false, reason: "no_delivery_log" });
+        }
+
+        if (log.clicked) {
+            logger.info(`[Push Click] Already tracked — subscriber=${subscriber.id} campaign=${campaignId}`);
+            return res.json({ success: true, tracked: true, reason: "already_tracked" });
+        }
+
+        await prisma.pushDeliveryLog.update({
+            where: { id: log.id },
+            data: { clicked: true, clickedAt: new Date() }
+        });
+
+        await prisma.pushCampaign.update({
+            where: { id: campaignId },
+            data: { clickCount: { increment: 1 } }
+        });
+
+        logger.info(`[Push Click] ✅ SUCCESS — campaign=${campaignId} subscriber=${subscriber.id}`);
+        res.json({ success: true, tracked: true });
     } catch (error) {
-        logger.error("Failed to track click", error);
+        logger.error("[Push Click] Error tracking click", error);
         res.status(500).json({ success: false });
     }
 });
