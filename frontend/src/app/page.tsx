@@ -4,6 +4,7 @@ import { Hero } from "@/components/Hero";
 import { TodaysResults } from "@/components/TodaysResults";
 import { Section, Container } from "@/components/ui/Grid";
 import api from "@/lib/api";
+import { TelegramBanner } from "@/components/TelegramBanner";
 import dynamic from "next/dynamic";
 
 // Code splitting for below-the-fold heavy components
@@ -112,9 +113,12 @@ export default async function Home() {
           <Container>
             <div className="mx-auto max-w-4xl text-center">
               <h2 className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-primary">Teer Result Today - Shillong & Khanapara</h2>
-              <p className="text-body text-gray-500 leading-relaxed max-w-3xl mx-auto">
+              <p className="text-body text-gray-500 leading-relaxed max-w-3xl mx-auto mb-8">
                 Welcome to the leading platform for <Link href="/results" className="text-primary font-bold hover:underline">Teer Result Today</Link>, expert <Link href="/common-numbers" className="text-primary font-bold hover:underline">Teer Common Numbers</Link>, and historical archives. We provide live updates for <Link href="/results/shillong/live" className="text-primary font-bold hover:underline">Shillong Teer Result</Link>, Khanapara, and Juwai games with 100% verified results.
               </p>
+              <div className="max-w-2xl mx-auto">
+                <TelegramBanner />
+              </div>
             </div>
           </Container>
         </Section>

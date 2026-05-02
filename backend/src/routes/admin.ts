@@ -160,5 +160,49 @@ router.get('/results', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+// ─── Manual Override ─────────────────────────────────────────────────────────
+
+router.post('/results/override', async (req, res) => {
+  try {
+    const { gameId, date, round1, round2, round3 } = req.body;
+    
+    const dateObj = new Date(date);
+    
+    const existing = await prisma.result.findUnique({
+      where: { gameId_date: { gameId, date: dateObj } }
+    });
+
+    let result;
+    if (existing) {
+      result = await prisma.result.update({
+        where: { id: existing.id },
+        data: {
+          round1: round1 !== undefined ? round1 : existing.round1,
+          round2: round2 !== undefined ? round2 : existing.round2,
+          round3: round3 !== undefined ? round3 : existing.round3,
+          verified: true,
+          confidence: "HIGH"
+        }
+      });
+    } else {
+      result = await prisma.result.create({
+        data: {
+          gameId,
+          date: dateObj,
+          round1,
+          round2,
+          round3,
+          verified: true,
+          confidence: "HIGH",
+          sourceCount: 1
+        }
+      });
+    }
+
+    res.json({ success: true, data: result });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 export default router;

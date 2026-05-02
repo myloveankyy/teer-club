@@ -219,6 +219,8 @@ export const api = {
       const query = searchParams.toString();
       return fetchAPI<{ success: boolean; data: AdminResultsData }>(`/admin/results${query ? `?${query}` : ""}`);
     },
+    overrideResult: (data: { gameId: string; date: string; round1?: string; round2?: string; round3?: string }) =>
+      fetchAPI<{ success: boolean; data: any }>("/admin/results/override", { method: "POST", body: JSON.stringify(data) }),
     debug: {
       triggerResults: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/debug/results", { method: "POST" })
     }

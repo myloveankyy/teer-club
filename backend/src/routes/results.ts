@@ -344,7 +344,54 @@ router.get("/:gameId/:date", async (req, res) => {
   }
 });
 
+// ─── GET /number/:number — Number frequency and history ─────────────────────
+router.get("/number/:number", async (req, res) => {
+  try {
+    const { number } = req.params;
+    
+    // Ensure the number is 2 digits for exact match (e.g., "05", "45")
+    const paddedNumber = number.padStart(2, '0');
 
+    // Find all results where round1 or round2 equals the number
+    const results = await prisma.result.findMany({
+      where: {
+        OR: [
+          { round1: paddedNumber },
+          { round2: paddedNumber },
+          { round3: paddedNumber }
+        ]
+      },
+      include: {
+        game: { select: { id: true, name: true, displayName: true } }
+      },
+      orderBy: {
+        date: 'desc'
+      },
+      take: 100 // limit to recent 100 hits
+    });
+
+    const stats = {
+      totalHits: results.length,
+      round1Hits: results.filter(r => r.round1 === paddedNumber).length,
+      round2Hits: results.filter(r => r.round2 === paddedNumber).length,
+      round3Hits: results.filter(r => r.round3 === paddedNumber).length,
+      lastHit: results.length > 0 ? results[0].date : null,
+      lastGame: results.length > 0 ? results[0].game.displayName : null,
+    };
+
+    return res.json({
+      success: true,
+      data: {
+        number: paddedNumber,
+        stats,
+        history: results
+      }
+    });
+
+  } catch (err: any) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 export default router;
 // Triggering backend reload to fix Prisma deadlock

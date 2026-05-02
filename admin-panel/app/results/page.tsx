@@ -37,6 +37,11 @@ export default function ResultsPage() {
   const [validationReport, setValidationReport] = useState<any[] | null>(null);
   const [showValidationModal, setShowValidationModal] = useState(false);
 
+  // Override state
+  const [showOverrideModal, setShowOverrideModal] = useState(false);
+  const [overrideData, setOverrideData] = useState({ gameId: "", date: new Date().toISOString().split('T')[0], round1: "", round2: "", round3: "" });
+  const [overrideRunning, setOverrideRunning] = useState(false);
+
   const loadData = useCallback(async (page = 1) => {
     try {
       setLoading(true);
@@ -164,6 +169,28 @@ export default function ResultsPage() {
     }
   };
 
+  const handleOverride = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setOverrideRunning(true);
+    try {
+      await api.admin.overrideResult({
+        gameId: overrideData.gameId,
+        date: new Date(overrideData.date).toISOString(),
+        round1: overrideData.round1 || undefined,
+        round2: overrideData.round2 || undefined,
+        round3: overrideData.round3 || undefined,
+      });
+      setShowOverrideModal(false);
+      setOverrideData({ gameId: "", date: new Date().toISOString().split('T')[0], round1: "", round2: "", round3: "" });
+      loadData(currentPage);
+    } catch (err: any) {
+      console.error("[Override Error]", err);
+      alert("Failed to override result: " + err.message);
+    } finally {
+      setOverrideRunning(false);
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -248,6 +275,15 @@ export default function ResultsPage() {
           </p>
         </div>
         <div className="flex gap-3">
+          <button
+            onClick={() => setShowOverrideModal(true)}
+            className="px-4 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            Manual Override
+          </button>
           <button
             onClick={() => setShowBackfillConfirm(true)}
             disabled={backfillRunning}
@@ -341,6 +377,93 @@ export default function ResultsPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Manual Override Modal */}
+      {showOverrideModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <form onSubmit={handleOverride} className="bg-white rounded-2xl border border-gray-200 shadow-2xl max-w-md w-full overflow-hidden">
+            <div className="p-6 border-b border-gray-100 bg-red-50 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center text-red-600">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">Manual Override</h3>
+                  <p className="text-sm text-red-600">Force update a live result</p>
+                </div>
+              </div>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Select Game *</label>
+                <select
+                  required
+                  value={overrideData.gameId}
+                  onChange={(e) => setOverrideData({ ...overrideData, gameId: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="" disabled>Select a Game</option>
+                  {data?.games.map(g => (
+                    <option key={g.id} value={g.id}>{g.displayName}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Result Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={overrideData.date}
+                  onChange={(e) => setOverrideData({ ...overrideData, date: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">F/R (Round 1)</label>
+                  <input
+                    type="text"
+                    maxLength={2}
+                    value={overrideData.round1}
+                    onChange={(e) => setOverrideData({ ...overrideData, round1: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 text-center font-bold"
+                    placeholder="XX"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">S/R (Round 2)</label>
+                  <input
+                    type="text"
+                    maxLength={2}
+                    value={overrideData.round2}
+                    onChange={(e) => setOverrideData({ ...overrideData, round2: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 text-center font-bold"
+                    placeholder="XX"
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="p-6 bg-gray-50 flex gap-3 justify-end border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setShowOverrideModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={overrideRunning || !overrideData.gameId || !overrideData.date}
+                className="px-6 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                {overrideRunning ? "Overriding..." : "Force Update"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 

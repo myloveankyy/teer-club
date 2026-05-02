@@ -148,16 +148,40 @@ export const GameCard = ({ game, customMessages }: GameCardProps) => {
                 /* Standard Results Map */
                 <div className="relative z-10 mb-8 space-y-3 flex-1 flex flex-col justify-center">
                     <div className={`flex items-center justify-between p-4 rounded-xl border ${roundBoxClasses}`}>
-                        <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] ${labelClasses}`}>F/R</span>
+                        <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] flex items-center gap-2 ${labelClasses}`}>
+                            F/R
+                            {round1 === "XX" && game.status !== "off" && game.status !== "declared" && (
+                                <span className="relative flex h-2 w-2" title="Waiting for Live Result">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                            )}
+                        </span>
                         <span className="text-3xl lg:text-4xl font-black tracking-tighter drop-shadow-sm">{round1}</span>
                     </div>
                     <div className={`flex items-center justify-between p-4 rounded-xl border ${roundBoxClasses}`}>
-                        <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] ${labelClasses}`}>S/R</span>
+                        <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] flex items-center gap-2 ${labelClasses}`}>
+                            S/R
+                            {round2 === "XX" && game.status !== "off" && game.status !== "declared" && (
+                                <span className="relative flex h-2 w-2" title="Waiting for Live Result">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                            )}
+                        </span>
                         <span className="text-3xl lg:text-4xl font-black tracking-tighter drop-shadow-sm">{round2}</span>
                     </div>
                     {game.hasRound3 && (
                         <div className={`flex items-center justify-between p-4 rounded-xl border ${roundBoxClasses}`}>
-                            <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] ${labelClasses}`}>T/R</span>
+                            <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] flex items-center gap-2 ${labelClasses}`}>
+                                T/R
+                                {round3 === "XX" && game.status !== "off" && game.status !== "declared" && (
+                                    <span className="relative flex h-2 w-2" title="Waiting for Live Result">
+                                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                    </span>
+                                )}
+                            </span>
                             <span className="text-3xl lg:text-4xl font-black tracking-tighter drop-shadow-sm">{round3}</span>
                         </div>
                     )}
