@@ -175,6 +175,18 @@ export const api = {
             getVapid: () => apiClient.get<{ success: boolean; data: { publicKey: string } }>("/settings/notifications/vapid-key"),
             subscribe: (data: any) => apiClient.post("/settings/notifications/subscribe", data)
         }
+    },
+    comments: {
+        getAll: (params?: { gameId?: string; date?: string; limit?: number }) => {
+            const searchParams = new URLSearchParams();
+            if (params?.gameId) searchParams.append("gameId", params.gameId);
+            if (params?.date) searchParams.append("date", params.date);
+            if (params?.limit) searchParams.append("limit", params.limit.toString());
+            const query = searchParams.toString();
+            return apiClient.get<{ success: boolean; data: any }>(`/comments${query ? `?${query}` : ""}`);
+        },
+        create: (data: { content: string; author?: string; gameId?: string; date?: string }) => 
+            apiClient.post<{ success: boolean; data: any; error?: string }>("/comments", data)
     }
 };
 

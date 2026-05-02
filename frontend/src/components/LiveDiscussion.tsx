@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import api from "@/lib/api";
 
 interface Comment {
@@ -21,6 +21,7 @@ export function LiveDiscussion({ gameId, date }: Props) {
   const [author, setAuthor] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchComments();
@@ -32,11 +33,7 @@ export function LiveDiscussion({ gameId, date }: Props) {
 
   const fetchComments = async () => {
     try {
-      const searchParams = new URLSearchParams();
-      if (gameId) searchParams.append("gameId", gameId);
-      if (date) searchParams.append("date", date);
-
-      const res = await api.client.get(`/comments?${searchParams.toString()}`);
+      const res = await api.comments.getAll({ gameId, date });
       if (res.data?.success) {
         setComments(res.data.data);
       }
@@ -44,6 +41,12 @@ export function LiveDiscussion({ gameId, date }: Props) {
       console.error("Failed to fetch comments", err);
     }
   };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [comments]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,9 +56,9 @@ export function LiveDiscussion({ gameId, date }: Props) {
     setError("");
 
     try {
-      const res = await api.client.post("/comments", {
+      const res = await api.comments.create({
         content: newComment,
-        author: author || "Anonymous",
+        author: author,
         gameId,
         date,
       });
@@ -135,7 +138,7 @@ export function LiveDiscussion({ gameId, date }: Props) {
           </div>
         </form>
 
-        <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+        <div ref={scrollRef} className="space-y-4 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
           {comments.length === 0 ? (
             <div className="text-center py-10 text-gray-500 text-sm border-2 border-dashed border-gray-100 rounded-xl">
               No comments yet. Be the first to share your target number!

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import prisma from "../prisma";
 import { z } from "zod";
+import crypto from "crypto";
 
 const router = Router();
 
@@ -48,8 +49,37 @@ router.post("/", async (req, res) => {
 
     const { content, author, gameId, date } = parsed.data;
 
-    // Optional: Extract IP address for basic spam prevention
-    const ipAddress = req.headers["x-forwarded-for"] || req.socket.remoteAddress || null;
+    const rawIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown_ip";
+    const ipAddress = Array.isArray(rawIp) ? rawIp[0] : rawIp;
+    const hashedIp = crypto.createHash("sha256").update(ipAddress).digest("hex");
+
+    // Rate Limiting: 1 message per 10 seconds per hashed IP
+    const tenSecondsAgo = new Date(Date.now() - 10000);
+    const recentComment = await prisma.comment.findFirst({
+      where: {
+        ipAddress: hashedIp,
+        createdAt: {
+          gte: tenSecondsAgo,
+        },
+      },
+    });
+
+    if (recentComment) {
+      return res.status(429).json({ success: false, error: "Please wait 10 seconds before posting another comment." });
+    }
+
+    // Anonymous Identity Generation
+    const anonId = `User_${hashedIp.substring(0, 6)}`;
+    let finalAuthor = author?.trim();
+    
+    if (finalAuthor) {
+      // Prevent impersonation by appending the unique hash
+      if (!finalAuthor.includes(anonId)) {
+        finalAuthor = `${finalAuthor} (${anonId})`;
+      }
+    } else {
+      finalAuthor = anonId;
+    }
 
     // Simple spam detection (e.g., links)
     let status = "APPROVED";
@@ -60,10 +90,10 @@ router.post("/", async (req, res) => {
     const comment = await prisma.comment.create({
       data: {
         content: content.trim(),
-        author: author?.trim() || "Anonymous",
+        author: finalAuthor,
         gameId,
         date,
-        ipAddress: ipAddress as string | null,
+        ipAddress: hashedIp,
         status,
       },
     });
