@@ -116,10 +116,9 @@ const serveSitemap = (req: Request, res: Response) => {
 app.get("/sitemap.xml", serveSitemap);
 app.get("/api/sitemap.xml", serveSitemap); // Ensures NGINX wildcard /api configurations pass through
 
-// ─── Rate Limiting ───────────────────────────────────────────────────────────
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 300,
+  max: 5000, // Increased to 5000 to prevent 429 errors on live server with high traffic
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, error: "Too many requests, please try again later." }
