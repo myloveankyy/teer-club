@@ -6,6 +6,10 @@ import { z } from "zod";
 
 const router = Router();
 
+// ─── Simple TTL Cache for High Traffic /today Endpoint ───────────────────────
+let todayCache: { data: any, expiry: number } | null = null;
+const CACHE_TTL_MS = 5000; // 5 seconds cache
+
 // ─── Helper: Get today's IST date as a UTC midnight Date ─────────────────────
 function getTodayISTDate(): { dateObj: Date; dateStr: string } {
   const { dateStr } = getISTNow();
@@ -15,6 +19,11 @@ function getTodayISTDate(): { dateObj: Date; dateStr: string } {
 // ─── GET /today — Returns ONLY today's results (IST-aware) ──────────────────
 router.get("/today", async (req, res) => {
   try {
+    if (todayCache && todayCache.expiry > Date.now()) {
+      res.setHeader("Cache-Control", "public, max-age=15, stale-while-revalidate=30");
+      return res.json({ success: true, data: todayCache.data, cached: true });
+    }
+
     const { dateObj: todayDate, dateStr: todayStr } = getTodayISTDate();
 
     // Get all enabled games with their schedule metadata
@@ -136,13 +145,20 @@ router.get("/today", async (req, res) => {
     });
 
 
+    const responseData = {
+      date: todayStr,
+      games: gamesWithResults,
+    };
+
+    todayCache = {
+      data: responseData,
+      expiry: Date.now() + CACHE_TTL_MS
+    };
+
     res.setHeader("Cache-Control", "public, max-age=15, stale-while-revalidate=30");
     return res.json({
       success: true,
-      data: {
-        date: todayStr,
-        games: gamesWithResults,
-      },
+      data: responseData,
     });
   } catch (err: any) {
     return res.status(500).json({ success: false, error: err.message });

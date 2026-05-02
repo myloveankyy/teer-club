@@ -2,6 +2,21 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import { FetchResult } from "../types/scraper";
 import { logger } from "../utils/logger";
+import { browserPool } from "./browserPool";
+
+// ─── Simple Mutex implementation ─────────────────────────────────────────────
+class Mutex {
+  private mutex = Promise.resolve();
+
+  lock(): Promise<() => void> {
+    let begin: (unlock: () => void) => void = unlock => {};
+    this.mutex = this.mutex.then(() => new Promise(begin));
+    return new Promise(res => {
+      begin = res;
+    });
+  }
+}
+const playwrightMutex = new Mutex();
 
 // ─── Dynamic Rendering Domain Registry ──────────────────────────────────────
 // Sites that are 100% JS-rendered and MUST use Playwright (static HTML is empty/minimal)
@@ -160,15 +175,14 @@ export async function fetchStatic(url: string, timeout: number = 15000): Promise
 
 // ─── Dynamic Fetch (Playwright) ──────────────────────────────────────────────
 export async function fetchDynamic(url: string, timeout: number = 30000): Promise<FetchResult> {
-  const { chromium } = require("playwright");
-  let browser;
+  // Acquire lock to prevent multiple Chromium contexts from overloading memory
+  const unlock = await playwrightMutex.lock();
+  let context;
+  let page;
   try {
-    logger.info(`Dynamic fetch 🎭: ${url}`);
-    browser = await chromium.launch({ headless: true });
-    const context = await browser.newContext({
-      userAgent: getRandomUA(),
-    });
-    const page = await context.newPage();
+    logger.info(`Dynamic fetch 🎭: ${url} (Acquired Lock, using Persistent Pool)`);
+    context = await browserPool.getContext(getRandomUA());
+    page = await context.newPage();
 
     // Set extra headers to look like a browser
     await page.setExtraHTTPHeaders({
@@ -184,13 +198,15 @@ export async function fetchDynamic(url: string, timeout: number = 30000): Promis
     // @ts-expect-error — Playwright evaluate runs in browser context where document.body.innerText exists
     const text = await page.evaluate(() => document.body.innerText.replace(/\s+/g, " ").trim());
 
-    await browser.close();
+    await context.close();
     logger.info(`Dynamic fetch ✅: ${url} (${html.length} bytes)`);
     return { html, text, method: "DYNAMIC", success: true };
   } catch (err: any) {
-    if (browser) await browser.close();
+    if (context) await context.close();
     logger.error(`Dynamic fetch failed: ${url}`, { error: err.message });
     return { html: "", text: "", method: "DYNAMIC", success: false, error: err.message };
+  } finally {
+    unlock(); // Release lock for next scrape job
   }
 }
 

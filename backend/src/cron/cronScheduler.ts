@@ -17,6 +17,7 @@ import { scrapeLiveResult } from "../scrapers/liveScraper";
 import { smartUpsertResults } from "../services/smartUpsert";
 import { writeCronLog, cleanupOldLogs } from "./cronLogger";
 import { evaluateMatchProofs } from "../services/predictionService";
+import { addScrapeJob } from "../queue/scrapeQueue";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -43,10 +44,6 @@ async function handleGameTick(gameId: string): Promise<void> {
     const state = cronJobs.get(gameId);
     if (!state || state.isRunning) return;
 
-    state.isRunning = true;
-    state.lastRun = new Date();
-    const tickStart = Date.now();
-
     try {
         const game = await prisma.game.findUnique({ where: { id: gameId } });
         if (!game || !game.isLiveScrapingEnabled || !game.isEnabled) {
@@ -55,67 +52,21 @@ async function handleGameTick(gameId: string): Promise<void> {
             return;
         }
 
-        logger.info(`[CRON] Tick started: ${state.gameName}`);
-        const result = await scrapeLiveResult(game);
-        const tickDuration = Date.now() - tickStart;
-
-        // Update Game health in DB
-        await prisma.game.update({
-            where: { id: gameId },
-            data: {
-                lastLiveScrapeAt: state.lastRun,
-                lastLiveScrapeStatus: result.status
-            }
+        logger.info(`[CRON] Tick started: ${state.gameName}. Pushing to BullMQ...`);
+        
+        // Push the scrape job to the background worker queue
+        await addScrapeJob({
+            gameId: game.id,
+            gameName: game.name,
         });
 
-        if (result.status === "SUCCESS" && result.date && (result.round1 || result.round2)) {
-            const upsert = await smartUpsertResults(gameId, [{
-                date: result.date,
-                round1: result.round1,
-                round2: result.round2,
-                round3: result.round3,
-                sourceMethod: "CRON_LIVE"
-            }]);
-
-            if (upsert.created || upsert.updated) {
-                if (result.date) {
-                    await evaluateMatchProofs(gameId, new Date(result.date), result.round1 || "", result.round2 || "");
-                }
-                await writeCronLog({
-                    game: game.name,
-                    status: "SUCCESS",
-                    round1: result.round1,
-                    round2: result.round2,
-                    resultDate: result.date,
-                    duration: result.duration,
-                    details: { upsert }
-                });
-                logger.info(`[CRON] Completed: ${state.gameName} | SUCCESS | FR: ${result.round1} | SR: ${result.round2} | ${tickDuration}ms`);
-            } else {
-                state.lastStatus = "NO_NEW_DATA";
-                logger.debug(`[CRON] Completed: ${state.gameName} | NO_NEW_DATA | ${tickDuration}ms`);
-            }
-        } else if (result.status === "FAILED") {
-            state.errorCount++;
-            await writeCronLog({
-                game: game.name,
-                status: "FAILED",
-                duration: result.duration,
-                error: result.error,
-                details: result.details
-            });
-            logger.warn(`[CRON] Completed: ${state.gameName} | FAILED | ${result.error} | ${tickDuration}ms | Errors: ${state.errorCount}`);
-        } else {
-            logger.debug(`[CRON] Completed: ${state.gameName} | ${result.status} | ${tickDuration}ms`);
-        }
-
-        state.lastStatus = result.status;
+        // Optimistically update lastRun
+        state.lastRun = new Date();
+        state.lastStatus = "QUEUED";
     } catch (err: any) {
-        logger.error(`[CRON] Error ticking ${state.gameName}: ${err.message}`);
-        state.lastStatus = "FAILED";
+        logger.error(`[CRON] Error queuing ${state.gameName}: ${err.message}`);
+        state.lastStatus = "QUEUE_FAILED";
         state.errorCount++;
-    } finally {
-        state.isRunning = false;
     }
 }
 
