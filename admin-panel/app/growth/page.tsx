@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import api from "../api/client";
 import { RecommendationCard } from "../../components/growth/RecommendationCard";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { RefreshCw, TrendingUp, Search, Link as LinkIcon, FileText } from "lucide-react";
+import { RefreshCw, TrendingUp, Search, Link as LinkIcon, FileText, CheckCircle } from "lucide-react";
 
 export default function GrowthCommandCenter() {
   const [dashboard, setDashboard] = useState<any>(null);
