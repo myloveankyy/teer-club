@@ -5,8 +5,10 @@
  */
 
 import { Router } from "express";
-import { getCronStatus, triggerManualScrape, triggerAllLiveScrapes, restartAllCrons } from "../cron/cronScheduler";
+import { getCronStatus, restartAllCrons } from "../cron/cronScheduler";
+import { addScrapeJob } from "../queue/scrapeQueue";
 import { getRecentCronLogs } from "../cron/cronLogger";
+import prisma from "../prisma";
 import { logger } from "../utils/logger";
 
 const router = Router();
@@ -15,9 +17,9 @@ const router = Router();
  * GET /api/admin/cron/status
  * Returns current state of all registered cron jobs.
  */
-router.get("/status", (req, res) => {
+router.get("/status", async (req, res) => {
     try {
-        const status = getCronStatus();
+        const status = await getCronStatus();
         res.json({
             success: true,
             data: status,
@@ -70,11 +72,14 @@ router.get("/logs", async (req, res) => {
  */
 router.post("/trigger-all", async (req, res) => {
     try {
-        const result = await triggerAllLiveScrapes();
+        const games = await prisma.game.findMany({ where: { isEnabled: true, isLiveScrapingEnabled: true } });
+        for (const game of games) {
+            await addScrapeJob({ gameId: game.id, gameName: game.name }, 1); // priority 1
+        }
         res.json({
             success: true,
-            message: "Global results fetch triggered",
-            data: result
+            message: "Global results fetch queued in BullMQ",
+            data: { queued: games.length }
         });
     } catch (err: any) {
         logger.error("[CronRoutes] Global trigger failed", err);
@@ -87,24 +92,33 @@ router.post("/trigger-all", async (req, res) => {
  * Manually triggers a scrape for a specific game (supports ID or Name).
  */
 router.post("/trigger/:game", async (req, res) => {
-    const { game } = req.params;
+    const { game: gameIdentifier } = req.params;
 
     try {
-        const result = await triggerManualScrape(game);
-        if (!result.success) {
-            return res.status(400).json({
+        const game = await prisma.game.findFirst({
+            where: {
+                OR: [
+                    { id: gameIdentifier },
+                    { name: gameIdentifier }
+                ]
+            }
+        });
+
+        if (!game) {
+            return res.status(404).json({
                 success: false,
-                error: result.error
+                error: "Game not found"
             });
         }
 
+        await addScrapeJob({ gameId: game.id, gameName: game.name }, 1); // priority 1
+
         res.json({
             success: true,
-            message: `Manual scrape success for ${game}`,
-            data: result.result,
+            message: `Manual scrape queued for ${game.name}`,
         });
     } catch (err: any) {
-        logger.error(`[CronRoutes] Manual trigger failed for ${game}`, err);
+        logger.error(`[CronRoutes] Manual trigger failed for ${gameIdentifier}`, err);
         res.status(500).json({ success: false, error: err.message });
     }
 });
@@ -116,7 +130,7 @@ router.post("/trigger/:game", async (req, res) => {
 router.post("/restart", async (req, res) => {
     try {
         await restartAllCrons();
-        const status = getCronStatus();
+        const status = await getCronStatus();
         res.json({
             success: true,
             message: "All cron jobs restarted successfully",
