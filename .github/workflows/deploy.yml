@@ -23,6 +23,8 @@ jobs:
       # ---- BUILD BACKEND (TypeScript & Prisma) ----
       - name: Install & Build Backend
         working-directory: ./backend
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
         run: |
           npm install
           npx prisma generate
