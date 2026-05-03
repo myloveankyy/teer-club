@@ -201,6 +201,22 @@ export default async function CommonNumbersPage() {
             )}
           </Container>
         </Section>
+
+        {/* Related Games / Verify Past Results */}
+        <Section background="gray" className="py-12 lg:py-24 border-t border-gray-200">
+          <Container>
+            <div className="text-center mb-10">
+              <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 uppercase tracking-tight">Verify Past Results</h2>
+              <p className="mt-2 text-gray-500 font-medium">Check historical performance of our common numbers</p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-4">
+              <a href="/results/shillong/previous-results" className="px-6 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 shadow-sm hover:shadow-md hover:border-blue-300 transition-all">Shillong History</a>
+              <a href="/results/khanapara/previous-results" className="px-6 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 shadow-sm hover:shadow-md hover:border-blue-300 transition-all">Khanapara History</a>
+              <a href="/results/juwai/previous-results" className="px-6 py-3 bg-white border border-gray-200 rounded-xl font-bold text-gray-900 shadow-sm hover:shadow-md hover:border-blue-300 transition-all">Juwai History</a>
+              <a href="/results" className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold shadow-sm hover:bg-blue-700 transition-all">View All Results</a>
+            </div>
+          </Container>
+        </Section>
       </main>
     </PageLayout>
   );

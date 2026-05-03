@@ -3,6 +3,7 @@ import prisma from "../prisma";
 import { z } from "zod";
 import crypto from "crypto";
 import { io } from "../index";
+import { adminAuth } from "../middleware/adminAuth";
 
 const router = Router();
 
@@ -112,7 +113,7 @@ router.post("/", async (req, res) => {
 // ─── Admin Routes ─────────────────────────────────────────────────────────
 
 // GET /api/comments/admin
-router.get("/admin", async (req, res) => {
+router.get("/admin", adminAuth, async (req, res) => {
   try {
     const { status, page = "1", limit = "50" } = req.query;
 
@@ -150,7 +151,7 @@ router.get("/admin", async (req, res) => {
 });
 
 // PUT /api/comments/admin/:id
-router.put("/admin/:id", async (req, res) => {
+router.put("/admin/:id", adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { status, content } = req.body;
@@ -171,7 +172,7 @@ router.put("/admin/:id", async (req, res) => {
 });
 
 // DELETE /api/comments/admin/:id
-router.delete("/admin/:id", async (req, res) => {
+router.delete("/admin/:id", adminAuth, async (req, res) => {
   try {
     const { id } = req.params;
 

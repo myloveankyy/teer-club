@@ -17,13 +17,16 @@ const MoreByTeerClub = dynamic(() => import("@/components/MoreByTeerClub").then(
 
 interface DynamicGamePageProps {
     gameName: string;
+    initialGame?: any;
+    initialResults?: any;
 }
 
-export function DynamicGamePage({ gameName }: DynamicGamePageProps) {
+export function DynamicGamePage({ gameName, initialGame, initialResults }: DynamicGamePageProps) {
     // Fetch Game Metadata
     const { data: gameResponse, isLoading: gameLoading, error: gameError } = useQuery({
         queryKey: ["game", gameName],
         queryFn: () => api.games.getById(gameName),
+        initialData: initialGame ? { data: { success: true, data: initialGame } } as any : undefined,
     });
 
     // Fetch Results (Historical + Today)
@@ -31,6 +34,7 @@ export function DynamicGamePage({ gameName }: DynamicGamePageProps) {
         queryKey: ["results", gameName],
         queryFn: () => api.results.getDashboard({ gameId: gameResponse?.data?.data?.id, limit: 10 }),
         enabled: !!gameResponse?.data?.data?.id,
+        initialData: initialResults ? { data: { success: true, data: { results: initialResults } } } as any : undefined,
         refetchInterval: 30 * 1000,
         refetchOnWindowFocus: true
     });

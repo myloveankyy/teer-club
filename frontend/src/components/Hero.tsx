@@ -167,7 +167,7 @@ interface HeroProps {
 
 export function Hero({ initialGames }: HeroProps) {
   return (
-    <Section background="white" className="!py-20 md:!py-32 border-b border-gray-100 bg-[radial-gradient(#f1f5f9_1.5px,transparent_1.5px)] [background-size:32px_32px]">
+    <Section background="white" className="!py-12 md:!py-20 border-b border-gray-100 bg-[radial-gradient(#f1f5f9_1.5px,transparent_1.5px)] [background-size:32px_32px]">
       <Container>
         <div className="flex flex-col gap-12 md:gap-16 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex-1 text-center lg:text-left max-w-2xl">
@@ -184,7 +184,7 @@ export function Hero({ initialGames }: HeroProps) {
               Access the fastest live Teer results and highly accurate common numbers daily. Our platform provides verified morning and evening results for all major teer games.
             </p>
             <div className="flex flex-wrap justify-center lg:justify-start gap-5">
-              <Button variant="primary" href="#todays-results" className="!px-12 shadow-2xl shadow-blue-500/10">
+              <Button variant="primary" href="/live" className="!px-12 shadow-2xl shadow-blue-500/10">
                 Check Teer Result
               </Button>
               <Button variant="secondary" href="/common-numbers" className="!px-12">

@@ -6,6 +6,7 @@ import { FAQ } from "@/components/FAQ";
 import { Button } from "@/components/ui/Button";
 import { LiveResultsClient } from "./LiveResultsClient";
 import Link from "next/link";
+import { LiveDiscussion } from "@/components/LiveDiscussion";
 
 export const revalidate = 10; // ISR: Revalidate every 10 seconds
 
@@ -135,6 +136,14 @@ export default async function LiveResultsPage() {
 
             {/* Client-side components handle real-time logic */}
             <LiveResultsClient initialData={initialData} settings={settings} />
+          </Container>
+        </Section>
+
+        <Section className="!py-10 bg-white">
+          <Container>
+            <div className="mx-auto max-w-5xl">
+               <LiveDiscussion date={initialData?.date} />
+            </div>
           </Container>
         </Section>
 

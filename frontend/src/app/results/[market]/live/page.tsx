@@ -9,6 +9,7 @@ interface PageProps {
 }
 
 import { DynamicGamePage } from "@/components/DynamicGamePage";
+import api from "@/lib/api";
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { market } = await params;
@@ -44,6 +45,24 @@ export default async function GameLivePage({ params }: PageProps) {
   const { market } = await params;
   const displayName = market.charAt(0).toUpperCase() + market.slice(1);
 
+  let initialGame = null;
+  let initialResults = null;
+
+  try {
+    const gameRes = await api.games.getById(market);
+    if (gameRes.data?.success) {
+      initialGame = gameRes.data.data;
+      if (initialGame?.id) {
+        const resultsRes = await api.results.getDashboard({ gameId: initialGame.id, limit: 10 });
+        if (resultsRes.data?.success) {
+          initialResults = resultsRes.data.data.results;
+        }
+      }
+    }
+  } catch (err) {
+    console.error(`[SSR] Failed to fetch data for market ${market}:`, err);
+  }
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -68,7 +87,7 @@ export default async function GameLivePage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <DynamicGamePage gameName={market} />
+      <DynamicGamePage gameName={market} initialGame={initialGame} initialResults={initialResults} />
     </>
   );
 }

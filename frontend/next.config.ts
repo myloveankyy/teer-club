@@ -25,15 +25,7 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Rewrites: Proxy sitemap to avoid metadata naming conflicts
-  async rewrites() {
-    return [
-      {
-        source: "/sitemap.xml",
-        destination: "/sitemap-static",
-      },
-    ];
-  },
+  // Rewrites removed as sitemap will be served via NGINX proxy to backend
 
   // Headers: Security, caching, and performance
   async headers() {

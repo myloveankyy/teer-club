@@ -32,6 +32,7 @@ import { analyticsRouter } from "./routes/analytics";
 import realtimeAnalyticsRouter from "./routes/realtimeAnalytics";
 import seoDashboardRouter from "./routes/seoDashboard.routes";
 import commentsRouter from "./routes/comments";
+import growthRouter from "./routes/growth";
 import { debugRouter } from "./routes/debug";
 import dreamRoutes from "./routes/dreamRoutes";
 import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
@@ -61,7 +62,13 @@ export const io = new Server(server, {
 // Configure Redis adapter for horizontal scaling
 const pubClient = redis;
 const subClient = pubClient.duplicate();
-io.adapter(createAdapter(pubClient, subClient));
+
+// Connect subClient (pubClient is already connected in lib/redis.ts)
+subClient.connect().then(() => {
+  io.adapter(createAdapter(pubClient, subClient));
+}).catch(err => {
+  logger.error("[Redis] Failed to connect subClient for Socket.IO adapter", err);
+});
 
 io.on("connection", (socket) => {
   logger.info(`[Socket.IO] Client connected: ${socket.id}`);
@@ -166,8 +173,11 @@ app.use("/api/admin/debug", debugRouter);
 app.use("/api/admin/seo", seoRoutes);
 app.use("/api/admin/seo-dashboard", adminAuth, seoDashboardRouter);
 app.use("/api/admin/validation", adminAuth, validationRouter);
+app.use("/api/growth", adminAuth, growthRouter);
 app.use("/api/analytics", analyticsRouter);
 app.use("/api/analytics", realtimeAnalyticsRouter);
+// Public comment routes (GET /, POST /) are open; admin routes need auth
+// Admin routes (/admin, /admin/:id) are protected via inline middleware in the router
 app.use("/api/comments", commentsRouter);
 app.use("/api/dreams", dreamRoutes);
 
@@ -287,10 +297,13 @@ process.on("SIGTERM", async () => {
 // ─── Global Error Handlers (prevent silent crashes) ──────────────────────────
 process.on("unhandledRejection", (reason: any) => {
   logger.error(`[FATAL] Unhandled Promise Rejection: ${reason?.message || reason}`);
+  // Don't exit on unhandled rejections — log and continue
 });
 
 process.on("uncaughtException", (error) => {
   logger.error(`[FATAL] Uncaught Exception: ${error.message}`);
+  // Exit so PM2 can auto-restart from a clean state
+  process.exit(1);
 });
 
 if (require.main === module) {

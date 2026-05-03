@@ -7,14 +7,10 @@ import api from "@/lib/api";
 import { TelegramBanner } from "@/components/TelegramBanner";
 import dynamic from "next/dynamic";
 
-import { LiveDiscussion } from "@/components/LiveDiscussion";
 import AdSlot from "@/components/ads/AdSlot";
 
 // Code splitting for below-the-fold heavy components
 const MoreByTeerClub = dynamic(() => import("@/components/MoreByTeerClub").then((mod) => mod.MoreByTeerClub));
-const WhatIsTeer = dynamic(() => import("@/components/WhatIsTeer").then((mod) => mod.WhatIsTeer));
-const WhyTeerPopular = dynamic(() => import("@/components/WhyTeerPopular").then((mod) => mod.WhyTeerPopular));
-const AboutTeer = dynamic(() => import("@/components/AboutTeer").then((mod) => mod.AboutTeer));
 const FAQ = dynamic(() => import("@/components/FAQ").then((mod) => mod.FAQ));
 
 export const revalidate = 60; // ISR: Revalidate every 60 seconds
@@ -135,13 +131,7 @@ export default async function Home() {
            <AdSlot slotType="inFeed" />
         </Container>
 
-        <Section className="!py-10 bg-white">
-          <Container>
-            <div className="mx-auto max-w-5xl">
-               <LiveDiscussion date={initialDate} />
-            </div>
-          </Container>
-        </Section>
+
 
         {/* SEO Content Section */}
         <Section className="!py-16 bg-gray-50/30 border-y border-gray-100">
@@ -171,9 +161,6 @@ export default async function Home() {
         </Section>
 
         <MoreByTeerClub />
-        <WhatIsTeer />
-        <WhyTeerPopular />
-        <AboutTeer />
         <FAQ />
         
         {/* Mobile Sticky Footer Ad Wrapper */}
