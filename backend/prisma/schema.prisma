@@ -91,11 +91,81 @@ model Page {
   image_caption      String?
   image_seo_filename String?
 
+  // SEO Dashboard Fields
+  canonical_url      String?
+  robots_directive   String?   @default("index,follow")
+  word_count         Int?      @default(0)
+  click_depth        Int?
+  template_group     String?
+  last_crawl_at      DateTime?
+
+  // SEO Health Sub-Scores (0-100 each)
+  score_technical    Int?      @default(0)
+  score_content      Int?      @default(0)
+  score_linking      Int?      @default(0)
+  score_performance  Int?      @default(0)
+  score_engagement   Int?      @default(0)
+  score_reasons      Json?
+
+  // Relations
+  outlinks           InternalLink[]     @relation("outlinks")
+  inlinks            InternalLink[]     @relation("inlinks")
+  indexingRequests    IndexingRequest[]
+
   @@index([url])
   @@index([type])
   @@index([status])
   @@index([seo_score])
   @@index([index_status])
+  @@index([template_group])
+  @@index([click_depth])
+}
+
+model InternalLink {
+  id          String   @id @default(uuid())
+  fromPageId  String
+  toPageId    String
+  anchorText  String?
+  context     String?
+  crawledAt   DateTime @default(now())
+
+  fromPage    Page     @relation("outlinks", fields: [fromPageId], references: [id], onDelete: Cascade)
+  toPage      Page     @relation("inlinks", fields: [toPageId], references: [id], onDelete: Cascade)
+
+  @@unique([fromPageId, toPageId, anchorText])
+  @@index([fromPageId])
+  @@index([toPageId])
+}
+
+model IndexingRequest {
+  id          String   @id @default(uuid())
+  pageId      String
+  url         String
+  status      String   @default("QUEUED")
+  method      String   @default("MANUAL")
+  error       String?
+  requestedAt DateTime @default(now())
+  processedAt DateTime?
+
+  page        Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([pageId])
+  @@index([requestedAt])
+}
+
+model CrawlSnapshot {
+  id              String   @id @default(uuid())
+  totalPages      Int
+  avgScore        Float
+  pagesWithIssues Int
+  thinPages       Int
+  notIndexed      Int
+  totalLinks      Int
+  crawlDuration   Int
+  crawledAt       DateTime @default(now())
+
+  @@index([crawledAt])
 }
 
 model Prediction {

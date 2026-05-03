@@ -320,6 +320,41 @@ export const api = {
     update: (id: string, data: any) => fetchAPI<{ success: boolean; data: any }>(`/dreams/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     delete: (id: string) => fetchAPI<{ success: boolean }>(`/dreams/${id}`, { method: "DELETE" }),
     migrate: (data: any) => fetchAPI<{ success: boolean; data: any }>("/dreams/migrate", { method: "POST", body: JSON.stringify(data) }),
+  },
+  seoDashboard: {
+    getOverview: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/overview"),
+    getPages: (params?: any) => {
+      const searchParams = new URLSearchParams();
+      if (params) {
+        Object.keys(params).forEach(key => {
+          if (params[key] !== undefined && params[key] !== '') {
+            searchParams.append(key, String(params[key]));
+          }
+        });
+      }
+      const query = searchParams.toString();
+      return fetchAPI<{ success: boolean; data: { pages: Page[]; pagination: any } }>(`/admin/seo-dashboard/pages${query ? `?${query}` : ""}`);
+    },
+    getPageDetail: (id: string) => fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/page/${id}`),
+    getLinkGraph: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/link-graph"),
+    getTemplates: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/seo-dashboard/templates"),
+    bulkUpdate: (data: any) => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/bulk-update", { method: "POST", body: JSON.stringify(data) }),
+    requestIndex: (data: any) => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/index-request", { method: "POST", body: JSON.stringify(data) }),
+    getIndexQueue: (params?: any) => {
+      const searchParams = new URLSearchParams();
+      if (params) {
+        Object.keys(params).forEach(key => {
+          if (params[key] !== undefined && params[key] !== '') {
+            searchParams.append(key, String(params[key]));
+          }
+        });
+      }
+      const query = searchParams.toString();
+      return fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/index-queue${query ? `?${query}` : ""}`);
+    },
+    triggerCrawl: () => fetchAPI<{ success: boolean; message: string }>("/admin/seo-dashboard/crawl", { method: "POST" }),
+    fixPage: (id: string) => fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/fix/${id}`, { method: "POST" }),
+    getCrawlStatus: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/crawl-status"),
   }
 };
 

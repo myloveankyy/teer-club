@@ -119,6 +119,13 @@ export function startScrapeWorker() {
       return { status: "success" };
     }
 
+    if (job.name === "seo-nightly-crawl") {
+      logger.info("[Worker] Running Nightly SEO Crawl...");
+      const { InternalCrawler } = require("../services/internalCrawler");
+      const result = await InternalCrawler.crawlAll();
+      return { status: "success", result };
+    }
+
     // Default Scrape Job handling
     const { gameId, gameName, targetDate } = job.data as ScrapeJobData;
     if (!gameId) {

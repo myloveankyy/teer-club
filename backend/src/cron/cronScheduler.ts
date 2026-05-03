@@ -78,6 +78,13 @@ export async function startAllCrons(): Promise<void> {
         });
         logger.info("[CRON] Registered Pre-Result Hype Triggers");
 
+        // 7. Register Nightly SEO Crawl (2:00 AM IST -> 20:30 UTC)
+        await scrapeQueue.add("seo-nightly-crawl", {}, {
+            repeat: { pattern: "30 20 * * *" },
+            jobId: "seo-nightly-crawl-job"
+        });
+        logger.info("[CRON] Registered Nightly SEO Crawl (20:30 UTC)");
+
         isInitialized = true;
         logger.info(`[CRON] ✅ Registered all distributed repeatable jobs. BullMQ engine is LIVE.`);
     } catch (error) {

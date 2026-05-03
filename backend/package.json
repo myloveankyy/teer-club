@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --max-old-space-size=4096 ./node_modules/tsx/dist/cli.cjs watch src/index.ts",
     "dev:worker": "node --max-old-space-size=4096 ./node_modules/tsx/dist/cli.cjs watch src/worker.ts",
-    "build": "tsc",
+    "build": "prisma generate && prisma migrate deploy && tsc",
     "start": "node --max-old-space-size=4096 dist/index.js",
     "start:worker": "node --max-old-space-size=4096 dist/worker.js",
     "db:generate": "prisma generate",
