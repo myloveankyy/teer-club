@@ -38,34 +38,51 @@ export function GamePreviousResults({ game, gameName, results, hasRound3 = false
           </Button>
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-border/50 bg-surface shadow-sm">
-          <div className="grid grid-cols-3 md:grid-cols-4 bg-surface-secondary/50 px-6 py-4 border-b border-border/50">
+        <div className="md:overflow-hidden md:rounded-2xl md:border md:border-border/50 md:bg-surface md:shadow-sm space-y-4 md:space-y-0">
+          <div className="hidden md:grid grid-cols-3 md:grid-cols-4 bg-surface-secondary/50 px-6 py-5 border-b border-border/50">
             <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">Date</span>
             <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest text-center">First Round</span>
             <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest text-center">Second Round</span>
             {hasRound3 && <span className="hidden md:block text-[10px] font-bold text-foreground/40 uppercase tracking-widest text-center">Special TR</span>}
           </div>
 
-          <div className="divide-y divide-border/50">
+          <div className="flex flex-col gap-4 md:gap-0 md:divide-y md:divide-border/50">
             {results.length === 0 ? (
-              <div className="px-6 py-20 text-center">
+              <div className="px-6 py-20 text-center bg-surface rounded-2xl md:bg-transparent md:rounded-none border border-border/50 md:border-none">
                 <p className="text-sm font-medium text-foreground/40">No results found for this game yet.</p>
               </div>
             ) : (
               results.map((result, idx) => (
-                <div key={idx} className="grid grid-cols-3 md:grid-cols-4 px-6 py-4 hover:bg-surface-secondary/20 transition-colors items-center">
-                  <span className="text-sm font-bold text-foreground">{result.date}</span>
-                  <div className="flex justify-center">
-                    <Badge variant="info" className="min-w-[40px] justify-center font-black !py-1">{result.fr}</Badge>
+                <div key={idx} className="flex flex-col md:grid md:grid-cols-4 px-5 py-4 md:px-6 md:py-6 bg-surface rounded-2xl md:rounded-none border border-border/50 md:border-none hover:bg-surface-secondary/20 transition-colors items-center gap-4 md:gap-0 shadow-sm md:shadow-none">
+                  {/* Mobile Date */}
+                  <div className="w-full text-center md:text-left border-b border-border/30 md:border-none pb-3 md:pb-0">
+                     <span className="text-[10px] font-bold text-foreground/50 md:text-sm md:text-foreground tracking-widest uppercase md:tracking-normal md:normal-case">{result.date}</span>
                   </div>
-                  <div className="flex justify-center">
-                    <Badge variant="info" className="min-w-[40px] justify-center font-black !py-1">{result.sr}</Badge>
+                  
+                  {/* FR / SR / TR container for mobile row */}
+                  <div className="flex w-full md:contents justify-around md:justify-start">
+                      <div className="flex flex-col md:flex-row w-full md:w-auto items-center justify-center gap-1 md:gap-0">
+                        <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest md:hidden">F/R</span>
+                        <span className="text-3xl font-black text-foreground md:text-base md:font-bold flex items-center justify-center min-w-[48px]">{result.fr}</span>
+                      </div>
+                      
+                      <div className="w-px bg-border/30 md:hidden mx-2"></div>
+
+                      <div className="flex flex-col md:flex-row w-full md:w-auto items-center justify-center gap-1 md:gap-0">
+                        <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest md:hidden">S/R</span>
+                        <span className="text-3xl font-black text-foreground md:text-base md:font-bold flex items-center justify-center min-w-[48px]">{result.sr}</span>
+                      </div>
+
+                      {hasRound3 && (
+                        <>
+                          <div className="w-px bg-border/30 md:hidden mx-2"></div>
+                          <div className="flex flex-col md:flex-row w-full md:w-auto items-center justify-center gap-1 md:gap-0">
+                            <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest md:hidden">T/R</span>
+                            <span className="text-3xl font-black text-amber-600 md:text-base md:font-bold flex items-center justify-center min-w-[48px]">{result.tr || "--"}</span>
+                          </div>
+                        </>
+                      )}
                   </div>
-                  {hasRound3 && (
-                    <div className="hidden md:flex justify-center">
-                      <Badge variant="warning" className="min-w-[40px] justify-center font-black !py-1">{result.tr || "--"}</Badge>
-                    </div>
-                  )}
                 </div>
               ))
             )}

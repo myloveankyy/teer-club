@@ -39,63 +39,69 @@ export const PredictionCard = ({
     };
 
     return (
-        <Card className="p-0 overflow-hidden" hover={true}>
-            <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-6 py-6">
-                <h3 className="text-xl lg:text-2xl font-bold text-white tracking-tight leading-none mb-1.5">{game} Teer</h3>
-                <p className="text-[10px] lg:text-[11px] font-bold text-gray-400 tracking-widest uppercase">Target Numbers</p>
+        <Card className="p-0 overflow-hidden border-gray-100 shadow-sm" hover={true}>
+            <div className="bg-white px-6 py-5 border-b border-gray-50">
+                <h3 className="text-lg lg:text-xl font-bold text-gray-900 tracking-tight leading-none mb-1">{game} Today Target</h3>
+                <p className="text-[10px] font-medium text-gray-400 uppercase tracking-widest">Calculated Prediction</p>
             </div>
 
-            <div className="p-6 space-y-6 bg-white">
+            <div className="p-6 space-y-8 bg-white">
                 <div>
-                    <h4 className="mb-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                        🎯 Direct Numbers
-                    </h4>
-                    <div className="flex flex-wrap gap-2.5 min-h-[48px]">
+                    <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                            Direct Numbers
+                        </h4>
+                        {!dateSlug && !isRevealed && !isCounting && (
+                            <span className="text-[10px] font-bold text-primary flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
+                                Locked
+                            </span>
+                        )}
+                    </div>
+                    
+                    <div className="min-h-[60px]">
                         {dateSlug ? (
                             <Link
                                 href={`/common-numbers/${dateSlug}`}
-                                className="flex grow h-12 px-6 items-center justify-center rounded-2xl bg-primary text-white font-bold transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-primary/20 uppercase tracking-widest text-[11px] lg:text-xs whitespace-nowrap"
+                                className="flex w-full h-14 items-center justify-center rounded-xl bg-gray-900 text-white font-bold transition-all hover:bg-gray-800 shadow-xl shadow-gray-200 uppercase tracking-widest text-xs"
                                 aria-label={`Unlock full ${game} report`}
                             >
-                                <span aria-hidden="true" className="mr-2">🔒</span> Unlock Full {game} Report
+                                Unlock Full Report
                             </Link>
                         ) : isRevealed ? (
-                            directNumbers.map((num, idx) => (
-                                <div
-                                    key={idx}
-                                    className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/5 text-xl font-bold text-primary border border-primary/10 shadow-sm transition-all hover:scale-110 hover:shadow-primary/20"
-                                >
-                                    {num}
-                                </div>
-                            ))
+                            <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+                                {directNumbers.map((num, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="flex h-14 items-center justify-center rounded-xl bg-white border border-gray-100 text-2xl font-black text-gray-900 shadow-sm transition-all hover:border-primary/30"
+                                    >
+                                        {num}
+                                    </div>
+                                ))}
+                            </div>
                         ) : isCounting ? (
-                            <div className="flex h-12 px-6 items-center justify-center rounded-xl bg-orange-50 text-orange-600 border border-orange-200" aria-live="polite">
-                                <span className="text-xs lg:text-sm font-bold animate-pulse">Unlocking in {timeLeft}s...</span>
+                            <div className="flex h-14 w-full items-center justify-center rounded-xl bg-gray-50 text-gray-500 border border-gray-100 border-dashed">
+                                <span className="text-sm font-bold animate-pulse uppercase tracking-widest">Unlocking in {timeLeft}s...</span>
                             </div>
                         ) : (
                             <button
                                 onClick={handleReveal}
-                                aria-label="Show direct numbers"
-                                className="flex h-12 px-8 items-center justify-center rounded-2xl bg-gray-900 text-white border-none transition-all hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-gray-900/20"
+                                className="flex h-14 w-full items-center justify-center rounded-xl bg-gray-900 text-white font-bold transition-all hover:bg-gray-800 shadow-xl shadow-gray-200 uppercase tracking-widest text-xs"
                             >
-                                <span className="text-sm font-bold flex items-center gap-2.5">
-                                    <span aria-hidden="true">🔒</span> Show Direct Numbers
-                                </span>
+                                Show Target Numbers
                             </button>
                         )}
                     </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t border-gray-100">
+                <div className="grid grid-cols-2 gap-8 pt-8 border-t border-gray-50">
                     <div>
-                        <h4 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                            🏠 House
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
+                        <h4 className="mb-4 text-[10px] font-bold uppercase tracking-wider text-gray-400">House</h4>
+                        <div className="grid grid-cols-2 gap-3">
                             {houseNumbers.map((num, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-lg font-bold text-emerald-700 border border-emerald-100"
+                                    className="flex h-12 items-center justify-center rounded-xl bg-gray-50 text-xl font-black text-gray-900 border border-gray-100"
                                 >
                                     {num}
                                 </div>
@@ -104,14 +110,12 @@ export const PredictionCard = ({
                     </div>
 
                     <div>
-                        <h4 className="mb-2 text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                            🔚 Ending
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
+                        <h4 className="mb-4 text-[10px] font-bold uppercase tracking-wider text-gray-400">Ending</h4>
+                        <div className="grid grid-cols-2 gap-3">
                             {endingNumbers.map((num, idx) => (
                                 <div
                                     key={idx}
-                                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-lg font-bold text-amber-700 border border-amber-100"
+                                    className="flex h-12 items-center justify-center rounded-xl bg-gray-50 text-xl font-black text-gray-900 border border-gray-100"
                                 >
                                     {num}
                                 </div>

@@ -168,9 +168,9 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
                                 <div className="flex flex-col gap-2 lg:gap-3 border-b-4 border-blue-600 w-fit pb-3 lg:pb-4">
                                     <div className="flex items-center gap-3 lg:gap-4">
                                         <div className="h-8 lg:h-10 w-8 lg:w-10 bg-[#111827] text-white flex items-center justify-center rounded-xl font-bold text-sm lg:text-lg shadow-md" aria-hidden="true">01</div>
-                                        <h2 className="text-xl lg:text-2xl font-bold text-[#111827] uppercase leading-none">Target Numbers</h2>
+                                        <h2 className="text-xl lg:text-2xl font-bold text-[#111827] uppercase leading-none">Today Target Numbers</h2>
                                     </div>
-                                    <span className="text-[9px] lg:text-[11px] font-bold text-gray-500 uppercase tracking-wider pl-11 lg:pl-14">House, Ending & Hit Numbers</span>
+                                    <span className="text-[10px] lg:text-[12px] font-medium text-gray-500 pl-11 lg:pl-14">Predicted numbers based on previous results & patterns</span>
                                 </div>
                                 <div className="grid gap-6 lg:gap-8">
                                     {predictions.map((p: any) => (

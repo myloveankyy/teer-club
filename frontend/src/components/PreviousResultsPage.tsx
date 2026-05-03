@@ -171,36 +171,32 @@ export function PreviousResultsPage({ gameId }: PreviousResultsPageProps) {
                 <section className="bg-gray-50/50 py-10 md:py-16">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="rounded-2xl border border-gray-200 overflow-hidden shadow-sm bg-white">
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left">
-                                    <thead>
-                                        <tr className="bg-gray-900 text-white">
-                                            <th className="px-5 md:px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Date</th>
-                                            <th className="px-5 md:px-6 py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">F/R</th>
-                                            <th className="px-5 md:px-6 py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">S/R</th>
-                                            {hasRound3 && (
-                                                <th className="px-5 md:px-6 py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">T/R</th>
-                                            )}
-                                            <th className="px-5 md:px-6 py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Prediction</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                            <div className="md:overflow-x-auto">
+                                <div className="w-full text-left space-y-4 md:space-y-0 px-4 md:px-0 bg-gray-50/50 md:bg-transparent pt-4 md:pt-0">
+                                    <div className={`hidden md:grid bg-gray-900 text-white border-b border-gray-800 ${hasRound3 ? 'grid-cols-5' : 'grid-cols-4'}`}>
+                                        <div className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Date</div>
+                                        <div className="px-6 py-5 text-center text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300">F/R</div>
+                                        <div className="px-6 py-5 text-center text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">S/R</div>
+                                        {hasRound3 && (
+                                            <div className="px-6 py-5 text-center text-[10px] font-black uppercase tracking-[0.2em] text-amber-300">T/R</div>
+                                        )}
+                                        <div className="px-6 py-5 text-center text-[10px] font-black uppercase tracking-[0.2em] text-emerald-300">Prediction</div>
+                                    </div>
+                                    <div className="flex flex-col gap-4 md:gap-0 md:divide-y md:divide-gray-100 pb-4 md:pb-0">
                                         {isLoading ? (
                                             Array.from({ length: 10 }).map((_, i) => (
-                                                <tr key={i} className={`animate-pulse ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
-                                                    <td className="px-5 md:px-6 py-5"><div className="h-4 bg-gray-100 rounded-lg w-28" /></td>
-                                                    <td className="px-5 md:px-6 py-5"><div className="h-8 bg-gray-100 rounded-lg w-12 mx-auto" /></td>
-                                                    <td className="px-5 md:px-6 py-5"><div className="h-8 bg-gray-100 rounded-lg w-12 mx-auto" /></td>
-                                                    {hasRound3 && <td className="px-5 md:px-6 py-5"><div className="h-8 bg-gray-100 rounded-lg w-12 mx-auto" /></td>}
-                                                    <td className="px-5 md:px-6 py-5"><div className="h-8 bg-gray-100 rounded-lg w-20 mx-auto" /></td>
-                                                </tr>
+                                                <div key={i} className={`hidden md:grid ${hasRound3 ? 'grid-cols-5' : 'grid-cols-4'} animate-pulse ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
+                                                    <div className="px-6 py-6"><div className="h-4 bg-gray-100 rounded-lg w-28" /></div>
+                                                    <div className="px-6 py-6"><div className="h-8 bg-gray-100 rounded-lg w-12 mx-auto" /></div>
+                                                    <div className="px-6 py-6"><div className="h-8 bg-gray-100 rounded-lg w-12 mx-auto" /></div>
+                                                    {hasRound3 && <div className="px-6 py-6"><div className="h-8 bg-gray-100 rounded-lg w-12 mx-auto" /></div>}
+                                                    <div className="px-6 py-6"><div className="h-8 bg-gray-100 rounded-lg w-20 mx-auto" /></div>
+                                                </div>
                                             ))
                                         ) : results.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={hasRound3 ? 5 : 4} className="px-6 py-20 text-center font-bold text-gray-300 uppercase tracking-widest">
-                                                    No results found.
-                                                </td>
-                                            </tr>
+                                            <div className="px-6 py-20 text-center font-bold text-gray-300 uppercase tracking-widest bg-white rounded-2xl md:rounded-none">
+                                                No results found.
+                                            </div>
                                         ) : (
                                             results.map((result: any, idx: number) => {
                                                 const dStr = result.date.split("T")[0];
@@ -209,62 +205,79 @@ export function PreviousResultsPage({ gameId }: PreviousResultsPageProps) {
                                                 const r2 = result.round2 || "XX";
                                                 const r3 = result.round3 || "XX";
                                                 return (
-                                                    <tr key={result.id} className={`border-b border-gray-100 last:border-b-0 transition-colors duration-200 hover:bg-indigo-50/40 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
-                                                        <td className="px-5 md:px-6 py-4">
-                                                            <div className="flex items-center gap-2.5">
-                                                                <span className="text-sm font-bold text-gray-800 tracking-tight">
+                                                    <div key={result.id} className={`flex flex-col md:grid ${hasRound3 ? 'md:grid-cols-5' : 'md:grid-cols-4'} bg-white md:bg-transparent rounded-2xl md:rounded-none border border-gray-200 md:border-none shadow-sm md:shadow-none hover:bg-indigo-50/40 transition-all duration-200 items-center gap-4 md:gap-0 ${idx % 2 === 0 ? "md:bg-white" : "md:bg-gray-50/50"}`}>
+                                                        {/* Mobile Date Row */}
+                                                        <div className="w-full text-center md:text-left border-b border-gray-100 md:border-none pb-3 md:pb-0 px-0 md:px-6 md:py-6">
+                                                            <div className="flex items-center justify-center md:justify-start gap-2.5 pt-4 md:pt-0">
+                                                                <span className="text-[10px] font-bold text-gray-400 md:text-sm md:text-gray-800 tracking-widest uppercase md:tracking-tight md:normal-case">
                                                                     {new Date(result.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}
                                                                 </span>
                                                                 {idx === 0 && page === 1 && (
-                                                                    <Badge variant="success" className="animate-pulse !text-[8px]">LATEST</Badge>
+                                                                    <Badge variant="success" className="animate-pulse !text-[8px] uppercase">Latest</Badge>
                                                                 )}
                                                             </div>
-                                                        </td>
-                                                        <td className="px-5 md:px-6 py-4 text-center">
-                                                            <span className={`inline-flex items-center justify-center min-w-[44px] px-3 py-1.5 rounded-lg text-sm font-black tracking-tight ${r1 !== "XX" ? "bg-indigo-100 text-indigo-700 shadow-sm" : "bg-gray-100 text-gray-300"}`}>
-                                                                {r1}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-5 md:px-6 py-4 text-center">
-                                                            <span className={`inline-flex items-center justify-center min-w-[44px] px-3 py-1.5 rounded-lg text-sm font-black tracking-tight ${r2 !== "XX" ? "bg-violet-100 text-violet-700 shadow-sm" : "bg-gray-100 text-gray-300"}`}>
-                                                                {r2}
-                                                            </span>
-                                                        </td>
-                                                        {hasRound3 && (
-                                                            <td className="px-5 md:px-6 py-4 text-center">
-                                                                <span className={`inline-flex items-center justify-center min-w-[44px] px-3 py-1.5 rounded-lg text-sm font-black tracking-tight ${r3 !== "XX" ? "bg-amber-100 text-amber-700 shadow-sm" : "bg-gray-100 text-gray-300"}`}>
-                                                                    {r3}
+                                                        </div>
+
+                                                        {/* FR / SR / TR */}
+                                                        <div className="flex w-full md:contents justify-around md:justify-start">
+                                                            <div className="flex flex-col md:flex-row w-full md:w-auto items-center justify-center gap-1 md:gap-0 px-0 md:px-6 md:py-6">
+                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest md:hidden">F/R</span>
+                                                                <span className={`inline-flex items-center justify-center min-w-[48px] h-10 md:h-12 px-3 py-1.5 rounded-xl text-2xl md:text-lg font-black tracking-tight transition-all border ${r1 !== "XX" ? "bg-indigo-50 text-indigo-700 md:bg-indigo-100 md:text-indigo-700 md:shadow-sm" : "bg-gray-50 text-gray-300 md:bg-gray-100"}`}>
+                                                                    {r1}
                                                                 </span>
-                                                            </td>
-                                                        )}
-                                                        <td className="px-5 md:px-6 py-4">
+                                                            </div>
+                                                            
+                                                            <div className="w-px bg-gray-100 md:hidden mx-2"></div>
+
+                                                            <div className="flex flex-col md:flex-row w-full md:w-auto items-center justify-center gap-1 md:gap-0 px-0 md:px-6 md:py-6">
+                                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest md:hidden">S/R</span>
+                                                                <span className={`inline-flex items-center justify-center min-w-[48px] h-10 md:h-12 px-3 py-1.5 rounded-xl text-2xl md:text-lg font-black tracking-tight transition-all border ${r2 !== "XX" ? "bg-violet-50 text-violet-700 md:bg-violet-100 md:text-violet-700 md:shadow-sm" : "bg-gray-50 text-gray-300 md:bg-gray-100"}`}>
+                                                                    {r2}
+                                                                </span>
+                                                            </div>
+
+                                                            {hasRound3 && (
+                                                                <>
+                                                                    <div className="w-px bg-gray-100 md:hidden mx-2"></div>
+                                                                    <div className="flex flex-col md:flex-row w-full md:w-auto items-center justify-center gap-1 md:gap-0 px-0 md:px-6 md:py-6">
+                                                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest md:hidden">T/R</span>
+                                                                        <span className={`inline-flex items-center justify-center min-w-[48px] h-10 md:h-12 px-3 py-1.5 rounded-xl text-2xl md:text-lg font-black tracking-tight transition-all border ${r3 !== "XX" ? "bg-amber-50 text-amber-700 md:bg-amber-100 md:text-amber-700 md:shadow-sm" : "bg-gray-50 text-gray-300 md:bg-gray-100"}`}>
+                                                                            {r3}
+                                                                        </span>
+                                                                    </div>
+                                                                </>
+                                                            )}
+                                                        </div>
+
+                                                        {/* Prediction Row on Mobile */}
+                                                        <div className="w-full flex justify-center border-t border-gray-100 md:border-none pt-3 md:pt-0 pb-4 md:pb-0 px-0 md:px-6 md:py-6">
                                                             <div className="flex flex-col items-center gap-1.5">
                                                                 {pred ? (
-                                                                    <>
-                                                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter">
+                                                                    <div className="flex flex-col items-center gap-1 md:gap-1.5">
+                                                                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                                                             {Array.isArray(pred.commonNumbers) ? pred.commonNumbers.slice(0, 2).join(", ") : ""}
                                                                         </span>
                                                                         {pred.directMatch ? (
-                                                                            <Badge variant="success" className="!text-[8px]">Direct Match</Badge>
+                                                                            <Badge variant="success" className="!text-[9px] px-2 py-0.5">Direct Match</Badge>
                                                                         ) : pred.houseMatch ? (
-                                                                            <Badge variant="info" className="!text-[8px]">Prophetic Hit</Badge>
+                                                                            <Badge variant="info" className="!text-[9px] px-2 py-0.5">Prophetic Hit</Badge>
                                                                         ) : pred.endingMatch ? (
-                                                                            <Badge variant="warning" className="!text-[8px]">Terminal Hit</Badge>
+                                                                            <Badge variant="warning" className="!text-[9px] px-2 py-0.5">Terminal Hit</Badge>
                                                                         ) : (
-                                                                            <Badge variant="neutral" className="!text-[8px]">Deviation</Badge>
+                                                                            <Badge variant="neutral" className="!text-[9px] px-2 py-0.5 text-gray-400 bg-gray-100 border-transparent">Deviation</Badge>
                                                                         )}
-                                                                    </>
+                                                                    </div>
                                                                 ) : (
                                                                     <span className="text-gray-200 text-[10px] font-bold uppercase tracking-widest">—</span>
                                                                 )}
                                                             </div>
-                                                        </td>
-                                                    </tr>
+                                                        </div>
+                                                    </div>
                                                 );
                                             })
                                         )}
-                                    </tbody>
-                                </table>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Pagination */}

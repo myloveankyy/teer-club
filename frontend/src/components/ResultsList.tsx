@@ -102,24 +102,22 @@ export function ResultsList() {
           </div>
 
           <Card className="overflow-hidden !p-0 !rounded-2xl border-border bg-surface shadow-sm">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="bg-gray-50/50">
-                    <th className="px-6 py-5 text-[10px] lg:text-[11px] font-extrabold uppercase tracking-widest text-gray-400">Archived Date</th>
-                    <th className="px-6 py-5 text-center text-[10px] lg:text-[11px] font-extrabold uppercase tracking-widest text-gray-400">First Round</th>
-                    <th className="px-6 py-5 text-center text-[10px] lg:text-[11px] font-extrabold uppercase tracking-widest text-gray-400">Second Round</th>
-                    {game?.hasRound3 && (
-                      <th className="px-6 py-5 text-center text-[10px] lg:text-[11px] font-extrabold uppercase tracking-widest text-blue-600">Special TR</th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/50">
+            <div className="md:overflow-x-auto">
+              <div className="w-full text-left space-y-4 md:space-y-0">
+                <div className="hidden md:grid bg-gray-50/50 grid-cols-3 md:grid-cols-4 border-b border-border/50">
+                  <div className="px-6 py-5 text-[10px] lg:text-[11px] font-extrabold uppercase tracking-widest text-gray-400">Archived Date</div>
+                  <div className="px-6 py-5 text-center text-[10px] lg:text-[11px] font-extrabold uppercase tracking-widest text-gray-400">First Round</div>
+                  <div className="px-6 py-5 text-center text-[10px] lg:text-[11px] font-extrabold uppercase tracking-widest text-gray-400">Second Round</div>
+                  {game?.hasRound3 && (
+                    <div className="px-6 py-5 text-center text-[10px] lg:text-[11px] font-extrabold uppercase tracking-widest text-blue-600">Special TR</div>
+                  )}
+                </div>
+                <div className="flex flex-col gap-4 md:gap-0 md:divide-y md:divide-border/50 bg-surface">
                   {results.slice(0, 5).map((r: any, idx: number) => (
-                    <tr key={r.id} className="group hover:bg-surface-secondary/20 transition-all">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <span className="text-sm font-bold text-foreground">
+                    <div key={r.id} className="flex flex-col md:grid md:grid-cols-4 px-5 py-4 md:px-0 md:py-0 bg-white md:bg-transparent rounded-2xl md:rounded-none border border-border/50 md:border-none shadow-sm md:shadow-none hover:bg-surface-secondary/20 transition-all items-center gap-4 md:gap-0">
+                      <div className="w-full text-center md:text-left border-b border-border/30 md:border-none pb-3 md:pb-0 px-0 md:px-6 md:py-6">
+                        <div className="flex flex-col md:flex-row items-center gap-2 md:gap-3 justify-center md:justify-start">
+                          <span className="text-[10px] font-bold text-foreground/50 md:text-sm md:text-foreground tracking-widest uppercase md:tracking-normal md:normal-case">
                             {new Date(r.date).toLocaleDateString("en-GB", {
                               day: "2-digit",
                               month: "short",
@@ -127,31 +125,44 @@ export function ResultsList() {
                             })}
                           </span>
                           {idx === 0 && (
-                            <Badge variant="success" className="!px-1.5 !py-0.5 text-[9px]">LATEST</Badge>
+                            <Badge variant="success" className="!px-1.5 !py-0.5 text-[9px] uppercase">Latest</Badge>
                           )}
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex items-center justify-center min-w-[48px] h-9 px-3 rounded-xl text-sm font-black transition-all border ${(!r.round1 || r.round1 === '--') ? 'bg-gray-50/50 text-gray-300 border-gray-100 border-dashed' : (r.round1 === 'OFF' ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-white text-gray-900 border-gray-200 shadow-sm')}`}>
-                          {(!r.round1 || r.round1 === '--') ? 'XX' : r.round1}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`inline-flex items-center justify-center min-w-[48px] h-9 px-3 rounded-xl text-sm font-black transition-all border ${(!r.round2 || r.round2 === '--') ? 'bg-gray-50/50 text-gray-300 border-gray-100 border-dashed' : (r.round2 === 'OFF' ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-white text-gray-900 border-gray-200 shadow-sm')}`}>
-                          {(!r.round2 || r.round2 === '--') ? 'XX' : r.round2}
-                        </span>
-                      </td>
-                      {game?.hasRound3 && (
-                        <td className="px-6 py-4 text-center">
-                          <span className={`inline-flex items-center justify-center min-w-[48px] h-9 px-3 rounded-xl text-sm font-black transition-all border ${(!r.round3 || r.round3 === '--') ? 'bg-purple-50/50 text-purple-300 border-purple-100 border-dashed' : (r.round3 === 'OFF' ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-purple-50 text-purple-700 border-purple-200 shadow-sm')}`}>
-                            {(!r.round3 || r.round3 === '--') ? 'XX' : r.round3}
-                          </span>
-                        </td>
-                      )}
-                    </tr>
+                      </div>
+                      
+                      <div className="flex w-full md:contents justify-around md:justify-start">
+                          <div className="flex flex-col md:flex-row w-full md:w-auto items-center justify-center gap-1 md:gap-0 px-0 md:px-6 md:py-6">
+                            <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest md:hidden">F/R</span>
+                            <span className={`inline-flex items-center justify-center min-w-[48px] h-9 px-3 rounded-xl text-xl md:text-sm font-black transition-all border ${(!r.round1 || r.round1 === '--') ? 'bg-gray-50/50 text-gray-300 border-gray-100 border-dashed' : (r.round1 === 'OFF' ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-white text-gray-900 border-gray-200 md:shadow-sm')}`}>
+                              {(!r.round1 || r.round1 === '--') ? 'XX' : r.round1}
+                            </span>
+                          </div>
+
+                          <div className="w-px bg-border/30 md:hidden mx-2"></div>
+
+                          <div className="flex flex-col md:flex-row w-full md:w-auto items-center justify-center gap-1 md:gap-0 px-0 md:px-6 md:py-6">
+                            <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest md:hidden">S/R</span>
+                            <span className={`inline-flex items-center justify-center min-w-[48px] h-9 px-3 rounded-xl text-xl md:text-sm font-black transition-all border ${(!r.round2 || r.round2 === '--') ? 'bg-gray-50/50 text-gray-300 border-gray-100 border-dashed' : (r.round2 === 'OFF' ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-white text-gray-900 border-gray-200 md:shadow-sm')}`}>
+                              {(!r.round2 || r.round2 === '--') ? 'XX' : r.round2}
+                            </span>
+                          </div>
+
+                          {game?.hasRound3 && (
+                            <>
+                                <div className="w-px bg-border/30 md:hidden mx-2"></div>
+                                <div className="flex flex-col md:flex-row w-full md:w-auto items-center justify-center gap-1 md:gap-0 px-0 md:px-6 md:py-6">
+                                  <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest md:hidden">T/R</span>
+                                  <span className={`inline-flex items-center justify-center min-w-[48px] h-9 px-3 rounded-xl text-xl md:text-sm font-black transition-all border ${(!r.round3 || r.round3 === '--') ? 'bg-purple-50/50 text-purple-300 border-purple-100 border-dashed' : (r.round3 === 'OFF' ? 'bg-slate-50 text-slate-400 border-slate-200' : 'bg-purple-50 text-purple-700 border-purple-200 md:shadow-sm')}`}>
+                                    {(!r.round3 || r.round3 === '--') ? 'XX' : r.round3}
+                                  </span>
+                                </div>
+                            </>
+                          )}
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              </div>
             </div>
             {results.length === 0 && (
               <div>
