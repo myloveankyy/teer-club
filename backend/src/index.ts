@@ -108,19 +108,29 @@ app.use(compression());
 // Serve Sitemap dynamically with proper headers and fallback
 const serveSitemap = (req: Request, res: Response) => {
   try {
-    const xml = SitemapService.readXml();
+    // Extract filename from URL (e.g. sitemap.xml, sitemap-static.xml)
+    const filename = req.path.split('/').pop() || 'sitemap.xml';
+    
+    // Safety check to prevent path traversal
+    if (!filename.startsWith('sitemap') || !filename.endsWith('.xml')) {
+        return res.status(404).send('Not found');
+    }
+
+    const xml = SitemapService.readXml(filename);
     res.set("Content-Type", "application/xml");
     res.set("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=600");
     res.status(200).send(xml);
   } catch (err) {
-    logger.error("[SITEMAP] Failed to serve sitemap.xml", err);
+    logger.error("[SITEMAP] Failed to serve sitemap", err);
     res.set("Content-Type", "application/xml");
     res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>`);
   }
 };
 
 app.get("/sitemap.xml", serveSitemap);
-app.get("/api/sitemap.xml", serveSitemap); // Ensures NGINX wildcard /api configurations pass through
+app.get("/api/sitemap.xml", serveSitemap);
+app.get("/sitemap-*.xml", serveSitemap);
+app.get("/api/sitemap-*.xml", serveSitemap);
 
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

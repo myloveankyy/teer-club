@@ -176,12 +176,13 @@ export class SitemapService {
     /**
      * Read the current sitemap XML from disk.
      */
-    static readXml(): string {
-        if (fs.existsSync(SITEMAP_PATH)) {
+    static readXml(filename: string = 'sitemap.xml'): string {
+        const filePath = path.join(FRONTEND_PUBLIC, filename);
+        if (fs.existsSync(filePath)) {
             try {
-                return fs.readFileSync(SITEMAP_PATH, 'utf-8');
+                return fs.readFileSync(filePath, 'utf-8');
             } catch (err) {
-                logger.error('[SITEMAP] Failed to read sitemap.xml', err);
+                logger.error(`[SITEMAP] Failed to read ${filename}`, err);
             }
         }
         return EMPTY_SITEMAP_XML;

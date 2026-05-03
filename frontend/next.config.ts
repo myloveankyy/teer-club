@@ -25,8 +25,19 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Rewrites removed as sitemap will be served via NGINX proxy to backend
-
+  // Proxy sitemaps directly to the backend which generates and serves them
+  async rewrites() {
+    return [
+      {
+        source: "/sitemap.xml",
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/sitemap.xml`
+      },
+      {
+        source: "/sitemap-:type.xml",
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/sitemap-:type.xml`
+      }
+    ];
+  },
   // Headers: Security, caching, and performance
   async headers() {
     return [
