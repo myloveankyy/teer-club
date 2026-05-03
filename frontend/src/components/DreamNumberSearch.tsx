@@ -1,22 +1,22 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { dreamNumbersData } from "@/data/dreamNumbers";
 
 interface DreamNumberSearchProps {
-  onSearch?: (results: typeof dreamNumbersData) => void;
+  dreams: any[];
+  onSearch?: (results: any[]) => void;
 }
 
-export function DreamNumberSearch({ onSearch }: DreamNumberSearchProps) {
+export function DreamNumberSearch({ dreams, onSearch }: DreamNumberSearchProps) {
   const [query, setQuery] = useState("");
 
   const filteredDreams = useMemo(() => {
-    if (!query.trim()) return dreamNumbersData.slice(0, 8);
+    if (!query.trim()) return dreams.slice(0, 8);
     const lowerQuery = query.toLowerCase();
-    return dreamNumbersData.filter((item) =>
+    return dreams.filter((item: any) =>
       item.dream.toLowerCase().includes(lowerQuery)
     );
-  }, [query]);
+  }, [query, dreams]);
 
   return (
     <div className="space-y-4">
@@ -41,10 +41,10 @@ export function DreamNumberSearch({ onSearch }: DreamNumberSearchProps) {
             setQuery(e.target.value);
             onSearch?.(
               e.target.value.trim()
-                ? dreamNumbersData.filter((item) =>
+                ? dreams.filter((item: any) =>
                     item.dream.toLowerCase().includes(e.target.value.toLowerCase())
                   )
-                : dreamNumbersData.slice(0, 8)
+                : dreams.slice(0, 8)
             );
           }}
           placeholder="Search dream (example: snake, water, fire)"
@@ -59,5 +59,3 @@ export function DreamNumberSearch({ onSearch }: DreamNumberSearchProps) {
     </div>
   );
 }
-
-export { dreamNumbersData };

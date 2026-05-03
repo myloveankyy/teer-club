@@ -187,6 +187,14 @@ export const api = {
         },
         create: (data: { content: string; author?: string; gameId?: string; date?: string }) => 
             apiClient.post<{ success: boolean; data: any; error?: string }>("/comments", data)
+    },
+    dreams: {
+        getAll: () => apiClient.get<{ success: boolean; data: any[] }>("/dreams"),
+        getBySlug: (slug: string) => apiClient.get<{ success: boolean; data: any }>(`/dreams/${slug}`),
+        create: (data: any) => apiClient.post<{ success: boolean; data: any; error?: string }>("/dreams", data),
+        update: (id: string, data: any) => apiClient.put<{ success: boolean; data: any; error?: string }>(`/dreams/${id}`, data),
+        delete: (id: string) => apiClient.delete<{ success: boolean; error?: string }>(`/dreams/${id}`),
+        migrate: (data: { dreams: any[] }) => apiClient.post<{ success: boolean; data: any; error?: string }>("/dreams/migrate", data)
     }
 };
 

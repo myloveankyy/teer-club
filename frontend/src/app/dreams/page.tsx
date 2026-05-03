@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { DreamNumberSearch } from "@/components/DreamNumberSearch";
-import { dreamNumbersData } from "@/data/dreamNumbers";
 
 export const metadata: Metadata = {
   title: "Teer Dream Meanings & Numbers List | Teer Club",
@@ -127,11 +126,22 @@ const tips = [
   {
     title: "Play Responsibly",
     description:
-      "Always play within your means and treat Teer as entertainment, not a source of income.",
-  },
-];
+      "Always play within your means and treat Teer as entertainment, not a source ofimport api from "@/lib/api";
 
-export default function DreamNumbersPage() {
+export default async function DreamNumbersPage() {
+  let dbDreams: any[] = [];
+  try {
+    const res = await api.dreams.getAll();
+    if (res.data?.success) {
+      dbDreams = res.data.data;
+    }
+  } catch (err) {
+    console.error("Failed to load dreams from DB", err);
+  }
+
+  // Fallback to static if db fails
+  const displayDreams = dbDreams.length > 0 ? dbDreams : [];
+
   return (
     <PageLayout>
       <script
@@ -180,7 +190,7 @@ export default function DreamNumbersPage() {
                 <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Find associated numbers for your dreams</p>
               </div>
               <Card className="!p-8 !rounded-[3rem] bg-white shadow-2xl shadow-gray-200/50 border-gray-100">
-                <DreamNumberSearch />
+                <DreamNumberSearch dreams={displayDreams} />
               </Card>
             </div>
           </Container>
@@ -241,17 +251,21 @@ export default function DreamNumbersPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50 bg-white">
-                      {dreamNumbersData.map((item, idx) => (
+                      {displayDreams.map((item: any, idx: number) => (
                         <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
-                          <td className="px-8 py-4 text-sm font-bold text-[#111827] uppercase tracking-tight">{item.dream}</td>
+                          <td className="px-8 py-4 text-sm font-bold text-[#111827] uppercase tracking-tight">
+                            <Link href={`/dreams/${item.slug}`} className="hover:text-primary hover:underline">
+                                {item.dream}
+                            </Link>
+                          </td>
                           <td className="px-8 py-4 text-right">
                             <div className="flex gap-2 justify-end">
-                              {item.numbers.map((num) => (
+                              {item.numbers.split(",").map((num: string) => (
                                 <span
-                                  key={num}
+                                  key={num.trim()}
                                   className="inline-flex h-8 w-10 items-center justify-center rounded-lg bg-gray-50 text-xs font-black text-gray-400"
                                 >
-                                  {num}
+                                  {num.trim()}
                                 </span>
                               ))}
                             </div>

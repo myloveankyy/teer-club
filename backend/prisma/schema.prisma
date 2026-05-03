@@ -301,3 +301,21 @@ model Comment {
   @@index([date])
   @@index([createdAt])
 }
+
+model DreamNumber {
+  id          String   @id @default(cuid())
+  dream       String   @unique
+  slug        String   @unique
+  numbers     String
+  
+  // SEO Fields
+  seoTitle    String?
+  seoDesc     String?
+  keywords    String?
+  bodyText    String?  @db.Text
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+}
