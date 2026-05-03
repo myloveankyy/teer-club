@@ -254,7 +254,7 @@ export const GameCard = ({ game, customMessages }: GameCardProps) => {
                     fullWidth
                     className={`text-[11px] font-bold uppercase tracking-widest py-3 rounded-lg border-current shadow-none ${game.status === 'declared' ? 'text-white border-white/20 hover:bg-white/10' : 'text-primary border-primary/20 hover:bg-primary/5'}`}
                 >
-                    View Live Page & Analytics
+                    View Live
                 </Button>
             </div>
         </div>

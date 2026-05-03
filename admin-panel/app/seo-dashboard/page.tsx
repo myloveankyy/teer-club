@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
 import api from "@/app/api/client";
@@ -12,6 +13,7 @@ import {
 export default function SeoDashboardOverview() {
     const { showToast } = useToast();
     const queryClient = useQueryClient();
+    const [fixingId, setFixingId] = useState<string | null>(null);
 
     const { data: dashboardData, isLoading, refetch } = useQuery({
         queryKey: ["seoDashboardOverview"],
@@ -30,6 +32,23 @@ export default function SeoDashboardOverview() {
             }
         },
         onError: () => showToast("Error triggering crawl", "error")
+    });
+
+    const fixMutation = useMutation({
+        mutationFn: (id: string) => api.seoDashboard.fixPage(id),
+        onSuccess: (res, id) => {
+            if (res.success) {
+                showToast("Issue fixed successfully", "success");
+                queryClient.invalidateQueries({ queryKey: ["seoDashboardOverview"] });
+            } else {
+                showToast(res.error || "Something went wrong. Retry.", "error");
+            }
+            setFixingId(null);
+        },
+        onError: () => {
+            showToast("Something went wrong. Retry.", "error");
+            setFixingId(null);
+        }
     });
 
     if (isLoading) {
@@ -232,12 +251,22 @@ export default function SeoDashboardOverview() {
                                         )}
                                     </td>
                                     <td className="px-6 py-3 text-right">
-                                        <Link 
-                                            href={`/seo-dashboard/page/${encodeURIComponent(page.id)}`}
-                                            className="px-3 py-1.5 bg-white border border-gray-200 text-xs font-semibold text-gray-700 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                                        <button 
+                                            onClick={() => {
+                                                setFixingId(page.id);
+                                                fixMutation.mutate(page.id);
+                                            }}
+                                            disabled={fixingId === page.id}
+                                            className="px-3 py-1.5 bg-white border border-gray-200 text-xs font-semibold text-gray-700 rounded-lg hover:bg-gray-50 transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2 ml-auto"
                                         >
-                                            Fix Now
-                                        </Link>
+                                            {fixingId === page.id ? (
+                                                <>
+                                                    <RefreshCw className="h-3 w-3 animate-spin" /> Fixing...
+                                                </>
+                                            ) : (
+                                                "Fix Now"
+                                            )}
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

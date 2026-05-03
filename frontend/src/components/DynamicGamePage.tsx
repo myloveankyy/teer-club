@@ -109,17 +109,18 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
                     title={
                         <>
                             {game.displayName}{" "}
-                            <span className="text-indigo-300/80">Teer Live Result</span>
+                            <span className="text-indigo-300/80">Teer Live Result Today</span>
                         </>
                     }
+                    subtitle={`Check the official ${game.displayName} Teer live result, today result, and instant updates from the field.`}
                     badges={
                         <HeroBadge>
                             {currentStatus === "result_declared" ? "✓ Result Declared" : "● Polling Live"}
                         </HeroBadge>
                     }
                     cta={{
-                        label: "View Previous Results",
-                        href: `/results/${game.name}/previous-results`,
+                        label: "View Live",
+                        href: "#live-results",
                     }}
                 />
 
@@ -127,10 +128,10 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
 
                 <section className="px-4 py-12 sm:px-6 lg:px-8 bg-surface">
                     <div className="mx-auto max-w-7xl">
-                        <div className="mb-10 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-border/50 pb-6">
+                        <div className="mb-10 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-border/50 pb-6" id="live-results">
                             <div className="flex flex-col gap-1 text-center md:text-left">
-                                <h2 className="text-h2 text-foreground uppercase tracking-tight">Today&apos;s Results</h2>
-                                <p className="text-[10px] font-bold text-foreground/30 uppercase tracking-[0.2em]">Live Teer Verification</p>
+                                <h2 className="text-h2 text-foreground uppercase tracking-tight">Live Result Board</h2>
+                                <p className="text-[10px] font-bold text-foreground/30 uppercase tracking-[0.2em]">Verified Field Updates</p>
                             </div>
                             <Link
                                 href="/results"
@@ -163,6 +164,19 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
                                 lastUpdateMessage={`Official ${game.displayName} numbers confirmed.`}
                             />
                         )}
+
+                        {/* Quick Navigation Section */}
+                        <div className="mt-8 flex flex-wrap justify-center gap-3">
+                            <Button href={`/results/${game.name}/previous-results`} variant="outline" className="text-xs font-bold px-6 py-2">
+                                View Previous Results
+                            </Button>
+                            <Button href={`/common-numbers/${game.name}`} variant="outline" className="text-xs font-bold px-6 py-2">
+                                Check Common Numbers
+                            </Button>
+                            <Button href="/results" variant="outline" className="text-xs font-bold px-6 py-2">
+                                Today Result History
+                            </Button>
+                        </div>
                         
                         {/* The Next Step Hook - Retention Loop */}
                         {currentStatus === "result_declared" && (
@@ -189,6 +203,19 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
                                 </div>
                             </div>
                         )}
+
+                        {/* SEO Content Block */}
+                        <div className="mt-16 max-w-3xl mx-auto text-center space-y-4 text-sm text-foreground/60 leading-relaxed">
+                            <p>
+                                Welcome to the official page for the <strong>{game.displayName} Teer Live Result</strong>. Here you can find the most accurate and fastest updates directly from the counters. As soon as the first round or second round is declared, the <strong>Today Teer Result</strong> will instantly appear above.
+                            </p>
+                            <p>
+                                Players eagerly wait for the <strong>FR SR Result</strong> every day to check their winning numbers. By combining today's outcome with our statistical analysis, you can also determine tomorrow's highly probable <strong>Teer Common Number</strong>.
+                            </p>
+                            <p>
+                                Stay on this page during the game timing for real-time live polling, or navigate to our other market sections for a complete overview.
+                            </p>
+                        </div>
                     </div>
                 </section>
 
@@ -205,6 +232,27 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
                 />
 
                 <MoreByTeerClub />
+
+                {/* Internal Linking Block */}
+                <section className="px-4 py-12 sm:px-6 lg:px-8 bg-surface-secondary/20 border-t border-border/50">
+                    <div className="mx-auto max-w-4xl text-center">
+                        <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/40 mb-6">Explore Other Teer Markets</h3>
+                        <div className="flex flex-wrap justify-center gap-4">
+                            <Link href="/results/shillong/live" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
+                                Shillong Teer Live
+                            </Link>
+                            <Link href="/results/khanapara/live" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
+                                Khanapara Teer Live
+                            </Link>
+                            <Link href="/results/juwai/live" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
+                                Juwai Teer Live
+                            </Link>
+                            <Link href="/results" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
+                                All Previous Results
+                            </Link>
+                        </div>
+                    </div>
+                </section>
 
                 <section className="px-4 py-8 sm:px-6 lg:px-8 bg-white border-t border-gray-100">
                     <div className="mx-auto max-w-4xl">
