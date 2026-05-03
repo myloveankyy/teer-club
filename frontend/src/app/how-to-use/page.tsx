@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageLayout } from "@/components/shared/PageLayout";
 import { Section, Container } from "@/components/ui/Grid";
 import { Button } from "@/components/ui/Button";
+import { InlineAd } from "@/components/AdSlot";
 
 export const metadata: Metadata = {
   title: "How to Use Teer.club — Your Complete Guide to Shillong Teer Results",
@@ -272,6 +273,9 @@ export default function HowToUsePage() {
             </div>
           </Container>
         </Section>
+
+        {/* Ad Slot */}
+        <InlineAd />
 
         {/* CTA */}
         <Section background="dark" className="!py-20 bg-[#111827]">

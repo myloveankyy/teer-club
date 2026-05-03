@@ -5,6 +5,7 @@ import api from "@/lib/api";
 import { PageLayout } from "@/components/shared/PageLayout";
 import { Section, Container } from "@/components/ui/Grid";
 import { Button } from "@/components/ui/Button";
+import { InlineAd } from "@/components/AdSlot";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -171,6 +172,9 @@ export default async function DreamSeoPage({ params }: Props) {
                 </div>
             </Container>
         </Section>
+
+        {/* Ad Slot */}
+        <InlineAd />
 
         {/* Global CTA */}
         <Section background="white" className="!py-24 border-t border-gray-100">

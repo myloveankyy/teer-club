@@ -5,6 +5,7 @@ import Link from "next/link";
 import api from "@/lib/api";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
+import { InlineAd } from "@/components/AdSlot";
 
 export const revalidate = 3600; // Cache for 1 hour
 
@@ -226,6 +227,9 @@ export default async function NumberPage({ params }: Props) {
             </div>
           </Container>
         </Section>
+
+        {/* Ad Slot — between history and SEO content */}
+        <InlineAd />
 
         {/* SEO Content */}
         <Section background="gray" className="!py-16 md:!py-24">

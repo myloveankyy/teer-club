@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { DreamNumberSearch } from "@/components/DreamNumberSearch";
 import api from "@/lib/api";
 import { dreamNumbersData } from "@/data/dreamNumbers";
+import { InlineAd } from "@/components/AdSlot";
 
 export const metadata: Metadata = {
   title: "Teer Dream Meanings & Numbers List | Teer Club",
@@ -287,6 +288,9 @@ export default async function DreamNumbersPage() {
             </div>
           </Container>
         </Section>
+
+        {/* Ad Slot */}
+        <InlineAd />
 
         {/* Intelligence Section */}
         <Section background="white" className="!py-24">
