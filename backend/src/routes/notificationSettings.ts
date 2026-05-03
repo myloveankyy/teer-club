@@ -9,63 +9,7 @@ const router = Router();
 // Backend API URL for service worker click tracking callbacks
 const PUBLIC_API_URL = process.env.PUBLIC_URL || "https://teer.club";
 
-// Ensure VAPID keys exist
-async function getOrGenerateVapid(): Promise<{ publicKey: string, privateKey: string }> {
-    let settings = await prisma.notificationSettings.findUnique({ where: { id: "global" } });
-    if (!settings) {
-        settings = await prisma.notificationSettings.create({
-            data: { id: "global", a2hsEnabled: true, pushEnabled: false }
-        });
-    }
-
-    if (!settings.vapidPublicKey || !settings.vapidPrivateKey) {
-        const vapidKeys = webpush.generateVAPIDKeys();
-        settings = await prisma.notificationSettings.update({
-            where: { id: "global" },
-            data: {
-                vapidPublicKey: vapidKeys.publicKey,
-                vapidPrivateKey: vapidKeys.privateKey
-            }
-        });
-        logger.info("Generated and saved new VAPID keys for Web Push");
-    }
-
-    // Set web-push details
-    webpush.setVapidDetails(
-        'mailto:admin@teer.club',
-        settings.vapidPublicKey!,
-        settings.vapidPrivateKey!
-    );
-
-    return { publicKey: settings.vapidPublicKey!, privateKey: settings.vapidPrivateKey! };
-}
-
-// Retry helper for push delivery
-async function sendWithRetry(
-    subscription: { endpoint: string; keys: { p256dh: string; auth: string } },
-    payload: string,
-    maxRetries = 1
-): Promise<void> {
-    let lastError: any;
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        try {
-            await webpush.sendNotification(subscription, payload);
-            return; // Success
-        } catch (err: any) {
-            lastError = err;
-            // Don't retry on client-side errors (4xx) — subscription is invalid
-            if (err.statusCode && err.statusCode >= 400 && err.statusCode < 500) {
-                throw err;
-            }
-            // Wait before retry on transient errors
-            if (attempt < maxRetries) {
-                await new Promise(r => setTimeout(r, 2000));
-                logger.warn(`[Push] Retrying delivery (attempt ${attempt + 2})`);
-            }
-        }
-    }
-    throw lastError;
-}
+import { getOrGenerateVapid, sendBroadcastPush } from "../services/pushService";
 
 // 1. Get Settings (Public)
 router.get("/", async (req: Request, res: Response) => {
@@ -201,89 +145,9 @@ router.post("/send-push", adminAuth, async (req: Request, res: Response) => {
         const { title, body, url } = req.body;
         if (!title || !body) return res.status(400).json({ success: false, error: "Missing payload details" });
 
-        // Ensure keys are locked and loaded
-        await getOrGenerateVapid();
-
-        const subscribers = await prisma.pushSubscriber.findMany({
-            where: { isActive: true }
-        });
-
-        if (subscribers.length === 0) {
-            return res.json({ success: true, data: { message: "No active subscribers", audienceSize: 0, deliveredCount: 0, failedCount: 0 } });
-        }
-
-        // Create Campaign Log
-        const campaign = await prisma.pushCampaign.create({
-            data: { title, body, url, audienceSize: subscribers.length }
-        });
-
-        let delivered = 0;
-        let failed = 0;
-
-        const pushPayload = JSON.stringify({
-            title,
-            body,
-            url: url || "/",
-            campaignId: campaign.id,
-            apiUrl: PUBLIC_API_URL  // Critical: enables click tracking in service worker
-        });
-
-        const promises = subscribers.map(async (sub) => {
-            const pushSubscription = {
-                endpoint: sub.endpoint,
-                keys: sub.keys as { p256dh: string, auth: string }
-            };
-
-            try {
-                // Retry up to 1 time on transient failures
-                await sendWithRetry(pushSubscription, pushPayload, 1);
-                delivered++;
-
-                // Log Success
-                await prisma.pushDeliveryLog.create({
-                    data: {
-                        campaignId: campaign.id,
-                        subscriberId: sub.id,
-                        status: "delivered",
-                        deliveredAt: new Date()
-                    }
-                });
-            } catch (err: any) {
-                failed++;
-                let errMsg = err.message || JSON.stringify(err);
-
-                // If 410 Gone / 404 Not Found, subscriber has revoked access. Clean up!
-                if (err.statusCode === 410 || err.statusCode === 404) {
-                    await prisma.pushSubscriber.update({
-                        where: { id: sub.id },
-                        data: { isActive: false, status: "unsubscribed" }
-                    });
-                    errMsg = "Unsubscribed (410 Gone)";
-                    logger.info(`[Push] Auto-removed invalid subscriber ${sub.id} (${err.statusCode})`);
-                }
-
-                // Log Failed
-                await prisma.pushDeliveryLog.create({
-                    data: {
-                        campaignId: campaign.id,
-                        subscriberId: sub.id,
-                        status: "failed",
-                        errorMessage: errMsg
-                    }
-                });
-            }
-        });
-
-        await Promise.all(promises);
-
-        // Finalize Campaign Metrics
-        const finalizedCampaign = await prisma.pushCampaign.update({
-            where: { id: campaign.id },
-            data: { deliveredCount: delivered, failedCount: failed }
-        });
-
-        logger.info(`[Push] Campaign "${title}" sent — ${delivered} delivered, ${failed} failed out of ${subscribers.length}`);
-        res.json({ success: true, data: finalizedCampaign });
+        const result = await sendBroadcastPush(title, body, url);
+        
+        res.json({ success: true, data: result });
     } catch (error) {
         logger.error("Failed to send broadcast push", error);
         res.status(500).json({ success: false, error: "Internal server error" });

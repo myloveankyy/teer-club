@@ -106,6 +106,19 @@ export function startScrapeWorker() {
       return { status: "success" };
     }
 
+    if (job.name === "pre-result-hype") {
+      const { gameName, round } = job.data;
+      logger.info(`[Worker] Running Pre-Result Hype for ${gameName}...`);
+      const { sendBroadcastPush } = require("../services/pushService");
+      
+      await sendBroadcastPush(
+        `${gameName} Teer Incoming! ⏳`,
+        `Results will be announced in 5 minutes! Open the app now to watch live.`,
+        `/results/${gameName.toLowerCase()}/live`
+      );
+      return { status: "success" };
+    }
+
     // Default Scrape Job handling
     const { gameId, gameName, targetDate } = job.data as ScrapeJobData;
     if (!gameId) {
@@ -135,6 +148,15 @@ export function startScrapeWorker() {
       });
 
       if (result.status === "SUCCESS" && result.date && (result.round1 || result.round2)) {
+        // Fetch existing result before upserting to know if this is actually NEW data
+        const dateObj = new Date(result.date);
+        const existing = await prisma.result.findUnique({
+          where: { gameId_date: { gameId, date: dateObj } }
+        });
+
+        const isRound1New = result.round1 && result.round1 !== "XX" && (!existing?.round1 || existing.round1 === "XX");
+        const isRound2New = result.round2 && result.round2 !== "XX" && (!existing?.round2 || existing.round2 === "XX");
+
         const upsert = await smartUpsertResults(gameId, [{
           date: result.date,
           round1: result.round1,
@@ -145,6 +167,22 @@ export function startScrapeWorker() {
 
         if (upsert.created || upsert.updated) {
           await evaluateMatchProofs(gameId, new Date(result.date), result.round1 || "", result.round2 || "");
+          
+          // 🔥 Push Notification Arbitrage: Instant Result Out Triggers 🔥
+          if (isRound1New || isRound2New) {
+            const { sendBroadcastPush } = require("../services/pushService");
+            const roundText = isRound2New 
+                ? `F/R: ${result.round1 || existing?.round1 || 'XX'} | S/R: ${result.round2}`
+                : `F/R: ${result.round1} | S/R: XX`;
+            
+            await sendBroadcastPush(
+              `${gameName} Teer is OUT! 🎯`,
+              `${roundText}. Tap here to view the live result!`,
+              `/results/${gameName.toLowerCase()}/live`
+            );
+            logger.info(`[Push Trigger] Sent instant push for ${gameName}: ${roundText}`);
+          }
+
           await writeCronLog({
             game: game.name,
             status: "SUCCESS",

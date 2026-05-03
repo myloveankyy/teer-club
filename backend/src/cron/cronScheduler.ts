@@ -58,6 +58,26 @@ export async function startAllCrons(): Promise<void> {
         });
         logger.info("[CRON] Registered Weekly Log Cleanup (0 0 * * 0)");
 
+        // 6. Pre-Result Hype Triggers (Push Notification Arbitrage)
+        // Shillong (FR at 3:45 PM IST) -> Push at 3:40 PM IST (10:10 UTC)
+        await scrapeQueue.add("pre-result-hype", { gameName: "Shillong", round: "F/R" }, {
+            repeat: { pattern: "10 10 * * 1-6" }, // Mon-Sat
+            jobId: "hype-shillong-fr"
+        });
+        
+        // Khanapara (FR at 4:10 PM IST) -> Push at 4:05 PM IST (10:35 UTC)
+        await scrapeQueue.add("pre-result-hype", { gameName: "Khanapara", round: "F/R" }, {
+            repeat: { pattern: "35 10 * * 1-6" }, // Mon-Sat
+            jobId: "hype-khanapara-fr"
+        });
+
+        // Juwai (FR at 1:30 PM IST) -> Push at 1:25 PM IST (07:55 UTC)
+        await scrapeQueue.add("pre-result-hype", { gameName: "Juwai", round: "F/R" }, {
+            repeat: { pattern: "55 7 * * 1-6" }, // Mon-Sat
+            jobId: "hype-juwai-fr"
+        });
+        logger.info("[CRON] Registered Pre-Result Hype Triggers");
+
         isInitialized = true;
         logger.info(`[CRON] ✅ Registered all distributed repeatable jobs. BullMQ engine is LIVE.`);
     } catch (error) {
