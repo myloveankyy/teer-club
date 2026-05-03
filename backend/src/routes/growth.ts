@@ -9,7 +9,7 @@ const generateGuidance = async () => {
 
     // 1. Check for thin content
     const thinPagesCount = await prisma.page.count({
-        where: { wordCount: { lt: 300 } }
+        where: { word_count: { lt: 300 } }
     });
     if (thinPagesCount > 0) {
         recommendations.push({
@@ -26,7 +26,7 @@ const generateGuidance = async () => {
 
     // 2. Missing Meta Descriptions
     const missingMetaCount = await prisma.page.count({
-        where: { metaDescription: null }
+        where: { meta_description: null }
     });
     if (missingMetaCount > 0) {
         recommendations.push({
@@ -43,7 +43,7 @@ const generateGuidance = async () => {
 
     // 3. Pages awaiting indexing
     const waitingIndexCount = await prisma.page.count({
-        where: { indexStatus: "DISCOVERED" }
+        where: { index_status: "DISCOVERED" }
     });
     if (waitingIndexCount > 0) {
         recommendations.push({
@@ -80,7 +80,7 @@ const generateGuidance = async () => {
 
     // 5. Internal Linking
     const lowLinksCount = await prisma.page.count({
-        where: { internalLinks: { lt: 3 } }
+        where: { internal_links: { lt: 3 } }
     });
     if (lowLinksCount > 0) {
         recommendations.push({
@@ -116,7 +116,7 @@ router.get("/dashboard", async (req: Request, res: Response) => {
         // Base Metrics
         const totalPages = await prisma.page.count();
         const indexedPages = await prisma.page.count({
-            where: { indexStatus: "INDEXED" }
+            where: { index_status: "INDEXED" }
         });
         
         // Traffic Estimator Formula: Indexed Pages * Avg Search Volume (estimated) * CTR
