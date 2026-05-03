@@ -6,13 +6,13 @@ import { useEffect, useState } from "react";
 import { Game } from "@/lib/api";
 
 export default function WidgetPage() {
-    const [theme, setTheme] = useState<"light" | "dark">("light");
-    const [primaryColor, setPrimaryColor] = useState<string>("#2563eb");
+    const [theme, setTheme] = useState<"light" | "dark">("dark");
+    const [primaryColor, setPrimaryColor] = useState<string>("#3b82f6");
     const [market, setMarket] = useState<string | null>(null);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
-        if (params.get("theme") === "dark") setTheme("dark");
+        if (params.get("theme") === "light") setTheme("light"); // Default is dark now
         if (params.get("color")) setPrimaryColor(`#${params.get("color")}`);
         if (params.get("market")) setMarket(params.get("market"));
     }, []);
@@ -32,48 +32,69 @@ export default function WidgetPage() {
 
     if (isLoading) {
         return (
-            <div className={`min-h-screen flex items-center justify-center ${theme === "dark" ? "bg-gray-900" : "bg-white"}`}>
+            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: primaryColor }}></div>
             </div>
         );
     }
 
     return (
-        <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
-            <div className="flex-1 p-4 flex flex-col gap-4">
+        <div 
+            className={`min-h-screen flex flex-col font-sans transition-colors duration-300 relative overflow-hidden`}
+        >
+            {/* Realistic Cinematic Background Image */}
+            <div 
+                className="absolute inset-0 z-0 bg-cover bg-center"
+                style={{ backgroundImage: "url('/images/widget-bg.png')" }}
+            ></div>
+
+            {/* Glassmorphism Overlays */}
+            <div className={`absolute inset-0 z-10 ${theme === 'dark' ? 'bg-black/60' : 'bg-white/40'} backdrop-blur-xl`}></div>
+            <div className={`absolute inset-0 z-10 bg-gradient-to-b ${theme === 'dark' ? 'from-black/80 via-black/40 to-black/90' : 'from-white/80 via-white/40 to-white/90'}`}></div>
+
+            {/* Main Content */}
+            <div className={`relative z-20 flex-1 p-4 flex flex-col gap-4 ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
                 {displayGames.map((game) => (
                     <div
                         key={game.id}
-                        className={`rounded-xl border shadow-sm overflow-hidden flex flex-col ${theme === "dark" ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+                        className={`rounded-2xl border overflow-hidden flex flex-col backdrop-blur-md ${theme === "dark" ? "bg-white/5 border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]" : "bg-black/5 border-black/10 shadow-[0_8px_32px_rgba(0,0,0,0.1)]"}`}
                     >
-                        <div
-                            className="px-4 py-3 font-bold text-center text-white"
-                            style={{ backgroundColor: primaryColor }}
-                        >
-                            {game.name} Teer
-                        </div>
-                        <div className="flex divide-x divide-gray-200 dark:divide-gray-700">
-                            <div className="flex-1 p-4 flex flex-col items-center justify-center">
-                                <span className={`text-xs font-semibold mb-1 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>F/R (Morning)</span>
-                                <span className="text-3xl font-black">{game.result_first_round || "XX"}</span>
-                                <span className={`text-[10px] mt-1 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}>{game.first_round_time}</span>
+                        <div className="px-5 py-3 flex items-center justify-between border-b border-white/10 bg-black/20">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: primaryColor }}></div>
+                                <span className="font-bold text-sm tracking-widest uppercase">{game.name} Teer</span>
                             </div>
-                            <div className="flex-1 p-4 flex flex-col items-center justify-center">
-                                <span className={`text-xs font-semibold mb-1 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>S/R (Evening)</span>
-                                <span className="text-3xl font-black">{game.result_second_round || "XX"}</span>
-                                <span className={`text-[10px] mt-1 ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}>{game.second_round_time}</span>
+                            <span className={`text-[10px] font-medium tracking-wider uppercase opacity-60`}>OFFICIAL</span>
+                        </div>
+                        <div className="flex divide-x divide-white/10">
+                            <div className="flex-1 p-5 flex flex-col items-center justify-center relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <span className={`text-[10px] font-bold mb-2 tracking-widest uppercase opacity-60`}>F/R (Morning)</span>
+                                <span className="text-4xl sm:text-5xl font-light tracking-tighter" style={{ textShadow: theme === 'dark' ? '0 2px 10px rgba(0,0,0,0.5)' : 'none' }}>
+                                    {game.result_first_round || "XX"}
+                                </span>
+                                <span className={`text-[9px] mt-2 font-mono tracking-widest opacity-40`}>{game.first_round_time}</span>
+                            </div>
+                            <div className="flex-1 p-5 flex flex-col items-center justify-center relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <span className={`text-[10px] font-bold mb-2 tracking-widest uppercase opacity-60`}>S/R (Evening)</span>
+                                <span className="text-4xl sm:text-5xl font-light tracking-tighter" style={{ textShadow: theme === 'dark' ? '0 2px 10px rgba(0,0,0,0.5)' : 'none' }}>
+                                    {game.result_second_round || "XX"}
+                                </span>
+                                <span className={`text-[9px] mt-2 font-mono tracking-widest opacity-40`}>{game.second_round_time}</span>
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            {/* The vital Dofollow Backlink */}
+            {/* The vital Dofollow Backlink - Styled professionally */}
             <a
                 href="https://teer.club"
                 target="_blank"
                 rel="noopener"
-                className={`py-2 text-center text-xs font-semibold hover:underline ${theme === "dark" ? "bg-gray-950 text-gray-400" : "bg-gray-100 text-gray-500"}`}
+                className={`relative z-20 py-2.5 px-4 text-center text-[10px] font-bold tracking-widest uppercase hover:opacity-100 transition-opacity border-t ${theme === "dark" ? "bg-black/50 text-white/50 border-white/10 hover:text-white" : "bg-white/50 text-black/50 border-black/10 hover:text-black"}`}
+                style={{ textDecoration: 'none' }}
             >
                 Powered by Teer.club
             </a>

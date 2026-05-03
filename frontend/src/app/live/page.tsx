@@ -202,6 +202,52 @@ export default async function LiveResultsPage() {
           </Container>
         </Section>
 
+        {/* Developer Integration Promo */}
+        <Section background="gray" className="!py-24 border-t border-border/50">
+          <Container>
+            <div className="bg-[#0a0a0a] rounded-3xl p-8 md:p-12 overflow-hidden relative shadow-2xl">
+                <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-blue-900/40 via-[#0a0a0a] to-[#0a0a0a] z-0"></div>
+                <div className="relative z-10 flex flex-col lg:flex-row items-center gap-12">
+                    <div className="flex-1 text-center lg:text-left">
+                        <span className="text-blue-400 font-bold tracking-widest text-[10px] uppercase mb-4 block">Developer Tools</span>
+                        <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight mb-6">
+                            Embed Live Teer Results on Your Website
+                        </h2>
+                        <p className="text-gray-400 text-lg leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
+                            Boost your site's SEO and engagement by offering real-time Teer results directly to your audience. Our hyper-fast, customizable iframe widget provides an industry-grade data feed with zero maintenance required.
+                        </p>
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                            <Button href="/tools/widget" variant="primary" className="!bg-blue-600 hover:!bg-blue-500 !text-white !px-8 !py-3.5 !rounded-xl border-none">
+                                Get Embed Code
+                            </Button>
+                            <Button href="/tools/widget" variant="outline" className="!border-white/20 !text-white hover:!bg-white/10 !px-8 !py-3.5 !rounded-xl">
+                                Read Documentation
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="flex-1 w-full max-w-md hidden md:block">
+                        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-4 shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                            <div className="flex items-center gap-2 mb-4 px-2">
+                                <div className="w-2.5 h-2.5 rounded-full bg-red-500"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500"></div>
+                                <div className="w-2.5 h-2.5 rounded-full bg-green-500"></div>
+                                <span className="ml-2 text-xs font-mono text-gray-500">widget.html</span>
+                            </div>
+                            <pre className="text-xs font-mono text-blue-300 overflow-hidden">
+                                {`<iframe 
+  src="https://teer.club/widget" 
+  width="100%" 
+  height="400" 
+  style="border:none; border-radius:16px;"
+></iframe>`}
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+          </Container>
+        </Section>
+
         <FAQ />
       </main>
     </PageLayout>

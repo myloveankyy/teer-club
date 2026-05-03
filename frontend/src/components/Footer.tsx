@@ -6,7 +6,7 @@ const quickLinks = [
   { href: "/results", label: "Previous Results" },
   { href: "/common-numbers", label: "Common Numbers" },
   { href: "/dreams", label: "Dream Meanings" },
-  { href: "/tools/widget", label: "Free Live Widget" },
+  { href: "/tools/widget", label: "Embed Widget" },
 ];
 
 const games = [

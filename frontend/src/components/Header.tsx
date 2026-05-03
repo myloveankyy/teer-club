@@ -20,6 +20,7 @@ const navLinks = [
   { href: "/results", label: "Results" },
   { href: "/common-numbers", label: "Common Numbers" },
   { href: "/dreams", label: "Dreams" },
+  { href: "/tools/widget", label: "Embed Widget" },
 ];
 
 export function Header({ initialSettings }: { initialSettings?: SiteSettings }) {

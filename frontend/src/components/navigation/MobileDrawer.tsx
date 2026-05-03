@@ -31,6 +31,7 @@ const navItems = [
   { href: "/teer-guide", label: "Guide", icon: GuideIcon },
   { href: "/about", label: "About", icon: AboutIcon },
   { href: "/blogs", label: "Blogs", icon: BlogIcon },
+  { href: "/tools/widget", label: "Embed Widget", icon: GuideIcon },
 ];
 
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
