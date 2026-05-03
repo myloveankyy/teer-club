@@ -134,8 +134,8 @@ export function TodaysResults({ initialGames, initialDate }: TodaysResultsProps)
 
                 {/* View All Link */}
                 <div className="mt-16 text-center">
-                    <Button variant="primary" href="/results" className="!px-10 !py-4 text-base">
-                        View Previous Results
+                    <Button variant="primary" href="/common-numbers" className="!px-10 !py-4 text-base shadow-xl shadow-primary/20 hover:-translate-y-1 transition-transform">
+                        Get Tomorrow&apos;s Common Numbers
                         <svg className="h-5 w-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5-5 5M6 12h12" />
                         </svg>

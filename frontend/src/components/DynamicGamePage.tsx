@@ -141,6 +141,32 @@ export function DynamicGamePage({ gameName }: DynamicGamePageProps) {
                                 lastUpdateMessage={`Official ${game.displayName} numbers confirmed.`}
                             />
                         )}
+                        
+                        {/* The Next Step Hook - Retention Loop */}
+                        {currentStatus === "result_declared" && (
+                            <div className="mt-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 md:p-8 text-center text-white shadow-xl shadow-blue-900/20 animate-in fade-in slide-in-from-bottom-4 duration-500 relative overflow-hidden">
+                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+                                <div className="relative z-10">
+                                    <span className="inline-flex items-center gap-2 rounded-full bg-white/20 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-white mb-4">
+                                        <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                                        Next Action Required
+                                    </span>
+                                    <h3 className="text-xl md:text-2xl font-bold mb-3 tracking-tight">
+                                        Result Declared. What's Tomorrow's Target?
+                                    </h3>
+                                    <p className="text-blue-100 mb-6 text-sm md:text-base max-w-2xl mx-auto">
+                                        Don't leave yet! Our algorithm has already analyzed today's {game.displayName} result to predict tomorrow's highly accurate common numbers and house ending.
+                                    </p>
+                                    <Button 
+                                        variant="outline" 
+                                        href={`/common-numbers/${game.name.toLowerCase()}`}
+                                        className="!bg-white !text-blue-700 !border-white hover:!bg-blue-50 font-bold px-8 py-3 shadow-lg shadow-black/10 hover:-translate-y-1 transition-transform"
+                                    >
+                                        Verify Tomorrow's Target
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </section>
 

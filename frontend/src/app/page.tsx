@@ -108,7 +108,7 @@ export default async function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <main className="flex-1 bg-surface">
+      <main className="flex-1 bg-surface pb-28 sm:pb-0">
         <Hero initialGames={initialGames} />
 
         {/* SEO Intro Section */}
