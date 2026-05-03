@@ -6,6 +6,7 @@ const quickLinks = [
   { href: "/results", label: "Previous Results" },
   { href: "/common-numbers", label: "Common Numbers" },
   { href: "/dreams", label: "Dream Meanings" },
+  { href: "/number/00", label: "Number Analytics" },
   { href: "/tools/widget", label: "Embed Widget" },
 ];
 

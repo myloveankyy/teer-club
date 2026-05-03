@@ -127,6 +127,8 @@ export const api = {
                 };
             }>(`/results/${gameIdentifier}/history${query ? `?${query}` : ""}`);
         },
+        getNumberStats: (number: string) =>
+            apiClient.get<{ success: boolean; data: { number: string; stats: any; history: any[] } }>(`/results/number/${number}`),
     },
     predictions: {
         getArchive: (gameIdentifier: string, params?: { page?: number; limit?: number }) => {

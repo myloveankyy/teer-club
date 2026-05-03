@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { DreamNumberSearch } from "@/components/DreamNumberSearch";
+import api from "@/lib/api";
 
 export const metadata: Metadata = {
   title: "Teer Dream Meanings & Numbers List | Teer Club",
@@ -126,7 +127,9 @@ const tips = [
   {
     title: "Play Responsibly",
     description:
-      "Always play within your means and treat Teer as entertainment, not a source ofimport api from "@/lib/api";
+      "Always play within your means and treat Teer as entertainment, not a source of income.",
+  },
+];
 
 export default async function DreamNumbersPage() {
   let dbDreams: any[] = [];
