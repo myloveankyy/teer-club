@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/lib/api"; // Admin panel api
+import api from "../api/client";
 
 export default function AdminDreamsPage() {
     const queryClient = useQueryClient();
