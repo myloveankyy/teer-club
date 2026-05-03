@@ -192,12 +192,6 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
                     </div>
                 </section>
 
-                <section className="px-4 py-8 sm:px-6 lg:px-8 bg-surface-secondary/20">
-                    <div className="mx-auto max-w-7xl">
-                        <LiveDiscussion gameId={game.id} />
-                    </div>
-                </section>
-
                 <GamePreviousResults
                     game={game.displayName}
                     gameName={game.name}
@@ -211,6 +205,12 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
                 />
 
                 <MoreByTeerClub />
+
+                <section className="px-4 py-8 sm:px-6 lg:px-8 bg-white border-t border-gray-100">
+                    <div className="mx-auto max-w-4xl">
+                        <LiveDiscussion gameId={game.id} />
+                    </div>
+                </section>
             </main>
             <Footer />
         </div>

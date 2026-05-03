@@ -142,13 +142,6 @@ export default async function LiveResultsPage() {
           </Container>
         </Section>
 
-        <Section className="!py-10 bg-white">
-          <Container>
-            <div className="mx-auto max-w-5xl">
-               <LiveDiscussion date={initialData?.date} />
-            </div>
-          </Container>
-        </Section>
 
         {/* SEO Content Section */}
         <Section background="white" className="!py-24 border-t border-border/50">
@@ -261,6 +254,13 @@ export default async function LiveResultsPage() {
         </Section>
 
         <FAQ />
+        <Section className="!py-10 bg-white border-t border-gray-100">
+          <Container>
+            <div className="mx-auto max-w-5xl">
+               <LiveDiscussion date={initialData?.date} />
+            </div>
+          </Container>
+        </Section>
       </main>
     </PageLayout>
   );

@@ -233,7 +233,7 @@ export default function SeoDashboardOverview() {
                                     </td>
                                     <td className="px-6 py-3 text-right">
                                         <Link 
-                                            href={`/seo-dashboard/page/${page.id}`}
+                                            href={`/seo-dashboard/page/${encodeURIComponent(page.id)}`}
                                             className="px-3 py-1.5 bg-white border border-gray-200 text-xs font-semibold text-gray-700 rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
                                         >
                                             Fix Now

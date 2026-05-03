@@ -335,7 +335,7 @@ export const api = {
       const query = searchParams.toString();
       return fetchAPI<{ success: boolean; data: { pages: Page[]; pagination: any } }>(`/admin/seo-dashboard/pages${query ? `?${query}` : ""}`);
     },
-    getPageDetail: (id: string) => fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/page/${id}`),
+    getPageDetail: (id: string) => fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/page/${encodeURIComponent(id)}`),
     getLinkGraph: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/link-graph"),
     getTemplates: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/seo-dashboard/templates"),
     bulkUpdate: (data: any) => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/bulk-update", { method: "POST", body: JSON.stringify(data) }),
@@ -353,7 +353,7 @@ export const api = {
       return fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/index-queue${query ? `?${query}` : ""}`);
     },
     triggerCrawl: () => fetchAPI<{ success: boolean; message: string }>("/admin/seo-dashboard/crawl", { method: "POST" }),
-    fixPage: (id: string) => fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/fix/${id}`, { method: "POST" }),
+    fixPage: (id: string) => fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/fix/${encodeURIComponent(id)}`, { method: "POST" }),
     getCrawlStatus: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/crawl-status"),
   }
 };
