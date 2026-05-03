@@ -311,6 +311,14 @@ export const api = {
       const query = searchParams.toString();
       return fetchAPI<{ success: boolean; data: any }>(`/admin/validation/logs${query ? `?${query}` : ""}`);
     }
+  },
+  dreams: {
+    getAll: () => fetchAPI<{ success: boolean; data: any[] }>("/dreams"),
+    getBySlug: (slug: string) => fetchAPI<{ success: boolean; data: any }>(`/dreams/${slug}`),
+    create: (data: any) => fetchAPI<{ success: boolean; data: any }>("/dreams", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: any) => fetchAPI<{ success: boolean; data: any }>(`/dreams/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    delete: (id: string) => fetchAPI<{ success: boolean }>(`/dreams/${id}`, { method: "DELETE" }),
+    migrate: (data: any) => fetchAPI<{ success: boolean; data: any }>("/dreams/migrate", { method: "POST", body: JSON.stringify(data) }),
   }
 };
 

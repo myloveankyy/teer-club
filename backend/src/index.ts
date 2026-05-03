@@ -32,6 +32,7 @@ import { analyticsRouter } from "./routes/analytics";
 import realtimeAnalyticsRouter from "./routes/realtimeAnalytics";
 import commentsRouter from "./routes/comments";
 import { debugRouter } from "./routes/debug";
+import dreamRoutes from "./routes/dreamRoutes";
 import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
 import { SitemapService } from "./services/sitemap.service";
 
@@ -166,6 +167,7 @@ app.use("/api/admin/validation", adminAuth, validationRouter);
 app.use("/api/analytics", analyticsRouter);
 app.use("/api/analytics", realtimeAnalyticsRouter);
 app.use("/api/comments", commentsRouter);
+app.use("/api/dreams", dreamRoutes);
 
 
 // ─── Seed Default Data ───────────────────────────────────────────────────────

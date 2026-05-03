@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { DreamNumberSearch } from "@/components/DreamNumberSearch";
 import api from "@/lib/api";
+import { dreamNumbersData } from "@/data/dreamNumbers";
 
 export const metadata: Metadata = {
   title: "Teer Dream Meanings & Numbers List | Teer Club",
@@ -142,8 +143,12 @@ export default async function DreamNumbersPage() {
     console.error("Failed to load dreams from DB", err);
   }
 
-  // Fallback to static if db fails
-  const displayDreams = dbDreams.length > 0 ? dbDreams : [];
+  // Fallback to static data if DB is empty or fails
+  const displayDreams = dbDreams.length > 0 ? dbDreams : dreamNumbersData.map(d => ({
+    dream: d.dream,
+    slug: d.dream.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-dream-teer-number',
+    numbers: d.numbers.join(', '),
+  }));
 
   return (
     <PageLayout>
