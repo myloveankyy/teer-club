@@ -298,6 +298,7 @@ export const api = {
     sitemap: {
       upload: (xml: string) => fetchAPI<{ success: boolean; data: any }>("/admin/seo/sitemap/upload", { method: "POST", body: JSON.stringify({ xml }) }),
       getStatus: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo/sitemap/status"),
+      generate: () => fetchAPI<{ success: boolean; data: any; message: string }>("/admin/seo/sitemap/generate", { method: "POST" }),
     }
   },
   validation: {

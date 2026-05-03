@@ -62,6 +62,29 @@ router.get('/sitemap/status', adminAuth, (req: Request, res: Response) => {
 });
 
 /**
+ * POST /api/admin/seo/sitemap/generate
+ * Auto-generate sitemap from database (dreams, numbers, games, static pages).
+ */
+router.post('/sitemap/generate', adminAuth, async (req: Request, res: Response) => {
+    try {
+        const prisma = (await import('../prisma')).default;
+        const metadata = await SitemapService.generate(prisma);
+        res.json({
+            success: true,
+            message: `Sitemap auto-generated with ${metadata.totalUrls} URLs.`,
+            data: metadata
+        });
+    } catch (error: any) {
+        logger.error('[SEO Routes] Sitemap generation failed', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            logs: error.logs || null
+        });
+    }
+});
+
+/**
  * POST /api/admin/seo/auto-fix
  * One-click auto optimize SEO metadata.
  */

@@ -50,6 +50,7 @@ export default function SitemapPage() {
 
     const [isDragging, setIsDragging] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [pendingFile, setPendingFile] = useState<{ name: string; size: number; urlCount: number; content: string } | null>(null);
     const [liveLogs, setLiveLogs] = useState<LogEntry[]>([]);
     const [lastDiff, setLastDiff] = useState<SitemapDiff | null>(null);
@@ -86,6 +87,24 @@ export default function SitemapPage() {
     const status: SitemapStatus | null = statusData?.data || null;
     const displayLogs = liveLogs.length > 0 ? liveLogs : (status?.logs || []);
     const displayDiff = lastDiff || status?.diff || null;
+
+    const handleGenerate = async () => {
+        setIsGenerating(true);
+        setLiveLogs([{ level: "INFO", message: "Auto-generating sitemap from database...", timestamp: new Date().toISOString() }]);
+        try {
+            const res = await api.seo.sitemap.generate();
+            if (res.success && res.data) {
+                showToast(`Sitemap generated — ${res.data.totalUrls} URLs`, "success");
+                setLiveLogs(res.data.logs || []);
+                setLastDiff(res.data.diff || null);
+                queryClient.invalidateQueries({ queryKey: ["sitemapStatus"] });
+            }
+        } catch (err: any) {
+            showToast(err.message || "Generation failed", "error");
+        } finally {
+            setIsGenerating(false);
+        }
+    };
 
     // ── File processing ──
     const processFile = useCallback((file: File) => {
@@ -171,10 +190,25 @@ export default function SitemapPage() {
                 </div>
                 {status?.lastUpdated && (
                     <div className="text-right">
-                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Last Upload</p>
+                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Last Update</p>
                         <p className="text-sm font-semibold text-gray-700">{formatTime(status.lastUpdated)}</p>
                     </div>
                 )}
+            </div>
+
+            {/* ─── Auto Generate Button ─── */}
+            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl border border-indigo-100 p-5 flex items-center justify-between">
+                <div>
+                    <h3 className="font-bold text-gray-900">Auto-Generate Sitemap</h3>
+                    <p className="text-sm text-gray-500 mt-1">Automatically includes all static pages, games, dream SEO pages, and 100 number analytics pages.</p>
+                </div>
+                <button
+                    onClick={handleGenerate}
+                    disabled={isGenerating}
+                    className={`px-6 py-3 rounded-xl font-bold text-sm transition-all active:scale-95 whitespace-nowrap ${isGenerating ? "bg-gray-200 text-gray-400" : "bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg"}`}
+                >
+                    {isGenerating ? "Generating..." : "⚡ Generate Now"}
+                </button>
             </div>
 
             {/* ─── Stats Grid ─── */}

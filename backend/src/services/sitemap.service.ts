@@ -210,4 +210,79 @@ export class SitemapService {
         }
         return new Set();
     }
+
+    /**
+     * Auto-generate a sitemap by combining static pages, game pages,
+     * dream SEO pages, and number analytics pages.
+     */
+    static async generate(prisma: any): Promise<SitemapMetadata> {
+        const logs: SitemapLogEntry[] = [];
+        const log = (level: SitemapLogEntry['level'], message: string) => {
+            logs.push({ level, message, timestamp: new Date().toISOString() });
+            logger.info(`[SITEMAP] [${level}] ${message}`);
+        };
+
+        log('INFO', 'Auto-generating sitemap...');
+
+        const today = new Date().toISOString().split('T')[0];
+
+        // Static pages
+        const staticPages = [
+            '/', '/live', '/results', '/common-numbers', '/dreams',
+            '/about', '/disclaimer', '/privacy-policy', '/how-to-use',
+            '/tools/widget',
+        ];
+
+        const urls: string[] = staticPages.map(p => `${BASE_URL}${p}`);
+        log('INFO', `Added ${staticPages.length} static pages`);
+
+        // Game pages (live + history)
+        try {
+            const games = await prisma.game.findMany({ where: { isEnabled: true } });
+            for (const game of games) {
+                const name = game.name.toLowerCase();
+                urls.push(`${BASE_URL}/results/${name}/live`);
+                urls.push(`${BASE_URL}/results/${name}/history`);
+            }
+            log('INFO', `Added ${games.length * 2} game pages`);
+        } catch (err) {
+            log('WARN', 'Failed to fetch games for sitemap');
+        }
+
+        // Dream SEO pages
+        try {
+            const dreams = await prisma.dreamNumber.findMany({ select: { slug: true } });
+            for (const dream of dreams) {
+                urls.push(`${BASE_URL}/dreams/${dream.slug}`);
+            }
+            log('INFO', `Added ${dreams.length} dream SEO pages`);
+        } catch (err) {
+            log('WARN', 'Failed to fetch dreams for sitemap');
+        }
+
+        // Number analytics pages (00-99)
+        for (let i = 0; i < 100; i++) {
+            const num = String(i).padStart(2, '0');
+            urls.push(`${BASE_URL}/number/${num}`);
+        }
+        log('INFO', 'Added 100 number analytics pages');
+
+        // Build XML
+        const urlEntries = urls.map(url => {
+            const priority = url === BASE_URL + '/' ? '1.0' :
+                url.includes('/live') ? '0.9' :
+                url.includes('/dreams/') ? '0.7' :
+                url.includes('/number/') ? '0.6' : '0.8';
+            const changefreq = url.includes('/live') ? 'hourly' :
+                url.includes('/number/') || url.includes('/dreams/') ? 'weekly' : 'daily';
+            return `  <url>\n    <loc>${url}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+        });
+
+        const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlEntries.join('\n')}\n</urlset>`;
+
+        log('SUCCESS', `Generated sitemap with ${urls.length} URLs`);
+
+        // Save via existing upload mechanism
+        return await this.upload(xml);
+    }
 }
