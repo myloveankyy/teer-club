@@ -33,7 +33,7 @@ export default function GlobalError({
             <div className="flex flex-col sm:flex-row gap-4">
                 <button
                     onClick={() => reset()}
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                    className="flex items-center justify-center gap-2 px-8 py-3.5 bg-primary hover:bg-primary/90 text-white rounded-2xl font-bold text-sm tracking-wide transition-all shadow-xl shadow-primary/20"
                 >
                     <RefreshCw className="h-4 w-4" />
                     Try Again
@@ -41,7 +41,7 @@ export default function GlobalError({
 
                 <Link
                     href="/"
-                    className="flex items-center justify-center gap-2 px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-900 dark:text-white rounded-lg font-medium transition-colors"
+                    className="flex items-center justify-center gap-2 px-8 py-3.5 bg-gray-50 hover:bg-gray-100 text-gray-900 rounded-2xl font-bold text-sm tracking-wide transition-all border border-gray-200"
                 >
                     <Home className="h-4 w-4" />
                     Go Home

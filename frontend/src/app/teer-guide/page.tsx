@@ -5,6 +5,7 @@ import { Section, Container, Grid } from "@/components/ui/Grid";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export const metadata: Metadata = {
   title: "Teer Guide – Learn How Teer Game Works",
@@ -188,6 +189,8 @@ export default function TeerGuidePage() {
             </Button>
           </Container>
         </Section>
+
+        <TrafficGrid />
 
         {/* Discovery Section */}
         <Section className="!py-24">

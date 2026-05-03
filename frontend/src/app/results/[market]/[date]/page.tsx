@@ -4,6 +4,8 @@ import Link from "next/link";
 import api from "@/lib/api";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
+import { DarkHero, HeroBadge } from "@/components/layout/DarkHero";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export const revalidate = 3600;
 
@@ -96,29 +98,33 @@ export default async function DateResultPage({ params }: Props) {
   return (
     <PageLayout>
       <main className="flex-1 bg-surface">
-        <Section className="!py-16 md:!py-24 bg-gradient-to-br from-indigo-900 to-slate-900 text-white">
-          <Container>
-            <div className="mx-auto max-w-4xl text-center">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-200 mb-6 border border-white/10">
-                Historical Archive
-              </span>
-              <h1 className="mb-4 text-4xl font-black tracking-tight md:text-5xl lg:text-6xl">
-                {h1Title}
-              </h1>
-              <p className="text-xl md:text-2xl text-emerald-400 font-bold mb-6">
-                {formattedDate}
-              </p>
-              {bodyContent && (
-                 <div className="text-base text-indigo-100 mb-6 max-w-2xl mx-auto" dangerouslySetInnerHTML={{ __html: bodyContent }} />
-              )}
-              <div className="flex justify-center mt-8">
-                 <Link href={`/results/${market}`} className="text-sm font-bold text-indigo-300 hover:text-white underline underline-offset-4">
-                    &larr; Back to {gameName} History
-                 </Link>
-              </div>
-            </div>
-          </Container>
-        </Section>
+        <DarkHero
+          breadcrumbs={[
+            { label: "Home", href: "/" },
+            { label: "Results", href: "/results" },
+            { label: gameName, href: `/results/${market}/previous-results` },
+            { label: formattedDate },
+          ]}
+          title={
+            <>
+              {h1Title}{" "}
+              <span className="text-indigo-300/80">{formattedDate}</span>
+            </>
+          }
+          badges={
+            <HeroBadge>Historical Archive</HeroBadge>
+          }
+          cta={{
+            label: `${gameName} History`,
+            href: `/results/${market}/previous-results`,
+          }}
+        >
+          {bodyContent && (
+            <div className="text-base text-indigo-100 mt-6 max-w-2xl" dangerouslySetInnerHTML={{ __html: bodyContent }} />
+          )}
+        </DarkHero>
+
+        <TrafficGrid gameId={market} />
 
         <Section className="!py-16 border-b border-border/50 bg-gray-50/50">
           <Container>

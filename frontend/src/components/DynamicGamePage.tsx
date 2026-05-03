@@ -3,7 +3,8 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { Header } from "@/components/Header";
-import { GameHero } from "@/components/GameHero";
+import { DarkHero, HeroBadge } from "@/components/layout/DarkHero";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 import { GameLiveCard } from "@/components/GameLiveCard";
 import { GamePreviousResults } from "@/components/GamePreviousResults";
 import { Footer } from "@/components/Footer";
@@ -99,13 +100,30 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
         <div className="flex min-h-screen flex-col bg-surface">
             <Header />
             <main className="flex-1">
-                <GameHero
-                    game={game.displayName}
-                    location={game.location || "North East India"}
-                    description={game.description || `Verified live-feed and historical archives for ${game.displayName}. Get lightning-fast updates on round 1 and round 2 results.`}
-                    status={currentStatus === 'result_declared' ? "Verified" : "Live"}
-                    lastUpdated={latestResult ? new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : undefined}
+                <DarkHero
+                    breadcrumbs={[
+                        { label: "Home", href: "/" },
+                        { label: "Live Results", href: "/live" },
+                        { label: `${game.displayName} Live` },
+                    ]}
+                    title={
+                        <>
+                            {game.displayName}{" "}
+                            <span className="text-indigo-300/80">Teer Live Result</span>
+                        </>
+                    }
+                    badges={
+                        <HeroBadge>
+                            {currentStatus === "result_declared" ? "✓ Result Declared" : "● Polling Live"}
+                        </HeroBadge>
+                    }
+                    cta={{
+                        label: "View Previous Results",
+                        href: `/results/${game.name}/previous-results`,
+                    }}
                 />
+
+                <TrafficGrid gameId={game.name} />
 
                 <section className="px-4 py-12 sm:px-6 lg:px-8 bg-surface">
                     <div className="mx-auto max-w-7xl">

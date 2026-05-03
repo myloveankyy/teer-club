@@ -9,6 +9,7 @@ import { DreamNumberSearch } from "@/components/DreamNumberSearch";
 import api from "@/lib/api";
 import { dreamNumbersData } from "@/data/dreamNumbers";
 import { InlineAd } from "@/components/AdSlot";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export const metadata: Metadata = {
   title: "Teer Dream Meanings & Numbers List | Teer Club",
@@ -187,6 +188,8 @@ export default async function DreamNumbersPage() {
             </div>
           </Container>
         </Section>
+
+        <TrafficGrid />
 
         {/* Search Section */}
         <Section className="!py-24" background="gray">

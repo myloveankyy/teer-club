@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageLayout } from "@/components/shared/PageLayout";
 import { BlogContent } from "./BlogContent";
 import api from "@/lib/api";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export const metadata: Metadata = {
   title: "Teer Blog | Latest Insights, Strategies & Guides | Teer.club",
@@ -76,11 +77,14 @@ export default async function BlogsPage() {
       />
       <main className="flex-1">
         {mappedPosts.length > 0 ? (
-          <BlogContent
-            posts={mappedPosts}
-            featuredPost={featuredPost}
-            trendingPosts={trendingPosts}
-          />
+          <>
+            <TrafficGrid />
+            <BlogContent
+              posts={mappedPosts}
+              featuredPost={featuredPost}
+              trendingPosts={trendingPosts}
+            />
+          </>
         ) : (
           <div className="py-32 flex justify-center text-gray-500 font-medium">
             No blog posts found in database. Please generate some using the Admin Panel.

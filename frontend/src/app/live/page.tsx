@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { LiveResultsClient } from "./LiveResultsClient";
 import Link from "next/link";
 import { LiveDiscussion } from "@/components/LiveDiscussion";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export const revalidate = 10; // ISR: Revalidate every 10 seconds
 
@@ -114,6 +115,8 @@ export default async function LiveResultsPage() {
             </div>
           </Container>
         </Section>
+
+        <TrafficGrid />
 
         {/* Main Results Grid */}
         <Section background="gray" className="!py-16 lg:!py-28">

@@ -3,6 +3,7 @@ import { PageLayout } from "@/components/shared/PageLayout";
 import { Section, Container } from "@/components/ui/Grid";
 import { Button } from "@/components/ui/Button";
 import { ResultsList } from "@/components/ResultsList";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export const metadata: Metadata = {
   title: "Teer Results History – Shillong, Khanapara, Juwai Archive",
@@ -122,6 +123,8 @@ export default function ResultsPage() {
             </div>
           </Container>
         </Section>
+
+        <TrafficGrid />
 
         {/* Results List Section */}
         <Section className="!py-16 md:!py-20" background="gray">

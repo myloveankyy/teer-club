@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageLayout } from "@/components/shared/PageLayout";
 import { Section, Container } from "@/components/ui/Grid";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export const metadata: Metadata = {
     title: "Disclaimer | Teer Club - Official Teer Results Platform",
@@ -63,6 +64,8 @@ export default function DisclaimerPage() {
                         </div>
                     </Container>
                 </Section>
+
+                <TrafficGrid />
 
                 <Section background="gray" className="!py-16 md:!py-24">
                     <Container>

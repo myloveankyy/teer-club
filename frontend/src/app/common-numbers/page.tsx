@@ -5,6 +5,7 @@ import { Container, Section, Grid } from "@/components/ui/Grid";
 import { PredictionCard } from "@/components/ui/PredictionCard";
 import { MatchProofCard } from "@/components/ui/MatchProofCard";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
@@ -136,6 +137,8 @@ export default async function CommonNumbersPage() {
             </p>
           </Container>
         </Section>
+
+        <TrafficGrid />
 
         {/* Data Section */}
         <Section background="white" className="py-12 lg:py-24">

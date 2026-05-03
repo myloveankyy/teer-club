@@ -6,7 +6,7 @@ import { Section, Container } from "@/components/ui/Grid";
 import api from "@/lib/api";
 import { TelegramBanner } from "@/components/TelegramBanner";
 import dynamic from "next/dynamic";
-
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 import AdSlot from "@/components/ads/AdSlot";
 
 // Code splitting for below-the-fold heavy components
@@ -107,7 +107,7 @@ export default async function Home() {
       <main className="flex-1 bg-surface pb-28 sm:pb-0">
         <Hero initialGames={initialGames} />
 
-        {/* SEO Intro Section */}
+        <TrafficGrid />
         <Section className="!py-10 border-b border-border/50">
           <Container>
             <div className="mx-auto max-w-4xl text-center">

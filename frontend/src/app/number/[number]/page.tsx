@@ -2,6 +2,8 @@ import { PageLayout } from "@/components/shared/PageLayout";
 import { Container, Section } from "@/components/ui/Grid";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import { DarkHero, HeroBadge } from "@/components/layout/DarkHero";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 import api from "@/lib/api";
 import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
@@ -121,43 +123,33 @@ export default async function NumberPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
       <main className="flex-1 bg-surface">
-        {/* Breadcrumb */}
-        <div className="border-b border-gray-100 bg-white">
-          <Container>
-            <div className="py-4 flex gap-2 text-sm font-semibold text-gray-500">
-              <Link href="/" className="hover:text-primary">Home</Link>
-              <span>/</span>
-              <Link href="/results" className="hover:text-primary">Results</Link>
-              <span>/</span>
-              <span className="text-gray-900">Number {number}</span>
+        <DarkHero
+          breadcrumbs={[
+            { label: "Home", href: "/" },
+            { label: "Results", href: "/results" },
+            { label: `Number ${number}` }
+          ]}
+          title={<span dangerouslySetInnerHTML={{ __html: h1Title }} />}
+          badges={
+            <HeroBadge>Number Analytics</HeroBadge>
+          }
+        >
+          <div className="mt-8">
+            <p className="text-sm md:text-base text-indigo-200/80 leading-relaxed max-w-2xl font-medium mb-6">
+              Comprehensive history and frequency analysis for the number {number} across all official Teer games.
+            </p>
+            <div className="flex items-center gap-4">
+              <Link href={`/number/${prevNum}`} className="px-4 py-2 rounded-lg border border-white/20 text-sm font-bold text-white/70 hover:bg-white/10 transition-all">
+                ← Number {prevNum}
+              </Link>
+              <Link href={`/number/${nextNum}`} className="px-4 py-2 rounded-lg border border-white/20 text-sm font-bold text-white/70 hover:bg-white/10 transition-all">
+                Number {nextNum} →
+              </Link>
             </div>
-          </Container>
-        </div>
+          </div>
+        </DarkHero>
 
-        {/* Hero */}
-        <Section className="!py-16 md:!py-24 bg-gradient-to-b from-slate-900 to-indigo-950 text-white">
-          <Container>
-            <div className="mx-auto max-w-4xl text-center">
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-200 backdrop-blur-md mb-6 border border-white/10">
-                Number Analytics
-              </span>
-              <h1 className="mb-6 text-4xl font-black tracking-tight md:text-6xl lg:text-7xl" dangerouslySetInnerHTML={{ __html: h1Title }}>
-              </h1>
-              <p className="text-lg md:text-xl text-indigo-200/80 leading-relaxed max-w-2xl mx-auto font-medium">
-                Comprehensive history and frequency analysis for the number {number} across all official Teer games.
-              </p>
-              {/* Quick Nav */}
-              <div className="flex items-center justify-center gap-4 mt-10">
-                <Link href={`/number/${prevNum}`} className="px-4 py-2 rounded-lg border border-white/20 text-sm font-bold text-white/70 hover:bg-white/10 transition-all">
-                  ← Number {prevNum}
-                </Link>
-                <Link href={`/number/${nextNum}`} className="px-4 py-2 rounded-lg border border-white/20 text-sm font-bold text-white/70 hover:bg-white/10 transition-all">
-                  Number {nextNum} →
-                </Link>
-              </div>
-            </div>
-          </Container>
-        </Section>
+        <TrafficGrid />
 
         {/* Stats Grid */}
         <Section className="!py-12 border-b border-border/50">

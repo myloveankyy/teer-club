@@ -4,6 +4,7 @@ import { PageLayout } from "@/components/shared/PageLayout";
 import { Section, Container } from "@/components/ui/Grid";
 import { Button } from "@/components/ui/Button";
 import { InlineAd } from "@/components/AdSlot";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export const metadata: Metadata = {
   title: "How to Use Teer.club — Your Complete Guide to Shillong Teer Results",
@@ -141,6 +142,8 @@ export default function HowToUsePage() {
             </p>
           </Container>
         </Section>
+
+        <TrafficGrid />
 
         {/* What is Teer.club */}
         <Section background="gray" className="!py-16">

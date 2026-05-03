@@ -174,6 +174,7 @@ import { Section, Container, Grid } from "@/components/ui/Grid";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 export default function AboutPage() {
   return (
@@ -204,6 +205,8 @@ export default function AboutPage() {
           </div>
         </Container>
       </Section>
+
+      <TrafficGrid />
 
       <Section background="white" className="!py-16 md:!py-24">
         <Container>

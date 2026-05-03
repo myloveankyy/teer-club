@@ -7,6 +7,8 @@ import { PredictionCard } from "@/components/ui/PredictionCard";
 import { MatchProofCard } from "@/components/ui/MatchProofCard";
 import { Button } from "@/components/ui/Button";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { DarkHero, HeroBadge } from "@/components/layout/DarkHero";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 const jsonLd = {
     "@context": "https://schema.org",
@@ -135,23 +137,27 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
                 }}
             />
             <main className="flex-1">
-                {/* Header Section */}
-                <Section background="dark" className="bg-[#111827] !py-16 lg:!py-24 border-b border-white/5 overflow-hidden">
-                    <Container className="text-center relative z-10 px-4">
-                        <div className="mb-6 flex justify-center">
-                            <StatusBadge status="declared" customLabels={{ declared: "HISTORICAL DATABASE" }} />
-                        </div>
-                        <h1 className="text-h1 mb-6 text-white uppercase leading-tight" dangerouslySetInnerHTML={{ __html: pageData?.title || `${formattedDate} <span class="text-blue-500">Targets</span>` }}>
-                        </h1>
-                        {pageData?.content ? (
-                            <div className="mx-auto max-w-2xl text-body text-gray-400" dangerouslySetInnerHTML={{ __html: pageData.content }} />
-                        ) : (
-                            <p className="mx-auto max-w-2xl text-body text-gray-400">
-                                100% Verified Teer Common Numbers. Daily Shillong, Khanapara, and Juwai Teer hit numbers, house, and ending predictions.
-                            </p>
-                        )}
-                    </Container>
-                </Section>
+                <DarkHero
+                    breadcrumbs={[
+                        { label: "Home", href: "/" },
+                        { label: "Common Numbers", href: "/common-numbers" },
+                        { label: isDate ? formattedDate : `${slug.charAt(0).toUpperCase() + slug.slice(1)} Teer` }
+                    ]}
+                    title={<span dangerouslySetInnerHTML={{ __html: pageData?.title || `${formattedDate || slug.charAt(0).toUpperCase() + slug.slice(1)} <span class="text-indigo-400">Targets</span>` }} />}
+                    badges={
+                        <HeroBadge variant="amber">Historical Database</HeroBadge>
+                    }
+                >
+                    {pageData?.content ? (
+                        <div className="mt-6 text-sm md:text-base text-indigo-200/80 leading-relaxed max-w-2xl font-medium" dangerouslySetInnerHTML={{ __html: pageData.content }} />
+                    ) : (
+                        <p className="mt-6 text-sm md:text-base text-indigo-200/80 leading-relaxed max-w-2xl font-medium">
+                            100% Verified Teer Common Numbers. Daily Shillong, Khanapara, and Juwai Teer hit numbers, house, and ending predictions.
+                        </p>
+                    )}
+                </DarkHero>
+
+                <TrafficGrid />
 
                 {/* Data Section */}
                 <Section background="white" className="py-12 lg:py-24">

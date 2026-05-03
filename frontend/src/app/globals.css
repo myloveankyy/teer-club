@@ -7,6 +7,33 @@
   --bg: #ffffff;
   --text: #111827;
   --radius: 1rem;
+
+  /* ── Reference Design System Tokens (from Previous Results page) ── */
+
+  /* Dark Hero Gradient */
+  --hero-from: #020617;    /* slate-950 */
+  --hero-via: #1e1b4b;     /* indigo-950 */
+  --hero-to: #0f172a;      /* slate-900 */
+
+  /* Container Widths */
+  --container-data: 72rem;  /* max-w-6xl = 1152px (data pages) */
+  --container-wide: 80rem;  /* max-w-7xl = 1280px (homepage) */
+  --container-text: 56rem;  /* max-w-4xl = 896px (SEO text) */
+
+  /* Table Color Tokens */
+  --table-header: #111827;  /* gray-900 */
+  --table-fr: #6366f1;      /* indigo accent */
+  --table-sr: #8b5cf6;      /* violet accent */
+  --table-tr: #f59e0b;      /* amber accent */
+  --table-pred: #10b981;    /* emerald accent */
+
+  /* Spacing Scale (reference) */
+  --space-section: 2.5rem;         /* py-10 */
+  --space-section-md: 4rem;        /* md:py-16 */
+  --space-hero: 3.5rem;            /* py-14 */
+  --space-hero-md: 5rem;           /* md:py-20 */
+  --space-seo: 4rem;               /* py-16 */
+  --space-seo-md: 5rem;            /* md:py-20 */
 }
 
 @theme inline {

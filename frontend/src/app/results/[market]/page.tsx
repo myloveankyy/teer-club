@@ -4,6 +4,8 @@ import api from "@/lib/api";
 import { PageLayout } from "@/components/shared/PageLayout";
 import { Section, Container } from "@/components/ui/Grid";
 import { ResultsList } from "@/components/ResultsList";
+import { DarkHero, HeroBadge } from "@/components/layout/DarkHero";
+import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
 interface PageProps {
     params: {
@@ -82,19 +84,33 @@ export default async function ProgrammaticMarketPage({ params }: PageProps) {
     return (
         <PageLayout>
             <main className="flex-1 bg-surface">
-                <Section background="white" className="!py-16 md:!py-24 border-b border-gray-100">
-                    <Container>
-                        <div className="max-w-3xl">
-                            <div className="mb-4 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-bold text-primary bg-primary/5 uppercase">
-                                Programmatic SEO Record
-                            </div>
-                            <h1 className="text-h1 text-gray-900 leading-tight mb-6">
-                                {h1Title}
-                            </h1>
-                            <div className="text-lg text-gray-600 mb-8" dangerouslySetInnerHTML={{ __html: bodyContent }} />
-                        </div>
-                    </Container>
-                </Section>
+                <DarkHero
+                    breadcrumbs={[
+                        { label: "Home", href: "/" },
+                        { label: "Results", href: "/results" },
+                        { label: h1Title },
+                    ]}
+                    title={
+                        <>
+                            {h1Title.split(' ').slice(0, -1).join(' ')}{" "}
+                            <span className="text-indigo-300/80">{h1Title.split(' ').slice(-1)}</span>
+                        </>
+                    }
+                    badges={
+                        <HeroBadge>Verified Records</HeroBadge>
+                    }
+                    cta={{
+                        label: "Check Live Results",
+                        href: `/results/${gameId}/live`,
+                        showLiveDot: true,
+                    }}
+                >
+                    {bodyContent && (
+                        <div className="text-base text-indigo-100 mt-6 max-w-2xl" dangerouslySetInnerHTML={{ __html: bodyContent }} />
+                    )}
+                </DarkHero>
+
+                <TrafficGrid gameId={gameId} />
                 {/* Render a filtered ResultsList by gameId */}
                 <Section className="!py-16" background="gray">
                     <Container>
