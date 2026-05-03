@@ -39,8 +39,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Security headers for all routes
-        source: "/(.*)",
+        // Security headers for all routes EXCEPT /widget (which needs iframe access)
+        source: "/:path((?!widget).*)*",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
