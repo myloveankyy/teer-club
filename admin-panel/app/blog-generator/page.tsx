@@ -9,6 +9,7 @@ export default function BlogGeneratorPage() {
     const { showToast } = useToast();
     const [topic, setTopic] = useState("");
     const [draft, setDraft] = useState<any>(null);
+    const [pageType, setPageType] = useState("BLOG");
 
     const generateMutation = useMutation({
         mutationFn: (t: string) => api.ai.generateBlog(t),
@@ -24,7 +25,8 @@ export default function BlogGeneratorPage() {
             title: data.title,
             slug: data.slug,
             content: data.content,
-            type: "BLOG",
+            type: pageType,
+            url: data.url,
             meta_title: data.title,
             meta_description: data.meta_description
         }),
@@ -38,9 +40,22 @@ export default function BlogGeneratorPage() {
 
     return (
         <div className="p-6 max-w-4xl mx-auto">
-            <div className="mb-6">
-                <h1 className="text-2xl font-semibold text-gray-900">AI Blog Generator</h1>
-                <p className="mt-1 text-sm text-gray-500">Generate programmatic SEO content automatically using AI instructions.</p>
+            <div className="mb-6 flex justify-between items-end">
+                <div>
+                    <h1 className="text-2xl font-semibold text-gray-900">Page & Template Generator</h1>
+                    <p className="mt-1 text-sm text-gray-500">Generate programmatic SEO content or Spintax Templates automatically using AI.</p>
+                </div>
+                <div className="w-48">
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Creation Mode</label>
+                    <select
+                        value={pageType}
+                        onChange={(e) => setPageType(e.target.value)}
+                        className="w-full text-sm border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                        <option value="BLOG">Static Blog</option>
+                        <option value="TEMPLATE">Spintax Template</option>
+                    </select>
+                </div>
             </div>
 
             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-8">
@@ -90,7 +105,20 @@ export default function BlogGeneratorPage() {
                             />
                         </div>
                         <div>
-                            <label className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 block">URL Slug</label>
+                            <label className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 block">URL Route / Match Pattern</label>
+                            <input
+                                type="text"
+                                value={draft.url || (pageType === "TEMPLATE" ? "/results/:market" : `/blogs/${draft.slug}`)}
+                                onChange={(e) => setDraft({ ...draft, url: e.target.value })}
+                                className="w-full border-gray-200 rounded p-2 text-sm text-gray-900 bg-white"
+                                placeholder={pageType === "TEMPLATE" ? "/results/:market or /number/:number" : "/blogs/your-slug"}
+                            />
+                            {pageType === "TEMPLATE" && (
+                                <p className="text-xs text-gray-400 mt-1">Use <code>:param</code> for variables (e.g. <code>/results/:market</code>). Supported spintax in content: <code>{`{{market}}`}</code></p>
+                            )}
+                        </div>
+                        <div>
+                            <label className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1 block">Internal Slug</label>
                             <input
                                 type="text"
                                 value={draft.slug}

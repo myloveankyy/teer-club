@@ -3,8 +3,10 @@ import path from 'path';
 import { logger } from '../utils/logger';
 
 const BASE_URL = 'https://teer.club';
-const SITEMAP_PATH = path.join(process.cwd(), 'public', 'sitemap.xml');
-const METADATA_PATH = path.join(process.cwd(), 'public', 'sitemap-metadata.json');
+// Write to frontend/public since nextjs serves from there
+const FRONTEND_PUBLIC = path.join(process.cwd(), '..', 'frontend', 'public');
+const SITEMAP_PATH = path.join(FRONTEND_PUBLIC, 'sitemap.xml');
+const METADATA_PATH = path.join(FRONTEND_PUBLIC, 'sitemap-metadata.json');
 
 export interface SitemapLogEntry {
     level: 'INFO' | 'SUCCESS' | 'ERROR' | 'WARN';
@@ -111,9 +113,8 @@ export class SitemapService {
             }
 
             // ── Ensure public directory exists ──
-            const publicDir = path.join(process.cwd(), 'public');
-            if (!fs.existsSync(publicDir)) {
-                fs.mkdirSync(publicDir, { recursive: true });
+            if (!fs.existsSync(FRONTEND_PUBLIC)) {
+                fs.mkdirSync(FRONTEND_PUBLIC, { recursive: true });
             }
 
             // ── Write sitemap to disk ──
@@ -213,7 +214,7 @@ export class SitemapService {
 
     /**
      * Auto-generate a sitemap by combining static pages, game pages,
-     * dream SEO pages, and number analytics pages.
+     * dream SEO pages, and number analytics pages. Generates a sitemap index.
      */
     static async generate(prisma: any): Promise<SitemapMetadata> {
         const logs: SitemapLogEntry[] = [];
@@ -222,67 +223,107 @@ export class SitemapService {
             logger.info(`[SITEMAP] [${level}] ${message}`);
         };
 
-        log('INFO', 'Auto-generating sitemap...');
+        log('INFO', 'Auto-generating sitemap indexes...');
 
         const today = new Date().toISOString().split('T')[0];
 
-        // Static pages
+        // 1. Static Sitemap
         const staticPages = [
             '/', '/live', '/results', '/common-numbers', '/dreams',
             '/about', '/disclaimer', '/privacy-policy', '/how-to-use',
             '/tools/widget',
         ];
+        const staticUrls = staticPages.map(p => `${BASE_URL}${p}`);
+        log('INFO', `Generated ${staticPages.length} static pages`);
 
-        const urls: string[] = staticPages.map(p => `${BASE_URL}${p}`);
-        log('INFO', `Added ${staticPages.length} static pages`);
-
-        // Game pages (live + history)
+        // 2. Results & Dreams Sitemap
+        const resultsUrls: string[] = [];
         try {
             const games = await prisma.game.findMany({ where: { isEnabled: true } });
             for (const game of games) {
                 const name = game.name.toLowerCase();
-                urls.push(`${BASE_URL}/results/${name}/live`);
-                urls.push(`${BASE_URL}/results/${name}/history`);
+                resultsUrls.push(`${BASE_URL}/results/${name}`);
+                resultsUrls.push(`${BASE_URL}/results/${name}/live`);
             }
-            log('INFO', `Added ${games.length * 2} game pages`);
-        } catch (err) {
-            log('WARN', 'Failed to fetch games for sitemap');
-        }
+        } catch (err) {}
 
-        // Dream SEO pages
         try {
             const dreams = await prisma.dreamNumber.findMany({ select: { slug: true } });
             for (const dream of dreams) {
-                urls.push(`${BASE_URL}/dreams/${dream.slug}`);
+                resultsUrls.push(`${BASE_URL}/dreams/${dream.slug}`);
             }
-            log('INFO', `Added ${dreams.length} dream SEO pages`);
-        } catch (err) {
-            log('WARN', 'Failed to fetch dreams for sitemap');
-        }
+        } catch (err) {}
 
-        // Number analytics pages (00-99)
+        // Plus any VIRTUAL templates / Pages created in admin panel
+        try {
+            const dynamicPages = await prisma.page.findMany({ where: { status: "ACTIVE", type: { not: "TEMPLATE" } } });
+            for (const dp of dynamicPages) {
+                if (dp.url.startsWith('/')) {
+                   resultsUrls.push(`${BASE_URL}${dp.url}`);
+                }
+            }
+        } catch (err) {}
+        log('INFO', `Generated ${resultsUrls.length} results/dynamic pages`);
+
+        // 3. Numbers Sitemap (00-99)
+        const numbersUrls: string[] = [];
         for (let i = 0; i < 100; i++) {
             const num = String(i).padStart(2, '0');
-            urls.push(`${BASE_URL}/number/${num}`);
+            numbersUrls.push(`${BASE_URL}/number/${num}`);
         }
-        log('INFO', 'Added 100 number analytics pages');
+        log('INFO', 'Generated 100 number analytics pages');
 
-        // Build XML
-        const urlEntries = urls.map(url => {
-            const priority = url === BASE_URL + '/' ? '1.0' :
-                url.includes('/live') ? '0.9' :
-                url.includes('/dreams/') ? '0.7' :
-                url.includes('/number/') ? '0.6' : '0.8';
-            const changefreq = url.includes('/live') ? 'hourly' :
-                url.includes('/number/') || url.includes('/dreams/') ? 'weekly' : 'daily';
-            return `  <url>\n    <loc>${url}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
-        });
+        // Helper to format XML
+        const createXml = (urls: string[]) => {
+            const urlEntries = urls.map(url => {
+                const priority = url === BASE_URL + '/' ? '1.0' :
+                    url.includes('/live') ? '0.9' :
+                    url.includes('/dreams/') ? '0.7' :
+                    url.includes('/number/') ? '0.6' : '0.8';
+                const changefreq = url.includes('/live') ? 'hourly' :
+                    url.includes('/number/') || url.includes('/dreams/') ? 'weekly' : 'daily';
+                return `  <url>\n    <loc>${url}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+            });
+            return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlEntries.join('\n')}\n</urlset>`;
+        };
 
-        const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlEntries.join('\n')}\n</urlset>`;
+        if (!fs.existsSync(FRONTEND_PUBLIC)) fs.mkdirSync(FRONTEND_PUBLIC, { recursive: true });
 
-        log('SUCCESS', `Generated sitemap with ${urls.length} URLs`);
+        // Write sub-sitemaps
+        fs.writeFileSync(path.join(FRONTEND_PUBLIC, 'sitemap-static.xml'), createXml(staticUrls));
+        fs.writeFileSync(path.join(FRONTEND_PUBLIC, 'sitemap-results.xml'), createXml(resultsUrls));
+        fs.writeFileSync(path.join(FRONTEND_PUBLIC, 'sitemap-numbers.xml'), createXml(numbersUrls));
 
-        // Save via existing upload mechanism
-        return await this.upload(xml);
+        // Create Sitemap Index
+        const sitemaps = ['sitemap-static.xml', 'sitemap-results.xml', 'sitemap-numbers.xml'];
+        const indexEntries = sitemaps.map(sm => `  <sitemap>\n    <loc>${BASE_URL}/${sm}</loc>\n    <lastmod>${today}</lastmod>\n  </sitemap>`);
+        const indexXml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexEntries.join('\n')}\n</sitemapindex>`;
+        
+        fs.writeFileSync(SITEMAP_PATH, indexXml);
+        
+        const allUrls = [...staticUrls, ...resultsUrls, ...numbersUrls];
+        log('SUCCESS', `Generated sitemap index with ${allUrls.length} total URLs`);
+
+        // We can optionally use the upload logic to log the diff
+        // But since we wrote directly, let's just return metadata for the full flattened list
+        const previousUrls = this.getPreviousUrls();
+        const newUrlSet = new Set(allUrls);
+        const added = allUrls.filter(u => !previousUrls.has(u));
+        const removed = [...previousUrls].filter(u => !newUrlSet.has(u));
+
+        const metadata: SitemapMetadata = {
+            lastUpdated: new Date().toISOString(),
+            totalUrls: allUrls.length,
+            previousUrlCount: previousUrls.size,
+            newUrlsAdded: added.length,
+            removedUrlsCount: removed.length,
+            fileSize: Buffer.byteLength(indexXml, 'utf-8'),
+            diff: { added, removed, unchanged: allUrls.length - added.length },
+            logs,
+            urls: allUrls,
+        };
+        fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata));
+
+        return metadata;
     }
 }

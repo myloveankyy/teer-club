@@ -29,13 +29,29 @@ export async function generateMetadata(
     return { title: "Not Found" };
   }
 
+  const defaultUrl = `/number/${number}`;
+  let pageData = null;
+  try {
+      const res = await api.pages.getByUrl(defaultUrl);
+      if (res.data?.success && res.data?.data) {
+          pageData = res.data.data;
+      }
+  } catch (e) {}
+
+  const title = pageData?.meta_title || `Teer Number ${number} History | How Many Times ${number} Came in Shillong Teer`;
+  const description = pageData?.meta_description || `Complete analysis of Teer number ${number}. See how many times ${number} appeared as FR and SR in Shillong, Khanapara, Juwai Teer. Last appeared date and frequency data.`;
+
   return {
-    title: `Teer Number ${number} History | How Many Times ${number} Came in Shillong Teer`,
-    description: `Complete analysis of Teer number ${number}. See how many times ${number} appeared as FR and SR in Shillong, Khanapara, Juwai Teer. Last appeared date and frequency data.`,
+    title,
+    description,
     keywords: [`Teer number ${number}`, `Shillong Teer ${number}`, `Teer Target ${number}`, `Teer previous result ${number}`, `teer hit number ${number}`],
     alternates: {
-      canonical: `/number/${number}`,
+      canonical: pageData?.canonical_url || defaultUrl,
     },
+    robots: {
+      index: pageData?.indexed ?? true,
+      follow: true,
+    }
   };
 }
 
@@ -77,11 +93,23 @@ export default async function NumberPage({ params }: Props) {
   const prevNum = String((parseInt(number) - 1 + 100) % 100).padStart(2, "0");
   const nextNum = String((parseInt(number) + 1) % 100).padStart(2, "0");
 
+  const defaultUrl = `/number/${number}`;
+  let pageData = null;
+  try {
+      const res = await api.pages.getByUrl(defaultUrl);
+      if (res.data?.success && res.data?.data) {
+          pageData = res.data.data;
+      }
+  } catch (e) {}
+
+  const h1Title = pageData?.title || `Target Number <span class="text-emerald-400">${number}</span>`;
+  const bodyContent = pageData?.content || null;
+
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: `Teer Number ${number} - Complete Frequency Analysis`,
-    description: `How many times has number ${number} appeared in Teer results.`,
+    headline: pageData?.title || `Teer Number ${number} - Complete Frequency Analysis`,
+    description: pageData?.meta_description || `How many times has number ${number} appeared in Teer results.`,
     author: { "@type": "Organization", name: "Teer.club" },
     publisher: { "@type": "Organization", name: "Teer.club", url: "https://teer.club" },
   };
@@ -113,8 +141,7 @@ export default async function NumberPage({ params }: Props) {
               <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-indigo-200 backdrop-blur-md mb-6 border border-white/10">
                 Number Analytics
               </span>
-              <h1 className="mb-6 text-4xl font-black tracking-tight md:text-6xl lg:text-7xl">
-                Target Number <span className="text-emerald-400">{number}</span>
+              <h1 className="mb-6 text-4xl font-black tracking-tight md:text-6xl lg:text-7xl" dangerouslySetInnerHTML={{ __html: h1Title }}>
               </h1>
               <p className="text-lg md:text-xl text-indigo-200/80 leading-relaxed max-w-2xl mx-auto font-medium">
                 Comprehensive history and frequency analysis for the number {number} across all official Teer games.
@@ -236,26 +263,30 @@ export default async function NumberPage({ params }: Props) {
           <Container className="max-w-3xl mx-auto">
             <div className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-gray-200">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">About Teer Number {number}</h2>
-              <div className="prose prose-lg text-gray-600 max-w-none">
-                <p>
-                  Number <strong>{number}</strong> is one of the 100 possible outcomes (00-99) in Teer archery games played across Meghalaya and Assam.
-                  Based on our historical database, this number has appeared a total of <strong>{stats.totalHits} times</strong> across
-                  Shillong Teer, Khanapara Teer, Juwai Teer, and other regional games.
-                </p>
-                <p>
-                  Of those appearances, <strong>{stats.round1Hits}</strong> were in the First Round (FR) and <strong>{stats.round2Hits}</strong> were
-                  in the Second Round (SR). Players looking for the <strong>Teer hit number {number}</strong> can use this frequency data to
-                  inform their analysis alongside <Link href="/common-numbers" className="text-primary hover:underline">daily common numbers</Link> and{" "}
-                  <Link href="/dreams" className="text-primary hover:underline">dream number interpretations</Link>.
-                </p>
-                {stats.lastHit && (
-                  <p>
-                    The most recent appearance of number {number} was on{" "}
-                    <strong>{new Date(stats.lastHit).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</strong>{" "}
-                    in the <strong>{stats.lastGame}</strong> game.
-                  </p>
-                )}
-              </div>
+              {bodyContent ? (
+                  <div className="prose prose-lg text-gray-600 max-w-none" dangerouslySetInnerHTML={{ __html: bodyContent }} />
+              ) : (
+                  <div className="prose prose-lg text-gray-600 max-w-none">
+                    <p>
+                      Number <strong>{number}</strong> is one of the 100 possible outcomes (00-99) in Teer archery games played across Meghalaya and Assam.
+                      Based on our historical database, this number has appeared a total of <strong>{stats.totalHits} times</strong> across
+                      Shillong Teer, Khanapara Teer, Juwai Teer, and other regional games.
+                    </p>
+                    <p>
+                      Of those appearances, <strong>{stats.round1Hits}</strong> were in the First Round (FR) and <strong>{stats.round2Hits}</strong> were
+                      in the Second Round (SR). Players looking for the <strong>Teer hit number {number}</strong> can use this frequency data to
+                      inform their analysis alongside <Link href="/common-numbers" className="text-primary hover:underline">daily common numbers</Link> and{" "}
+                      <Link href="/dreams" className="text-primary hover:underline">dream number interpretations</Link>.
+                    </p>
+                    {stats.lastHit && (
+                      <p>
+                        The most recent appearance of number {number} was on{" "}
+                        <strong>{new Date(stats.lastHit).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</strong>{" "}
+                        in the <strong>{stats.lastGame}</strong> game.
+                      </p>
+                    )}
+                  </div>
+              )}
             </div>
           </Container>
         </Section>

@@ -27,11 +27,32 @@ export async function generateMetadata(
   const { market, date } = await params;
   const gameName = market.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   const formattedDate = formatDate(date);
+  const defaultUrl = `/results/${market}/${date}`;
+
+  let pageData = null;
+  try {
+      const res = await api.pages.getByUrl(defaultUrl);
+      if (res.data?.success && res.data?.data) {
+          pageData = res.data.data;
+      }
+  } catch (e) {
+      // Fallback
+  }
+
+  const title = pageData?.meta_title || `${gameName} Result on ${formattedDate} | Teer Club`;
+  const description = pageData?.meta_description || `Official ${gameName} Teer Result for ${formattedDate}. Check the First Round (F/R) and Second Round (S/R) winning numbers.`;
 
   return {
-    title: `${gameName} Result on ${formattedDate} | Teer Club`,
-    description: `Official ${gameName} Teer Result for ${formattedDate}. Check the First Round (F/R) and Second Round (S/R) winning numbers.`,
+    title,
+    description,
     keywords: [`${gameName} result ${date}`, `${gameName} teer result ${formattedDate}`, `${market} previous result`],
+    alternates: {
+        canonical: pageData?.canonical_url || defaultUrl,
+    },
+    robots: {
+        index: pageData?.indexed ?? true,
+        follow: true,
+    }
   };
 }
 
@@ -57,6 +78,20 @@ export default async function DateResultPage({ params }: Props) {
   const result = data;
   const gameName = result.game?.displayName || market.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   const formattedDate = formatDate(date);
+  const defaultUrl = `/results/${market}/${date}`;
+
+  let pageData = null;
+  try {
+      const res = await api.pages.getByUrl(defaultUrl);
+      if (res.data?.success && res.data?.data) {
+          pageData = res.data.data;
+      }
+  } catch (e) {
+      // Fallback
+  }
+
+  const h1Title = pageData?.title || `${gameName} Result`;
+  const bodyContent = pageData?.content || null;
 
   return (
     <PageLayout>
@@ -68,11 +103,14 @@ export default async function DateResultPage({ params }: Props) {
                 Historical Archive
               </span>
               <h1 className="mb-4 text-4xl font-black tracking-tight md:text-5xl lg:text-6xl">
-                {gameName} Result
+                {h1Title}
               </h1>
               <p className="text-xl md:text-2xl text-emerald-400 font-bold mb-6">
                 {formattedDate}
               </p>
+              {bodyContent && (
+                 <div className="text-base text-indigo-100 mb-6 max-w-2xl mx-auto" dangerouslySetInnerHTML={{ __html: bodyContent }} />
+              )}
               <div className="flex justify-center mt-8">
                  <Link href={`/results/${market}`} className="text-sm font-bold text-indigo-300 hover:text-white underline underline-offset-4">
                     &larr; Back to {gameName} History

@@ -20,12 +20,21 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
     const isDate = /^\d{4}-\d{2}-\d{2}$/.test(slug);
+    const defaultUrl = `/common-numbers/${slug}`;
+
+    let pageData = null;
+    try {
+        const res = await api.pages.getByUrl(defaultUrl);
+        if (res.data?.success && res.data?.data) {
+            pageData = res.data.data;
+        }
+    } catch (e) {}
 
     if (isDate) {
         const formattedDate = new Date(slug).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
         return {
-            title: `Teer Common Number Today ${formattedDate} - Shillong Khanapara Hit Number`,
-            description: `Get 100% verified Teer Common Number for ${formattedDate} today. Highly accurate Shillong Teer and Khanapara Teer hit numbers, house ending predictions, and live match proofs.`,
+            title: pageData?.meta_title || `Teer Common Number Today ${formattedDate} - Shillong Khanapara Hit Number`,
+            description: pageData?.meta_description || `Get 100% verified Teer Common Number for ${formattedDate} today. Highly accurate Shillong Teer and Khanapara Teer hit numbers, house ending predictions, and live match proofs.`,
             keywords: [
                 `Shillong Teer Common Number`,
                 `Khanapara Teer Hit Number Today`,
@@ -35,14 +44,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 `Shillong Teer Result`,
             ].join(', '),
             alternates: {
-                canonical: `https://teer.club/common-numbers/${slug}`
+                canonical: pageData?.canonical_url || `https://teer.club/common-numbers/${slug}`
+            },
+            robots: {
+                index: pageData?.indexed ?? true,
+                follow: true,
             }
         };
     } else {
         const gameNameDisplay = slug.charAt(0).toUpperCase() + slug.slice(1);
         return {
-            title: `${gameNameDisplay} Teer Common Number Today - Hit Number & Target`,
-            description: `Get the 100% verified ${gameNameDisplay} Teer Common Number today. Find out highly accurate ${gameNameDisplay} hit numbers, house/ending targets, and match proofs.`,
+            title: pageData?.meta_title || `${gameNameDisplay} Teer Common Number Today - Hit Number & Target`,
+            description: pageData?.meta_description || `Get the 100% verified ${gameNameDisplay} Teer Common Number today. Find out highly accurate ${gameNameDisplay} hit numbers, house/ending targets, and match proofs.`,
             keywords: [
                 `${gameNameDisplay} Teer Common Number`,
                 `${gameNameDisplay} Teer Hit Number Today`,
@@ -50,7 +63,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 `${gameNameDisplay} Teer House Ending`,
             ].join(', '),
             alternates: {
-                canonical: `https://teer.club/common-numbers/${slug}`
+                canonical: pageData?.canonical_url || `https://teer.club/common-numbers/${slug}`
+            },
+            robots: {
+                index: pageData?.indexed ?? true,
+                follow: true,
             }
         };
     }
@@ -62,6 +79,15 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
 
     let predictions: any[] = [];
     let formattedDate = "";
+    
+    const defaultUrl = `/common-numbers/${slug}`;
+    let pageData = null;
+    try {
+        const res = await api.pages.getByUrl(defaultUrl);
+        if (res.data?.success && res.data?.data) {
+            pageData = res.data.data;
+        }
+    } catch (e) {}
 
     try {
         if (isDate) {
@@ -115,12 +141,15 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
                         <div className="mb-6 flex justify-center">
                             <StatusBadge status="declared" customLabels={{ declared: "HISTORICAL DATABASE" }} />
                         </div>
-                        <h1 className="text-h1 mb-6 text-white uppercase leading-tight">
-                            {formattedDate} <span className="text-blue-500">Targets</span>
+                        <h1 className="text-h1 mb-6 text-white uppercase leading-tight" dangerouslySetInnerHTML={{ __html: pageData?.title || `${formattedDate} <span class="text-blue-500">Targets</span>` }}>
                         </h1>
-                        <p className="mx-auto max-w-2xl text-body text-gray-400">
-                            100% Verified Teer Common Numbers. Daily Shillong, Khanapara, and Juwai Teer hit numbers, house, and ending predictions.
-                        </p>
+                        {pageData?.content ? (
+                            <div className="mx-auto max-w-2xl text-body text-gray-400" dangerouslySetInnerHTML={{ __html: pageData.content }} />
+                        ) : (
+                            <p className="mx-auto max-w-2xl text-body text-gray-400">
+                                100% Verified Teer Common Numbers. Daily Shillong, Khanapara, and Juwai Teer hit numbers, house, and ending predictions.
+                            </p>
+                        )}
                     </Container>
                 </Section>
 

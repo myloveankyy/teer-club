@@ -27,15 +27,68 @@ const updateSchema = z.object({
     index_status: z.string().optional(),
 });
 
-// Get exact page by URL for SEO overrides
+// Get exact page by URL for SEO overrides or fallback to matching template
 router.get("/by-url", async (req, res) => {
     try {
         const { url } = req.query;
         if (!url || typeof url !== "string") {
             return res.status(400).json({ success: false, error: "Missing url parameter" });
         }
+        
+        // 1. Exact Match
         const page = await prisma.page.findUnique({ where: { url } });
-        return res.json({ success: true, data: page });
+        if (page) {
+            return res.json({ success: true, data: page });
+        }
+
+        // 2. Template Fallback (Regex / Route matching)
+        const templates = await prisma.page.findMany({ where: { type: "TEMPLATE" } });
+        
+        for (const template of templates) {
+            // Very simple express-like route matching
+            // Convert template url (e.g., /results/:market or /number/:number) to regex
+            const regexStr = "^" + template.url.replace(/:[a-zA-Z]+/g, "([^/]+)") + "$";
+            const regex = new RegExp(regexStr);
+            const match = url.match(regex);
+            
+            if (match) {
+                // Extract param names from template url
+                const paramNames = (template.url.match(/:[a-zA-Z]+/g) || []).map(p => p.slice(1));
+                const params: Record<string, string> = {};
+                paramNames.forEach((name, i) => {
+                    params[name] = match[i + 1];
+                });
+
+                // Spin / Replace placeholders in template fields
+                // Example spintax: {{market}}, {{number}}, {{date}}
+                const spin = (text: string | null) => {
+                    if (!text) return text;
+                    let spun = text;
+                    for (const [key, val] of Object.entries(params)) {
+                        const search = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
+                        // uppercase first letter for display
+                        const displayVal = val.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
+                        spun = spun.replace(search, displayVal);
+                    }
+                    return spun;
+                };
+
+                const spunPage = {
+                    ...template,
+                    id: "virtual-template-match",
+                    url: url,
+                    type: "VIRTUAL_TEMPLATE",
+                    title: spin(template.title) || template.title,
+                    meta_title: spin(template.meta_title) || template.meta_title,
+                    meta_description: spin(template.meta_description) || template.meta_description,
+                    content: spin(template.content) || template.content,
+                };
+
+                return res.json({ success: true, data: spunPage });
+            }
+        }
+
+        return res.json({ success: true, data: null });
     } catch (error: any) {
         return res.status(500).json({ success: false, error: error.message });
     }
@@ -93,7 +146,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// Create a page manually (for blogs)
+// Create a page manually (for blogs or templates)
 router.post("/", async (req, res) => {
     try {
         let { title, slug, content, url, type, meta_title, meta_description } = req.body;
@@ -102,7 +155,9 @@ router.post("/", async (req, res) => {
         const existing = await prisma.page.findFirst({ where: { slug } });
         if (existing) {
             slug = `${slug}-${Date.now().toString().slice(-4)}`;
-            url = `/blogs/${slug}`;
+            if (type !== "TEMPLATE") {
+               url = `/blogs/${slug}`;
+            }
         }
 
         const page = await prisma.page.create({

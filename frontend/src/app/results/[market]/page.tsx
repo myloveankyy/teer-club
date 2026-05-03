@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
+import api from "@/lib/api";
 import { PageLayout } from "@/components/shared/PageLayout";
 import { Section, Container } from "@/components/ui/Grid";
 import { ResultsList } from "@/components/ResultsList";
@@ -27,10 +28,24 @@ function parseMarketSlug(slug: string) {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { displayTitle } = parseMarketSlug(params.market);
+    const defaultUrl = `/results/${params.market}`;
+
+    let pageData = null;
+    try {
+        const res = await api.pages.getByUrl(defaultUrl);
+        if (res.data?.success && res.data?.data) {
+            pageData = res.data.data;
+        }
+    } catch (e) {
+        // Fallback
+    }
+
+    const title = pageData?.meta_title || `${displayTitle} | Verified Records`;
+    const description = pageData?.meta_description || `Complete historical dataset and insights for ${displayTitle}. View live updates, previous records, and algorithmic analysis.`;
 
     return {
-        title: `${displayTitle} | Verified Records`,
-        description: `Complete historical dataset and insights for ${displayTitle}. View live updates, previous records, and algorithmic analysis.`,
+        title,
+        description,
         keywords: [
             displayTitle,
             `${displayTitle} prediction`,
@@ -38,13 +53,31 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             `${displayTitle} common numbers`
         ],
         alternates: {
-            canonical: `/results/${params.market}`,
+            canonical: pageData?.canonical_url || defaultUrl,
         },
+        robots: {
+            index: pageData?.indexed ?? true,
+            follow: true,
+        }
     };
 }
 
-export default function ProgrammaticMarketPage({ params }: PageProps) {
+export default async function ProgrammaticMarketPage({ params }: PageProps) {
     const { gameId, displayTitle } = parseMarketSlug(params.market);
+    const defaultUrl = `/results/${params.market}`;
+
+    let pageData = null;
+    try {
+        const res = await api.pages.getByUrl(defaultUrl);
+        if (res.data?.success && res.data?.data) {
+            pageData = res.data.data;
+        }
+    } catch (e) {
+        // Fallback
+    }
+
+    const h1Title = pageData?.title || displayTitle;
+    const bodyContent = pageData?.content || `Welcome to the official dataset for ${displayTitle}. Here you can analyze recent outcomes, study long-term patterns, and access our optimized programmatic SEO hub for this specific query.`;
 
     return (
         <PageLayout>
@@ -56,12 +89,9 @@ export default function ProgrammaticMarketPage({ params }: PageProps) {
                                 Programmatic SEO Record
                             </div>
                             <h1 className="text-h1 text-gray-900 leading-tight mb-6">
-                                {displayTitle}
+                                {h1Title}
                             </h1>
-                            <p className="text-lg text-gray-600 mb-8">
-                                Welcome to the official dataset for {displayTitle}.
-                                Here you can analyze recent outcomes, study long-term patterns, and access our optimized programmatic SEO hub for this specific query.
-                            </p>
+                            <div className="text-lg text-gray-600 mb-8" dangerouslySetInnerHTML={{ __html: bodyContent }} />
                         </div>
                     </Container>
                 </Section>
