@@ -64,11 +64,8 @@ const pubClient = redis;
 const subClient = pubClient.duplicate();
 
 // Connect subClient (pubClient is already connected in lib/redis.ts)
-subClient.connect().then(() => {
-  io.adapter(createAdapter(pubClient, subClient));
-}).catch(err => {
-  logger.error("[Redis] Failed to connect subClient for Socket.IO adapter", err);
-});
+// Note: ioredis automatically connects on instantiation/duplicate.
+io.adapter(createAdapter(pubClient, subClient));
 
 io.on("connection", (socket) => {
   logger.info(`[Socket.IO] Client connected: ${socket.id}`);

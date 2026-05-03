@@ -22,7 +22,7 @@ module.exports = {
         {
             name: "teer-admin",
             script: "npm",
-            args: "run start -- -p 3002",
+            args: "run start -- -p 3001",
             cwd: "./admin-panel",
             watch: false,
             env: {
