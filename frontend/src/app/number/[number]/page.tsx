@@ -59,6 +59,19 @@ export default async function NumberPage({ params }: Props) {
   const stats = data?.stats || { totalHits: 0, round1Hits: 0, round2Hits: 0, round3Hits: 0, lastHit: null, lastGame: null };
   const history = data?.history || [];
 
+  // Fetch dreams that reference this number for cross-linking
+  let relatedDreams: any[] = [];
+  try {
+    const dreamsRes = await api.dreams.getAll();
+    if (dreamsRes.data?.success && dreamsRes.data.data) {
+      relatedDreams = dreamsRes.data.data.filter((d: any) =>
+        d.numbers.split(',').map((n: string) => n.trim().padStart(2, '0')).includes(number)
+      ).slice(0, 8);
+    }
+  } catch (err) {
+    // Silently fail — dreams cross-links are optional
+  }
+
   // Adjacent number navigation
   const prevNum = String((parseInt(number) - 1 + 100) % 100).padStart(2, "0");
   const nextNum = String((parseInt(number) + 1) % 100).padStart(2, "0");
@@ -242,6 +255,36 @@ export default async function NumberPage({ params }: Props) {
             </div>
           </Container>
         </Section>
+
+        {/* Related Dreams Cross-Link */}
+        {relatedDreams.length > 0 && (
+          <Section background="white" className="!py-16 border-t border-gray-100">
+            <Container className="max-w-4xl mx-auto">
+              <div className="mb-8">
+                <h3 className="text-2xl font-bold text-gray-900 tracking-tight mb-2">
+                  Dreams Linked to <span className="text-primary">{number}</span>
+                </h3>
+                <p className="text-sm text-gray-500 font-medium">These dreams are traditionally associated with number {number}</p>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {relatedDreams.map((dream: any) => (
+                  <Link key={dream.id || dream.slug} href={`/dreams/${dream.slug}`} className="block group">
+                    <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all text-center">
+                      <h4 className="font-bold text-gray-900 capitalize mb-2 group-hover:text-primary">{dream.dream}</h4>
+                      <div className="flex gap-1 justify-center flex-wrap">
+                        {dream.numbers.split(',').map((n: string) => (
+                          <span key={n.trim()} className={`text-xs font-bold px-2 py-0.5 rounded-md ${n.trim().padStart(2, '0') === number ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-400'}`}>
+                            {n.trim()}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </Container>
+          </Section>
+        )}
 
         {/* Number Grid Navigation */}
         <Section background="white" className="!py-16 md:!py-24 border-t border-gray-100">

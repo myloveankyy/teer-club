@@ -139,14 +139,17 @@ export default async function DreamSeoPage({ params }: Props) {
                     <span className="text-blue-400 font-bold uppercase tracking-widest text-xs mb-6">Target Numbers for {dream.dream}</span>
                     <div className="flex flex-wrap justify-center gap-4 md:gap-6">
                         {dream.numbers.split(",").map((num: string) => (
-                            <span
+                            <Link
                                 key={num.trim()}
-                                className="inline-flex h-20 w-24 md:h-24 md:w-32 items-center justify-center rounded-2xl bg-primary text-4xl md:text-5xl font-black text-white shadow-xl shadow-blue-500/20 ring-1 ring-white/10"
+                                href={`/number/${num.trim().padStart(2, '0')}`}
+                                className="inline-flex h-20 w-24 md:h-24 md:w-32 items-center justify-center rounded-2xl bg-primary text-4xl md:text-5xl font-black text-white shadow-xl shadow-blue-500/20 ring-1 ring-white/10 hover:bg-blue-700 hover:scale-105 transition-all"
+                                title={`View Number ${num.trim()} Analytics`}
                             >
                                 {num.trim()}
-                            </span>
+                            </Link>
                         ))}
                     </div>
+                    <p className="text-blue-300/60 text-xs mt-4 font-medium">Click any number to view its full history &amp; frequency</p>
                 </div>
             </div>
           </Container>
