@@ -78,7 +78,7 @@ export async function getCronStatus() {
         id: j.key,
         name: j.name,
         pattern: j.pattern,
-        nextRun: new Date(j.next).toISOString()
+        nextRun: j.next ? new Date(j.next).toISOString() : null
     }));
 }
 
