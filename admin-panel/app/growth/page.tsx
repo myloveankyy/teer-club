@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import api from "../../lib/api";
+import api from "../api/client";
 import { RecommendationCard } from "../../components/growth/RecommendationCard";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { RefreshCw, TrendingUp, Search, Link as LinkIcon, FileText } from "lucide-react";
