@@ -7,13 +7,14 @@ import { Section, Container } from "@/components/ui/Grid";
 import { Button } from "@/components/ui/Button";
 
 interface Props {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
   let dream: any = null;
   try {
-    const res = await api.dreams.getBySlug(params.slug);
+    const res = await api.dreams.getBySlug(slug);
     if (res.data?.success) {
       dream = res.data.data;
     }
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: dream.seoDesc || `Dreamt of a ${dream.dream}? Find the official Shillong and Khanapara Teer target numbers associated with this dream.`,
     keywords: dream.keywords || `${dream.dream} dream meaning teer, ${dream.dream} teer number`,
     alternates: {
-      canonical: `/dreams/${params.slug}`,
+      canonical: `/dreams/${slug}`,
     },
   };
 }
@@ -50,12 +51,13 @@ export async function generateStaticParams() {
 }
 
 export default async function DreamSeoPage({ params }: Props) {
+  const { slug } = await params;
   let dream: any = null;
   let allDreams: any[] = [];
   
   try {
     const [dreamRes, allDreamsRes] = await Promise.all([
-      api.dreams.getBySlug(params.slug),
+      api.dreams.getBySlug(slug),
       api.dreams.getAll()
     ]);
     
@@ -157,9 +159,8 @@ export default async function DreamSeoPage({ params }: Props) {
                     <h2 className="text-2xl font-bold text-gray-900 mb-6">What does it mean?</h2>
                     <div 
                         className="prose prose-lg prose-blue max-w-none text-gray-600 prose-headings:text-gray-900 prose-strong:text-gray-900"
-                        // Since SEO experts might put raw HTML/Markdown, we render it safely. In a real app we'd use marked.js, but since this is simple text:
                         dangerouslySetInnerHTML={{ 
-                            __html: (dream.bodyText || `If you dreamed about a **${dream.dream}**, the traditional Teer numbers associated with this dream are **${dream.numbers}**. Many players use these numbers for today's Shillong or Khanapara Teer target.`)
+                            __html: (dream.bodyText || `If you dreamed about a **${dream.dream}**, the traditional Teer numbers associated with this dream are **${dream.numbers}**. Many players use these numbers for today&apos;s Shillong or Khanapara Teer target.`)
                                         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
                                         .replace(/\n/g, '<br/>')
                         }}
