@@ -148,8 +148,8 @@ jobs:
             echo "INTERNAL_API_URL=http://localhost:5000/api" >> admin-panel/.env
 
             echo "Ensuring Redis is running..."
-            sudo apt-get install -y redis-server
-            sudo systemctl start redis-server
+            sudo apt-get install -y redis-server || true
+            sudo systemctl start redis-server || true
             
             echo "Installing Backend Dependencies..."
             cd backend
