@@ -21,6 +21,13 @@ export interface SiteSettings {
     textColor: string;
     cardStyle: string;
     borderRadius: string;
+    faviconUrl?: string;
+    appleTouchIconUrl?: string;
+    isAdsEnabled?: boolean;
+    googleAdsenseClientId?: string;
+    headerAdUnit?: string;
+    inFeedAdUnit?: string;
+    stickyFooterAdUnit?: string;
 }
 
 export const useSiteSettings = (initialSettingsProp?: SiteSettings) => {

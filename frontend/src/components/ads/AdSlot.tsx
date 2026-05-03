@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useSettings } from "@/components/Providers";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 interface AdSlotProps {
   slotType: "header" | "inFeed" | "stickyFooter";
@@ -11,7 +11,7 @@ interface AdSlotProps {
 }
 
 export default function AdSlot({ slotType, className = "", format = "auto", responsive = true }: AdSlotProps) {
-  const settings = useSettings();
+  const { settings } = useSiteSettings();
   const adRef = useRef<HTMLModElement>(null);
 
   // Map slotType to the actual setting property
