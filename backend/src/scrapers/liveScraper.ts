@@ -134,8 +134,8 @@ export async function scrapeLiveResult(game: { name: string; liveSourceUrl: stri
             }
 
             const bestOverall = [...results].sort((a, b) => scoreResult(b) - scoreResult(a))[0];
-            if (!bestOverall.date || (targetDate && bestOverall.date === targetDate) || (!targetDate && bestOverall.date === todayIST)) {
-                logger.info(`[SCRAPER] Game: ${game.name} | Status: SUCCESS (undated/matched) | FR: ${bestOverall.round1} | SR: ${bestOverall.round2}`);
+            if (bestOverall.date && ((targetDate && bestOverall.date === targetDate) || (!targetDate && bestOverall.date === todayIST))) {
+                logger.info(`[SCRAPER] Game: ${game.name} | Status: SUCCESS (matched) | FR: ${bestOverall.round1} | SR: ${bestOverall.round2}`);
                 return {
                     success: true, status: "SUCCESS", date: effectiveTargetDate, round1: bestOverall.round1, round2: bestOverall.round2, round3: bestOverall.round3,
                     duration: Date.now() - startTime, details: { method: methodUsed, score: scoreResult(bestOverall) }

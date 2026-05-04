@@ -117,37 +117,79 @@ export function extractFromDOM(html: string, config?: { selectors?: any, gameNam
     for (const selector of tableSelectors) {
         $(selector).each((_: number, el: any) => {
             const cells = $(el).find("td, th");
-            if (cells.length < 3) return;
+            if (cells.length < 2) return; // Need at least FR/SR or City/FR/SR
 
             // Strict Section Exclusion: IGNORE Night / Evening / Second Session
             const rowText = $(el).text().toLowerCase();
-            const tableText = $(el).closest("table").text().toLowerCase();
-            const prevHeading = $(el).closest("table").prevAll("h1, h2, h3, h4, h5, h6").first().text().toLowerCase();
+            const tableEl = $(el).closest("table");
+            const tableText = tableEl.text().toLowerCase();
+            const prevHeadings = tableEl.prevAll("h1, h2, h3, h4, h5, h6, .date-heading, .date-title, strong");
+            const prevHeadingText = prevHeadings.first().text().toLowerCase();
 
             const isNightResult =
                 (rowText.includes("night") && !rowText.includes("day")) ||
                 (rowText.includes("evening") && !rowText.includes("day")) ||
-                (prevHeading.includes("night") || prevHeading.includes("evening")) ||
+                (prevHeadingText.includes("night") || prevHeadingText.includes("evening")) ||
                 (tableText.includes("night") && tableText.includes("result") && !tableText.includes("day"));
 
             if (isNightResult) return;
 
-            const dateText = $(cells[0]).text().trim();
-            let col1 = $(cells[1]).text().trim();
-            let col2 = $(cells[2]).text().trim();
-            let col3 = cells.length >= 4 ? $(cells[3]).text().trim() : "";
-            let col4 = cells.length >= 5 ? $(cells[4]).text().trim() : "";
+            let cell0 = $(cells[0]).text().trim();
+            let cell1 = $(cells[1]).text().trim();
+            let cell2 = cells.length >= 3 ? $(cells[2]).text().trim() : "";
+            let cell3 = cells.length >= 4 ? $(cells[3]).text().trim() : "";
+            let cell4 = cells.length >= 5 ? $(cells[4]).text().trim() : "";
 
-            let round1Text: string = col1;
-            let round2Text: string = col2;
-            let round3Text: string = col3;
+            let round1Text = "";
+            let round2Text = "";
+            let round3Text = "";
+            let dateText = "";
 
-            // Handle regional sites (e.g. Bhutan) that inject a "CITY" column as cells[1]
-            const isCityColumn = /^(bhutan|shillong|khanapara|juwai|meghalaya)$/i.test(col1.replace(/[^a-z]/ig, ''));
-            if (isCityColumn) {
-                round1Text = col2;
-                round2Text = col3;
-                round3Text = col4;
+            // Check if cell0 is a date
+            if (normalizeDate(cell0)) {
+                // Format: Date | FR | SR
+                dateText = cell0;
+                round1Text = cell1;
+                round2Text = cell2;
+                round3Text = cell3;
+
+                // Handle regional sites (e.g. Bhutan) that inject a "CITY" column as cells[1]
+                const isCityColumn = /^(bhutan|shillong|khanapara|juwai|meghalaya)$/i.test(cell1.replace(/[^a-z]/ig, ''));
+                if (isCityColumn) {
+                    round1Text = cell2;
+                    round2Text = cell3;
+                    round3Text = cell4;
+                }
+            } else {
+                // If cell0 is NOT a date, it might be a date-less table (e.g. F/R | S/R)
+                // Look for the date in the closest preceding heading!
+                let foundDate = null;
+                prevHeadings.each((i, h) => {
+                    const hText = $(h).text().trim();
+                    const extracted = normalizeDate(hText);
+                    if (extracted && !foundDate) foundDate = extracted;
+                });
+
+                if (foundDate) {
+                    dateText = foundDate;
+                    
+                    // Format could be: City | FR | SR  OR  FR | SR
+                    const isCityColumn = /^(bhutan|shillong|khanapara|juwai|meghalaya)$/i.test(cell0.replace(/[^a-z]/ig, ''));
+                    if (isCityColumn) {
+                        round1Text = cell1;
+                        round2Text = cell2;
+                        round3Text = cell3;
+                    } else if (cell0.match(/\d+/) || cell1.match(/\d+/) || cell0.toLowerCase().includes('xx')) {
+                        // Looks like pure results: 45 | 60
+                        round1Text = cell0;
+                        round2Text = cell1;
+                        round3Text = cell2;
+                    } else {
+                        return; // Probably a header row like "F/R | S/R"
+                    }
+                } else {
+                    return; // No date found in row or headings
+                }
             }
 
             round1Text = round1Text.replace(/^(day|session|teer|result|today)\s*[:|]\s*/i, "").trim();
