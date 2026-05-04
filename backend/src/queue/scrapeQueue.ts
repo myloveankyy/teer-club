@@ -229,6 +229,12 @@ export function startScrapeWorker() {
           });
           logger.info(`[Worker] Completed: ${gameName} | SUCCESS | FR: ${result.round1} | SR: ${result.round2} | ${tickDuration}ms`);
         } else {
+          await writeCronLog({
+            game: game.name,
+            status: "NO_NEW_DATA",
+            duration: result.duration,
+            details: { reason: "Result unchanged from DB" }
+          });
           logger.debug(`[Worker] Completed: ${gameName} | NO_NEW_DATA | ${tickDuration}ms`);
         }
       } else if (result.status === "FAILED") {
@@ -241,6 +247,17 @@ export function startScrapeWorker() {
         });
         logger.warn(`[Worker] Completed: ${gameName} | FAILED | ${result.error} | ${tickDuration}ms`);
         throw new Error(result.error); // Trigger retry
+      } else if (result.status === "STALE_DATA" || result.status === "NO_NEW_DATA") {
+        await writeCronLog({
+          game: game.name,
+          status: result.status,
+          duration: result.duration,
+          resultDate: result.date,
+          round1: result.round1,
+          round2: result.round2,
+          details: result.details
+        });
+        logger.info(`[Worker] Completed: ${gameName} | ${result.status} | Date: ${result.date} | ${tickDuration}ms`);
       }
 
       return { status: result.status, duration: tickDuration };
