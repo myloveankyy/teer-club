@@ -154,7 +154,7 @@ export async function evaluateMatchProofs(gameId: string, resultDate: Date, resu
         // Check direct match against both directNumber AND all commonNumbers
         const directMatch = prediction.directNumber === resultRound1 ||
             prediction.commonNumbers.includes(resultRound1) ||
-            (resultRound2 && resultRound2 !== "XX" && resultRound2 !== "--" && (
+            Boolean(resultRound2 && resultRound2 !== "XX" && resultRound2 !== "--" && (
                 prediction.directNumber === resultRound2 ||
                 prediction.commonNumbers.includes(resultRound2)
             ));
