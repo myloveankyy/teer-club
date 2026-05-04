@@ -245,6 +245,7 @@ export const api = {
 
   cron: {
     getStatus: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/cron/status"),
+    getDebugStatus: () => fetchAPI<{ success: boolean; data: any }>("/admin/cron/debug-status"),
     getLogs: (params?: { game?: string; status?: string; page?: number; limit?: number }) => {
       const searchParams = new URLSearchParams();
       if (params?.game) searchParams.append("game", params.game);

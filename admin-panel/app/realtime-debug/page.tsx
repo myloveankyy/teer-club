@@ -11,7 +11,7 @@ export default function RealtimeDebugDashboard() {
   const fetchData = async () => {
     try {
       const [statusRes, logsRes] = await Promise.all([
-        api.cron.getStatus(),
+        api.cron.getDebugStatus(),
         api.cron.getLogs({ limit: 15 })
       ]);
       if (statusRes.success) setData(statusRes.data);
