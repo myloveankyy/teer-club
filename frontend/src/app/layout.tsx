@@ -5,14 +5,8 @@ import Providers from "@/components/Providers";
 import { validateEnv } from "@/lib/env";
 import api from "@/lib/api";
 import { Tracker } from "@/components/shared/Tracker";
-import dynamic from "next/dynamic";
-
-// Lazy-load non-critical components to reduce initial JS bundle
-const NotificationPrompt = dynamic(() => import("@/components/NotificationPrompt"), { ssr: false });
-const RealtimeTracker = dynamic(
-  () => import("@/components/shared/RealtimeTracker").then(m => ({ default: m.RealtimeTracker })),
-  { ssr: false }
-);
+import NotificationPrompt from "@/components/NotificationPrompt";
+import { RealtimeTracker } from "@/components/shared/RealtimeTracker";
 
 // Run validation when the server process boots
 if (typeof window === "undefined") {
