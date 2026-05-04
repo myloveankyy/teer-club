@@ -28,8 +28,8 @@ export default function Home() {
   });
 
   const stats = {
-    total: dashboardData?.data.results.length || 0,
-    games: dashboardData?.data.games.length || 0,
+    total: dashboardData?.data?.results?.length || 0,
+    games: dashboardData?.data?.games?.length || 0,
   };
 
   const health = healthData?.data || {};
