@@ -19,10 +19,20 @@ const router = Router();
  */
 router.get("/status", async (req, res) => {
     try {
-        const status = await getCronStatus();
+        const [cronJobs, games] = await Promise.all([
+            getCronStatus(),
+            prisma.game.findMany({
+                where: { isEnabled: true },
+                select: {
+                    id: true, name: true, displayName: true,
+                    lastLiveScrapeAt: true, lastLiveScrapeStatus: true,
+                    isLiveScrapingEnabled: true
+                }
+            })
+        ]);
         res.json({
             success: true,
-            data: status,
+            data: { crons: cronJobs, games },
         });
     } catch (err: any) {
         logger.error("[CronRoutes] Failed to get status", err);

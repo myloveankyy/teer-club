@@ -74,7 +74,11 @@ export function AdSlot({
   }
 
   return (
-    <div className={`${variantStyles[variant]} ${className}`} ref={adRef}>
+    <div
+      className={`${variantStyles[variant]} ${className}`}
+      ref={adRef}
+      style={{ minHeight: format === "horizontal" ? 90 : 250 }}
+    >
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}

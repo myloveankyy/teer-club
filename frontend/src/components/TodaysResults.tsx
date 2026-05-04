@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import api, { TodayGameResult } from "@/lib/api";
 import { Container, Section, Grid } from "@/components/ui/Grid";
@@ -38,6 +39,15 @@ interface TodaysResultsProps {
 /* ─── Main Section ──────────────────────────────────────────────────────── */
 export function TodaysResults({ initialGames, initialDate }: TodaysResultsProps) {
     const { settings } = useSiteSettings();
+    const [today, setToday] = useState("");
+    useEffect(() => {
+        setToday(new Date().toLocaleDateString("en-GB", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        }));
+    }, []);
     const { data, isLoading, error } = useQuery({
         queryKey: ["todays-results"],
         queryFn: () => api.results.getToday(),
@@ -54,13 +64,6 @@ export function TodaysResults({ initialGames, initialDate }: TodaysResultsProps)
                 },
             } as any,
         } : {}),
-    });
-
-    const today = new Date().toLocaleDateString("en-GB", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
     });
 
     const games: TodayGameResult[] = data?.data?.data?.games || [];

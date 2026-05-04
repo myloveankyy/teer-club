@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import prisma from '../prisma';
 import { logger } from '../utils/logger';
+import { redis } from '../utils/redis';
 
 const router = Router();
 
@@ -198,6 +199,9 @@ router.post('/results/override', async (req, res) => {
         }
       });
     }
+
+    // Invalidate frontend cache so users see fresh data immediately
+    await redis.del("cache:today");
 
     res.json({ success: true, data: result });
   } catch (err: any) {

@@ -5,7 +5,10 @@ import { scrapeLiveResult } from "../scrapers/liveScraper";
 import { smartUpsertResults } from "../services/smartUpsert";
 import { writeCronLog } from "../cron/cronLogger";
 import { evaluateMatchProofs } from "../services/predictionService";
+import { isNonWorkingDay } from "../config/holidays";
 import prisma from "../prisma";
+
+const CACHE_KEY_TODAY = "cache:today";
 
 export const scrapeQueue = new Queue("scrape-queue", { connection: redis });
 
@@ -73,22 +76,35 @@ export function startScrapeWorker() {
       const { dateStr: todayIST } = getISTNow();
       const dateObj = new Date(todayIST + "T00:00:00Z");
 
+      // Only mark games OFF on non-working days (Sundays / holidays)
+      // On working days, missing results should stay as-is (no false OFF entries)
+      if (!isNonWorkingDay(todayIST)) {
+        logger.info(`[Worker] Night fallback: ${todayIST} is a working day. Skipping OFF marking.`);
+        return { status: "skipped", reason: "working_day" };
+      }
+
       const games = await prisma.game.findMany({ where: { isEnabled: true } });
       let markedCount = 0;
       for (const game of games) {
         const result = await prisma.result.findUnique({
           where: { gameId_date: { gameId: game.id, date: dateObj } }
         });
-        if (!result || (!result.round1 && !result.round2)) {
+        // Never overwrite existing results that have real data (partial or full)
+        const hasRealData = result && (result.round1 && result.round1 !== "XX" && result.round1 !== "OFF");
+        if (!hasRealData) {
           await prisma.result.upsert({
             where: { gameId_date: { gameId: game.id, date: dateObj } },
             update: { round1: "OFF", round2: "OFF", confidence: "HIGH" },
             create: { gameId: game.id, date: dateObj, round1: "OFF", round2: "OFF", confidence: "HIGH" }
           });
-          logger.info(`[Worker] Marked ${game.name} as OFF for ${todayIST}`);
+          logger.info(`[Worker] Marked ${game.name} as OFF for ${todayIST} (non-working day)`);
           markedCount++;
+        } else {
+          logger.info(`[Worker] Skipped ${game.name} — has real data (FR: ${result?.round1})`);
         }
       }
+      // Invalidate frontend cache after marking OFF
+      await redis.del(CACHE_KEY_TODAY);
       return { status: "success", markedCount };
     }
 
@@ -173,21 +189,33 @@ export function startScrapeWorker() {
         }]);
 
         if (upsert.created || upsert.updated) {
+          // Invalidate frontend cache immediately so users see fresh data
+          await redis.del(CACHE_KEY_TODAY);
+
           await evaluateMatchProofs(gameId, new Date(result.date), result.round1 || "", result.round2 || "");
           
           // 🔥 Push Notification Arbitrage: Instant Result Out Triggers 🔥
+          // Dedup via Redis NX lock to prevent duplicate pushes across retries
           if (isRound1New || isRound2New) {
-            const { sendBroadcastPush } = require("../services/pushService");
-            const roundText = isRound2New 
-                ? `F/R: ${result.round1 || existing?.round1 || 'XX'} | S/R: ${result.round2}`
-                : `F/R: ${result.round1} | S/R: XX`;
+            const pushRound = isRound2New ? 'sr' : 'fr';
+            const pushLockKey = `push:lock:${gameName}:${result.date}:${pushRound}`;
+            const lockAcquired = await redis.set(pushLockKey, "1", "EX", 300, "NX");
             
-            await sendBroadcastPush(
-              `${gameName} Teer is OUT! 🎯`,
-              `${roundText}. Tap here to view the live result!`,
-              `/results/${gameName.toLowerCase()}/live`
-            );
-            logger.info(`[Push Trigger] Sent instant push for ${gameName}: ${roundText}`);
+            if (lockAcquired) {
+              const { sendBroadcastPush } = require("../services/pushService");
+              const roundText = isRound2New 
+                  ? `F/R: ${result.round1 || existing?.round1 || 'XX'} | S/R: ${result.round2}`
+                  : `F/R: ${result.round1} | S/R: XX`;
+              
+              await sendBroadcastPush(
+                `${gameName} Teer is OUT! 🎯`,
+                `${roundText}. Tap here to view the live result!`,
+                `/results/${gameName.toLowerCase()}/live`
+              );
+              logger.info(`[Push Trigger] Sent instant push for ${gameName}: ${roundText}`);
+            } else {
+              logger.debug(`[Push Trigger] Dedup: Push already sent for ${gameName} ${pushRound} on ${result.date}`);
+            }
           }
 
           await writeCronLog({

@@ -5,8 +5,14 @@ import Providers from "@/components/Providers";
 import { validateEnv } from "@/lib/env";
 import api from "@/lib/api";
 import { Tracker } from "@/components/shared/Tracker";
-import NotificationPrompt from "@/components/NotificationPrompt";
-import { RealtimeTracker } from "@/components/shared/RealtimeTracker";
+import dynamic from "next/dynamic";
+
+// Lazy-load non-critical components to reduce initial JS bundle
+const NotificationPrompt = dynamic(() => import("@/components/NotificationPrompt"), { ssr: false });
+const RealtimeTracker = dynamic(
+  () => import("@/components/shared/RealtimeTracker").then(m => ({ default: m.RealtimeTracker })),
+  { ssr: false }
+);
 
 // Run validation when the server process boots
 if (typeof window === "undefined") {
@@ -41,7 +47,10 @@ export async function generateMetadata(): Promise<Metadata> {
   const follow = seoData?.followEnabled ?? true;
 
   const icons: any = {};
-  if (settings?.faviconUrl) icons.icon = `${settings.faviconUrl}?v=${Date.now()}`;
+  // Always emit a favicon link — use custom URL if set, otherwise fallback to static
+  icons.icon = settings?.faviconUrl
+    ? `${settings.faviconUrl}?v=${Date.now()}`
+    : `/favicon.ico?v=${Date.now()}`;
   if (settings?.appleTouchIconUrl) icons.apple = `${settings.appleTouchIconUrl}?v=${Date.now()}`;
 
   return {

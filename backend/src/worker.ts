@@ -44,6 +44,8 @@ process.on("unhandledRejection", (reason: any) => {
 
 process.on("uncaughtException", (error) => {
   logger.error(`[Worker FATAL] Uncaught Exception: ${error.message}`);
+  // Exit so PM2 can auto-restart from a clean state
+  process.exit(1);
 });
 
 start();

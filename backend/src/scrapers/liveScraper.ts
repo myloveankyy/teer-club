@@ -45,17 +45,11 @@ async function fetchHtmlStatic(url: string): Promise<string | null> {
 }
 
 async function fetchHtmlDynamic(url: string): Promise<string> {
-    const ua = USER_AGENTS[0];
-    const { chromium } = await import("playwright");
-    const browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage({ userAgent: ua });
-    try {
-        await page.goto(url, { waitUntil: "networkidle", timeout: REQUEST_TIMEOUT });
-        await page.waitForTimeout(5000);
-        return await page.content();
-    } finally {
-        await browser.close();
-    }
+    // Use the shared fetchDynamic from fetchService which uses the persistent browserPool
+    // instead of launching a new Chromium instance every time (prevents OOM crashes)
+    const { fetchDynamic } = await import("./fetchService");
+    const result = await fetchDynamic(url, REQUEST_TIMEOUT);
+    return result.html || "";
 }
 
 function scoreResult(res: any): number {

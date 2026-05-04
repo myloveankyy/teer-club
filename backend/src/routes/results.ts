@@ -295,6 +295,18 @@ router.get("/:gameIdentifier/history", async (req, res) => {
 
     const { page, limit: take, from: fromStr, to: toStr } = queryResult.data;
 
+    // Cache Key formulation
+    const cacheKey = `history:${game.id}:p${page}:l${take}:f${fromStr || 'none'}:t${toStr || 'none'}`;
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        logger.debug(`[History API] Serving from cache: ${cacheKey}`);
+        return res.json(JSON.parse(cached));
+      }
+    } catch (e) {
+      logger.error("[History API] Redis cache error", e);
+    }
+
     const where: any = { gameId: game.id };
     if (fromStr || toStr) {
       where.date = {};
@@ -315,7 +327,7 @@ router.get("/:gameIdentifier/history", async (req, res) => {
       prisma.result.count({ where }),
     ]);
 
-    return res.json({
+    const responsePayload = {
       success: true,
       data: {
         game,
@@ -327,7 +339,15 @@ router.get("/:gameIdentifier/history", async (req, res) => {
           totalPages: Math.ceil(total / take),
         },
       },
-    });
+    };
+
+    try {
+      await redis.set(cacheKey, JSON.stringify(responsePayload), "EX", 60); // 60s cache
+    } catch (e) {
+      logger.error("[History API] Redis cache set error", e);
+    }
+
+    return res.json(responsePayload);
   } catch (err: any) {
     logger.error(`[History API] Critical Error:`, err);
     return res.status(500).json({ success: false, error: err.message });
