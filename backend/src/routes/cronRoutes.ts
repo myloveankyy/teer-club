@@ -19,10 +19,27 @@ const router = Router();
  */
 router.get("/status", async (req, res) => {
     try {
-        const status = await getCronStatus();
+        const games = await prisma.game.findMany({
+            where: { isEnabled: true },
+            select: {
+                id: true,
+                displayName: true,
+                lastLiveScrapeStatus: true,
+                lastLiveScrapeAt: true
+            }
+        });
+
+        // Map to what cron/page.tsx expects
+        const mappedGames = games.map(g => ({
+            id: g.id,
+            displayName: g.displayName,
+            lastStatus: g.lastLiveScrapeStatus,
+            lastRun: g.lastLiveScrapeAt ? g.lastLiveScrapeAt.toISOString() : null
+        }));
+
         res.json({
             success: true,
-            data: status,
+            data: mappedGames,
         });
     } catch (err: any) {
         logger.error("[CronRoutes] Failed to get status", err);
