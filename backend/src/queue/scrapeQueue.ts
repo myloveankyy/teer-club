@@ -227,7 +227,7 @@ export function startScrapeWorker() {
             duration: result.duration,
             details: { upsert }
           });
-          logger.info(`[Worker] Completed: ${gameName} | SUCCESS | FR: ${result.round1} | SR: ${result.round2} | ${tickDuration}ms`);
+          logger.info(`[Worker] Completed: ${gameName} | SUCCESS | Data saved successfully | FR: ${result.round1} | SR: ${result.round2} | ${tickDuration}ms`);
         } else {
           await writeCronLog({
             game: game.name,
@@ -235,7 +235,7 @@ export function startScrapeWorker() {
             duration: result.duration,
             details: { reason: "Result unchanged from DB" }
           });
-          logger.debug(`[Worker] Completed: ${gameName} | NO_NEW_DATA | ${tickDuration}ms`);
+          logger.info(`[Worker] Completed: ${gameName} | NO_NEW_DATA | SR not found → retry scheduled | ${tickDuration}ms`);
         }
       } else if (result.status === "FAILED") {
         await writeCronLog({
