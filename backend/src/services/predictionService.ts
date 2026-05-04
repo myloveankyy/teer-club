@@ -144,9 +144,20 @@ export async function evaluateMatchProofs(gameId: string, resultDate: Date, resu
         const round1House = resultRound1.slice(0, 1);
         const round1Ending = resultRound1.slice(-1);
 
-        const houseMatch = prediction.house === round1House;
-        const endingMatch = prediction.ending === round1Ending;
-        const directMatch = prediction.directNumber === resultRound1 || prediction.commonNumbers.includes(resultRound1);
+        // FIX: prediction.house is CSV like "1, 2" — split and check .includes()
+        const houseValues = prediction.house.split(',').map(s => s.trim());
+        const endingValues = prediction.ending.split(',').map(s => s.trim());
+
+        const houseMatch = houseValues.includes(round1House);
+        const endingMatch = endingValues.includes(round1Ending);
+
+        // Check direct match against both directNumber AND all commonNumbers
+        const directMatch = prediction.directNumber === resultRound1 ||
+            prediction.commonNumbers.includes(resultRound1) ||
+            (resultRound2 && resultRound2 !== "XX" && resultRound2 !== "--" && (
+                prediction.directNumber === resultRound2 ||
+                prediction.commonNumbers.includes(resultRound2)
+            ));
 
         let actualResultStr = resultRound1;
         if (resultRound2 && resultRound2 !== "XX" && resultRound2 !== "--") {
@@ -163,7 +174,8 @@ export async function evaluateMatchProofs(gameId: string, resultDate: Date, resu
             },
         });
 
-        logger.info(`[Prediction Engine] Match Proof Updated for ${gameId} on ${resultDate.toISOString().split("T")[0]}`);
+        const matchSummary = [houseMatch && 'HOUSE', endingMatch && 'ENDING', directMatch && '🔥JACKPOT'].filter(Boolean).join(' + ') || 'MISSED';
+        logger.info(`[Prediction Engine] Match Proof Updated: ${gameId} on ${resultDate.toISOString().split("T")[0]} → ${matchSummary} | FR:${resultRound1} SR:${resultRound2 || 'XX'}`);
     } catch (error) {
         logger.error(`[Prediction Engine] Failed to evaluate match proof`, error);
     }

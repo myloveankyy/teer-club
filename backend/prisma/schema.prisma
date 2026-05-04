@@ -29,6 +29,7 @@ model Game {
   isLiveScrapingEnabled Boolean @default(true)
   lastLiveScrapeAt      DateTime?
   lastLiveScrapeStatus  String?   // "SUCCESS", "FAILED", "NO_NEW_DATA"
+  backupSourceUrls      String[]  @default([])
   
   predictions      Prediction[]
   results          Result[]
@@ -296,19 +297,36 @@ model PushDeliveryLog {
 }
 
 model CronLog {
-  id         String   @id @default(uuid())
-  game       String
-  status     String
-  round1     String?
-  round2     String?
-  resultDate String?
-  duration   Int
-  error      String?
-  details    String?
-  createdAt  DateTime @default(now())
+  id            String   @id @default(uuid())
+  game          String
+  status        String
+  round1        String?
+  round2        String?
+  resultDate    String?
+  duration      Int
+  error         String?
+  errorCategory String?  // "NETWORK", "SELECTOR", "EMPTY_RESPONSE", "RATE_LIMIT", "TIMEOUT", "PARSE_ERROR", "UNKNOWN"
+  details       String?
+  createdAt     DateTime @default(now())
 
   @@index([game])
   @@index([status])
+  @@index([createdAt])
+  @@index([errorCategory])
+}
+
+model ScrapeSnapshot {
+  id          String   @id @default(uuid())
+  gameId      String
+  url         String
+  rawHtml     String   @db.Text
+  statusCode  Int?     @default(200)
+  method      String?  // "STATIC", "DYNAMIC"
+  scrapeStatus String? // "SUCCESS", "FAILED", "NO_NEW_DATA"
+  byteSize    Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([gameId])
   @@index([createdAt])
 }
 

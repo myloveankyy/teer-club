@@ -48,10 +48,21 @@ export function TodaysResults({ initialGames, initialDate }: TodaysResultsProps)
             day: "numeric",
         }));
     }, []);
+    // Smart polling: aggressive during result window, lazy outside
+    const getPollingInterval = () => {
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const istTime = new Date(now.getTime() + istOffset);
+        const hours = istTime.getUTCHours();
+        // Result window: 11:30 AM to 9 PM IST (covers all games from Bhutan Day to Arunachal)
+        if (hours >= 11 && hours <= 21) return 15 * 1000; // 15s during results
+        return 5 * 60 * 1000; // 5 min outside window
+    };
+
     const { data, isLoading, error } = useQuery({
         queryKey: ["todays-results"],
         queryFn: () => api.results.getToday(),
-        refetchInterval: 15 * 1000,
+        refetchInterval: getPollingInterval(),
         // Use initialData to hydrate React Query so SSR content is shown immediately
         ...(initialGames ? {
             initialData: {

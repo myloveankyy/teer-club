@@ -2,6 +2,7 @@ import { Router } from 'express';
 import prisma from '../prisma';
 import { logger } from '../utils/logger';
 import { redis } from '../utils/redis';
+import { evaluateMatchProofs } from '../services/predictionService';
 
 const router = Router();
 
@@ -202,6 +203,15 @@ router.post('/results/override', async (req, res) => {
 
     // Invalidate frontend cache so users see fresh data immediately
     await redis.del("cache:today");
+
+    // Auto-evaluate match proof against predictions
+    const finalR1 = result.round1 || round1;
+    const finalR2 = result.round2 || round2;
+    if (finalR1 && finalR1 !== 'XX') {
+      evaluateMatchProofs(gameId, dateObj, finalR1, finalR2 || '').catch(err =>
+        logger.error(`[Admin] Match proof evaluation failed after override`, err)
+      );
+    }
 
     res.json({ success: true, data: result });
   } catch (err: any) {

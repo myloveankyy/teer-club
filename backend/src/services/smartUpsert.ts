@@ -59,7 +59,8 @@ export async function smartUpsertResults(
               round2: newRound2,
               round3: newRound3,
               confidence: 'LOW',
-              verified: false
+              verified: false,
+              detectedAt: new Date(),
             },
           });
           stats.created++;

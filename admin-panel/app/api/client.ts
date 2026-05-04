@@ -257,6 +257,14 @@ export const api = {
     },
     trigger: (game: string) => fetchAPI<{ success: boolean; message: string }>(`/admin/cron/trigger/${game}`, { method: "POST" }),
     triggerAll: () => fetchAPI<{ success: boolean; message: string }>("/admin/cron/trigger-all", { method: "POST" }),
+    restart: () => fetchAPI<{ success: boolean; message: string }>("/admin/cron/restart", { method: "POST" }),
+    getHealth: () => fetchAPI<{ success: boolean; data: any }>("/admin/cron/health"),
+    getLiveStatus: () => fetchAPI<{ success: boolean; data: any[] }>("/admin/cron/live-status"),
+    getFailedJobs: () => fetchAPI<{ success: boolean; data: { jobs: any[]; total: number } }>("/admin/cron/failed-jobs"),
+    retryJob: (jobId: string) => fetchAPI<{ success: boolean; message: string }>(`/admin/cron/retry/${jobId}`, { method: "POST" }),
+    retryAllFailed: () => fetchAPI<{ success: boolean; message: string; data: any }>("/admin/cron/retry-all-failed", { method: "POST" }),
+    getSnapshots: (gameId: string) => fetchAPI<{ success: boolean; data: any[] }>(`/admin/cron/snapshots/${gameId}`),
+    getSnapshot: (gameId: string, snapshotId: string) => fetchAPI<{ success: boolean; data: any }>(`/admin/cron/snapshots/${gameId}/${snapshotId}`),
   },
 
   journal: {

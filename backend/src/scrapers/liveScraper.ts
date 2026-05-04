@@ -34,7 +34,11 @@ const BACKUP_SOURCES: Record<string, string[]> = {
         "https://teercommonnumber.com/khanapara-teer-result/"
     ],
     "juwai": [
-        "https://teerbhutan.com/juwai-teer-result/"
+        "https://teerbhutan.com/juwai-teer-result/",
+        "https://teerresults.net/juwai-teer-result/"
+    ],
+    "laitlyngkot": [
+        "https://shillongteercalculator.in/laitlyngkot-teer-results/"
     ]
 };
 
@@ -48,7 +52,7 @@ function scoreResult(res: any): number {
     return score;
 }
 
-export async function scrapeLiveResult(game: { name: string; liveSourceUrl: string | null }, targetDate?: string): Promise<ScrapeLiveResult> {
+export async function scrapeLiveResult(game: { name: string; liveSourceUrl: string | null; backupSourceUrls?: string[] }, targetDate?: string): Promise<ScrapeLiveResult> {
     const startTime = Date.now();
     const { dateStr: todayIST } = getISTNow();
     const effectiveTargetDate = targetDate || todayIST;
@@ -65,9 +69,18 @@ export async function scrapeLiveResult(game: { name: string; liveSourceUrl: stri
         };
     }
 
-    // Build source array: primary + backups
+    // Build source array: primary + DB backups + hardcoded backups
     const sources = [game.liveSourceUrl];
     const gameKey = game.name.toLowerCase();
+    
+    // Add DB-configured backup sources first (admin-managed)
+    if (game.backupSourceUrls && game.backupSourceUrls.length > 0) {
+        for (const backup of game.backupSourceUrls) {
+            if (backup && !sources.includes(backup)) sources.push(backup);
+        }
+    }
+    
+    // Then add hardcoded fallbacks
     if (BACKUP_SOURCES[gameKey]) {
         for (const backup of BACKUP_SOURCES[gameKey]) {
             if (!sources.includes(backup)) sources.push(backup);

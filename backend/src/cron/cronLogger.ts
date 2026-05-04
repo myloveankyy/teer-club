@@ -16,6 +16,7 @@ export interface CronLogEntry {
     resultDate?: string | null;
     duration: number;
     error?: string | null;
+    errorCategory?: string | null;
     details?: Record<string, unknown>;
 }
 
@@ -33,6 +34,7 @@ export async function writeCronLog(entry: CronLogEntry): Promise<void> {
                 resultDate: entry.resultDate || null,
                 duration: entry.duration,
                 error: entry.error || null,
+                errorCategory: entry.errorCategory || null,
                 details: entry.details ? JSON.stringify(entry.details) : null,
             },
         });
