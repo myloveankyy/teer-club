@@ -163,8 +163,8 @@ export function extractFromDOM(html: string, config?: { selectors?: any, gameNam
             } else {
                 // If cell0 is NOT a date, it might be a date-less table (e.g. F/R | S/R)
                 // Look for the date in the closest preceding heading!
-                let foundDate = null;
-                prevHeadings.each((i, h) => {
+                let foundDate: string | null = null;
+                prevHeadings.each((i: number, h: any) => {
                     const hText = $(h).text().trim();
                     const extracted = normalizeDate(hText);
                     if (extracted && !foundDate) foundDate = extracted;
