@@ -71,11 +71,12 @@ export function HeroBadge({
     variant = "default"
 }: {
     children: React.ReactNode;
-    variant?: "default" | "amber";
+    variant?: "default" | "amber" | "emerald";
 }) {
     const styles = {
         default: "bg-white/5 border-white/10 text-white/50",
         amber: "bg-amber-500/10 border-amber-500/20 text-amber-300/70",
+        emerald: "bg-emerald-500/10 border-emerald-500/20 text-emerald-300/70",
     };
 
     return (
