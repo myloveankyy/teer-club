@@ -61,15 +61,22 @@ export async function generateMetadata(): Promise<Metadata> {
       locale: "en_US",
       siteName: "Teer Club",
       url: "https://teer.club",
+      images: [{ url: "https://teer.club/images/og-default.png", width: 1200, height: 630, alt: "Teer Result Today - Official Live Results" }],
     },
     twitter: {
       card: "summary_large_image",
       title: metaTitle,
       description: metaDescription,
+      images: ["https://teer.club/images/og-default.png"],
     },
     robots: {
       index,
       follow,
+    },
+    alternates: {
+      languages: {
+        "en-IN": "https://teer.club",
+      },
     },
   };
 }
@@ -96,7 +103,7 @@ export default async function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang="en-IN"
       className={`${inter.variable} antialiased`}
       suppressHydrationWarning
     >

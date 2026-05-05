@@ -8,6 +8,21 @@ interface PageProps {
     params: Promise<{ marketSlug: string }>;
 }
 
+// Pre-generate paths for all enabled games
+export async function generateStaticParams() {
+    try {
+        const res = await api.games.getAll();
+        if (res.data?.success && res.data.data) {
+            return res.data.data
+                .filter((g) => g.isEnabled)
+                .map((game) => ({ marketSlug: game.name.toLowerCase() }));
+        }
+    } catch {
+        // Build continues without pre-generated paths
+    }
+    return [];
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { marketSlug } = await params;
     const gameId = marketSlug.replace("-teer", "");
@@ -40,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             title,
             description,
             type: "website",
-            locale: "en_US",
+            locale: "en_IN",
             siteName: "Teer Club",
             url: `https://teer.club/${marketSlug}/previous-results`,
         },

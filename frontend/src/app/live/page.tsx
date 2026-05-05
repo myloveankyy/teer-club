@@ -16,7 +16,26 @@ export const metadata: Metadata = {
   description: "Stay ahead with 100% verified LIVE Teer Result Today for Shillong, Khanapara, & Juwai. Get real-time FR & SR updates directly from official archery counters.",
   keywords: ["live teer result today", "Shillong teer live result", "Khanapara teer result live", "Juwai teer results", "teer live updates"],
   alternates: {
-    canonical: "https://teer.club/live",
+    canonical: "/live",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    title: "LIVE Teer Result Today | Shillong Khanapara Juwai",
+    description: "Stay ahead with 100% verified LIVE Teer Result Today.",
+    type: "website",
+    locale: "en_IN",
+    siteName: "Teer Club",
+    url: "https://teer.club/live",
+    images: [{ url: "https://teer.club/images/og-default.png", width: 1200, height: 630, alt: "Live Teer Result Today" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LIVE Teer Result Today",
+    description: "Stay ahead with 100% verified LIVE Teer Result Today.",
+    images: ["https://teer.club/images/og-default.png"],
   },
 };
 
@@ -219,7 +238,7 @@ export default async function LiveResultsPage() {
                             Embed Live Teer Results on Your Website
                         </h2>
                         <p className="text-gray-400 text-lg leading-relaxed mb-8 max-w-2xl mx-auto lg:mx-0">
-                            Boost your site's SEO and engagement by offering real-time Teer results directly to your audience. Our hyper-fast, customizable iframe widget provides an industry-grade data feed with zero maintenance required.
+                            Boost your site&apos;s SEO and engagement by offering real-time Teer results directly to your audience. Our hyper-fast, customizable iframe widget provides an industry-grade data feed with zero maintenance required.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                             <Button href="/tools/widget" variant="primary" className="!bg-blue-600 hover:!bg-blue-500 !text-white !px-8 !py-3.5 !rounded-xl border-none">

@@ -47,17 +47,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             title,
             description,
             type: "website",
-            locale: "en_US",
+            locale: "en_IN",
             siteName: "Teer Club",
             url: `https://teer.club/live/${gameSlug}`,
+            images: [{ url: "https://teer.club/images/og-default.png", width: 1200, height: 630, alt: `${gameName} Teer Live Result` }],
         },
         twitter: {
             card: "summary_large_image",
             title,
             description,
+            images: ["https://teer.club/images/og-default.png"],
         },
         alternates: {
-            canonical: `https://teer.club/live/${gameSlug}`,
+            canonical: `/live/${gameSlug}`,
         },
     };
 }

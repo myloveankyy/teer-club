@@ -31,8 +31,15 @@ export const metadata: Metadata = {
     description:
       "Find dream numbers used in Teer games. Search dream meanings and corresponding Teer numbers.",
     type: "article",
-    locale: "en_US",
+    locale: "en_IN",
     siteName: "Teer Club",
+    images: [{ url: "https://teer.club/images/og-default.png", width: 1200, height: 630, alt: "Teer Dream Numbers" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Teer Dream Numbers List",
+    description: "Find dream numbers used in Teer games.",
+    images: ["https://teer.club/images/og-default.png"],
   },
 };
 

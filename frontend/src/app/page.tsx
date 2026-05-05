@@ -46,9 +46,23 @@ export async function generateMetadata(): Promise<Metadata> {
         ...defaultMeta,
         title: page.meta_title || defaultMeta.title,
         description: page.meta_description || defaultMeta.description,
-        openGraph: page.featured_image ? {
-          images: [{ url: page.featured_image, alt: page.image_alt || "Teer Result" }]
-        } : undefined
+        openGraph: {
+          title: (page.meta_title || defaultMeta.title) as string,
+          description: (page.meta_description || defaultMeta.description) as string,
+          type: "website",
+          locale: "en_IN",
+          siteName: "Teer Club",
+          url: "https://teer.club",
+          images: page.featured_image
+            ? [{ url: page.featured_image, alt: page.image_alt || "Teer Result" }]
+            : [{ url: "https://teer.club/images/og-default.png", width: 1200, height: 630, alt: "Teer Result Today" }],
+        },
+        twitter: {
+          card: "summary_large_image" as const,
+          title: (page.meta_title || defaultMeta.title) as string,
+          description: (page.meta_description || defaultMeta.description) as string,
+          images: page.featured_image ? [page.featured_image] : ["https://teer.club/images/og-default.png"],
+        },
       };
     }
   } catch (error) {

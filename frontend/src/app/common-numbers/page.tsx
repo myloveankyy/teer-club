@@ -30,8 +30,15 @@ export const metadata: Metadata = {
     title: "Official Teer Common Numbers Today | Today Target Numbers",
     description: "Access today's Teer common number projections and expert forecast archives.",
     type: "website",
-    locale: "en_US",
+    locale: "en_IN",
     siteName: "Teer Club",
+    images: [{ url: "https://teer.club/images/og-default.png", width: 1200, height: 630, alt: "Teer Common Numbers Today" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Official Teer Common Numbers Today",
+    description: "Access today's Teer common number projections.",
+    images: ["https://teer.club/images/og-default.png"],
   },
 };
 
@@ -98,6 +105,7 @@ export default async function CommonNumbersPage() {
       todaysNumbers = predData.predictions.map((p: any) => ({
         id: p.id,
         gameName: p.game?.displayName || p.gameId,
+        gameSlugId: (p.game?.name || p.gameId || '').toLowerCase(),
         directNumbers: [p.directNumber, ...p.commonNumbers.slice(0, 4)],
         houseNumbers: p.house ? p.house.split(',').map((s: string) => s.trim()) : [],
         endingNumbers: p.ending ? p.ending.split(',').map((s: string) => s.trim()) : [],
@@ -162,7 +170,6 @@ export default async function CommonNumbersPage() {
                   </div>
                     <div className="grid gap-6 lg:gap-8">
                       {todaysNumbers.map((item) => {
-                        const gameSlug = item.gameName.replace(/Teer|teer/g, "").trim().toLowerCase();
                         return (
                           <PredictionCard
                             key={item.id}
@@ -170,7 +177,7 @@ export default async function CommonNumbersPage() {
                             directNumbers={item.directNumbers}
                             houseNumbers={item.houseNumbers}
                             endingNumbers={item.endingNumbers}
-                            reportUrl={`/common-numbers/${gameSlug}/${item.dateSlug}`}
+                            reportUrl={`/common-numbers/${item.gameSlugId}/${item.dateSlug}`}
                           />
                         );
                       })}
@@ -188,7 +195,6 @@ export default async function CommonNumbersPage() {
                   </div>
                   <div className="grid gap-6 lg:gap-8">
                     {todaysNumbers.map((item) => {
-                      const gameSlug = item.gameName.replace(/Teer|teer/g, "").trim().toLowerCase();
                       return (
                         <MatchProofCard
                           key={`proof-${item.id}`}
@@ -201,7 +207,7 @@ export default async function CommonNumbersPage() {
                             ending: item.endingMatch,
                             direct: item.directMatch
                           }}
-                          reportUrl={`/match-proofs/${gameSlug}/${item.dateSlug}`}
+                          reportUrl={`/match-proofs/${item.gameSlugId}/${item.dateSlug}`}
                         />
                       );
                     })}

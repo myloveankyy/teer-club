@@ -7,10 +7,27 @@ import { ResultsList } from "@/components/ResultsList";
 import { DarkHero, HeroBadge } from "@/components/layout/DarkHero";
 import { TrafficGrid } from "@/components/layout/TrafficGrid";
 
+export const revalidate = 60;
+
 interface PageProps {
     params: {
         market: string;
     };
+}
+
+// Pre-generate paths for all enabled games
+export async function generateStaticParams() {
+    try {
+        const res = await api.games.getAll();
+        if (res.data?.success && res.data.data) {
+            return res.data.data
+                .filter((g) => g.isEnabled)
+                .map((game) => ({ market: game.name.toLowerCase() }));
+        }
+    } catch {
+        // Build continues without pre-generated paths
+    }
+    return [];
 }
 
 // ─── Extract programmatic SEO tokens from URL ───
@@ -60,6 +77,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         robots: {
             index: pageData?.indexed ?? true,
             follow: true,
+        },
+        openGraph: {
+            title,
+            description,
+            type: "website",
+            locale: "en_IN",
+            siteName: "Teer Club",
+            url: `https://teer.club${defaultUrl}`,
+            images: [{ url: "https://teer.club/images/og-default.png", width: 1200, height: 630, alt: `${displayTitle} Teer Results` }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title,
+            description,
+            images: ["https://teer.club/images/og-default.png"],
         }
     };
 }
