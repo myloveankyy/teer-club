@@ -10,9 +10,9 @@ import { TrafficGrid } from "@/components/layout/TrafficGrid";
 export const revalidate = 60;
 
 interface PageProps {
-    params: {
+    params: Promise<{
         market: string;
-    };
+    }>;
 }
 
 // Pre-generate paths for all enabled games
@@ -33,6 +33,7 @@ export async function generateStaticParams() {
 // ─── Extract programmatic SEO tokens from URL ───
 // e.g. "shillong-teer-result-2026" => { title: "Shillong Teer Result 2026", market: "shillong" }
 function parseMarketSlug(slug: string) {
+    if (!slug) return { gameId: "", displayTitle: "" };
     const segments = slug.split("-");
     const game = segments[0] || slug;
 
@@ -46,8 +47,10 @@ function parseMarketSlug(slug: string) {
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    const { displayTitle } = parseMarketSlug(params.market);
-    const defaultUrl = `/results/${params.market}`;
+    const resolvedParams = await params;
+    const market = resolvedParams?.market || "";
+    const { displayTitle } = parseMarketSlug(market);
+    const defaultUrl = `/results/${market}`;
 
     let pageData = null;
     try {
@@ -97,8 +100,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function ProgrammaticMarketPage({ params }: PageProps) {
-    const { gameId, displayTitle } = parseMarketSlug(params.market);
-    const defaultUrl = `/results/${params.market}`;
+    const resolvedParams = await params;
+    const market = resolvedParams?.market || "";
+    const { gameId, displayTitle } = parseMarketSlug(market);
+    const defaultUrl = `/results/${market}`;
 
     let pageData = null;
     try {
