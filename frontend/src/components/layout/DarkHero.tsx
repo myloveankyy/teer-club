@@ -9,6 +9,7 @@ interface BreadcrumbItem {
 interface DarkHeroProps {
     breadcrumbs: BreadcrumbItem[];
     title: React.ReactNode;
+    subtitle?: React.ReactNode;
     badges?: React.ReactNode;
     cta?: {
         label: string;
@@ -18,7 +19,7 @@ interface DarkHeroProps {
     children?: React.ReactNode;
 }
 
-export function DarkHero({ breadcrumbs, title, badges, cta, children }: DarkHeroProps) {
+export function DarkHero({ breadcrumbs, title, subtitle, badges, cta, children }: DarkHeroProps) {
     return (
         <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
             {/* Decorative background elements */}
@@ -36,6 +37,11 @@ export function DarkHero({ breadcrumbs, title, badges, cta, children }: DarkHero
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tighter leading-[1.05] mb-3">
                             {title}
                         </h1>
+                        {subtitle && (
+                            <p className="text-indigo-200/80 text-sm md:text-base mb-4 max-w-2xl font-medium">
+                                {subtitle}
+                            </p>
+                        )}
                         {badges && (
                             <div className="flex flex-wrap items-center gap-3">
                                 {badges}
