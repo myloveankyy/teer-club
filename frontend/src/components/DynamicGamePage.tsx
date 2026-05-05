@@ -223,7 +223,7 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
                     game={game.displayName}
                     gameName={game.name}
                     hasRound3={game.hasRound3 || false}
-                    results={results.map(r => ({
+                    results={results.map((r: any) => ({
                         date: new Date(r.date).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
                         fr: r.round1 || "--",
                         sr: r.round2 || "--",
