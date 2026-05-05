@@ -25,6 +25,7 @@ export default function PagesManagement() {
     const [viewingAudit, setViewingAudit] = useState<Page | null>(null);
     const [saving, setSaving] = useState(false);
     const [auditingId, setAuditingId] = useState<string | null>(null);
+    const [previewingPage, setPreviewingPage] = useState<Page | null>(null);
 
     const { showToast } = useToast();
     const pollingRef = useRef<NodeJS.Timeout | null>(null);
@@ -95,6 +96,18 @@ export default function PagesManagement() {
             showToast("Audit failed", "error");
         } finally {
             setAuditingId(null);
+        }
+    };
+
+    const handleRegenerate = async (id: string) => {
+        try {
+            const res = await api.pages.regenerate(id);
+            if (res.success) {
+                showToast("Page regeneration triggered", "success");
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Regeneration failed", "error");
         }
     };
 
@@ -296,6 +309,20 @@ export default function PagesManagement() {
                                                 >
                                                     <Edit2 className="h-4 w-4" />
                                                 </button>
+                                                <button
+                                                    onClick={() => setPreviewingPage(p)}
+                                                    className="p-2 text-gray-400 hover:text-green-600 rounded-lg hover:bg-gray-100 transition-colors"
+                                                    title="Preview Page"
+                                                >
+                                                    <Eye className="h-4 w-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRegenerate(p.id)}
+                                                    className="p-2 text-gray-400 hover:text-purple-600 rounded-lg hover:bg-gray-100 transition-colors"
+                                                    title="Regenerate Page"
+                                                >
+                                                    <RefreshCw className="h-4 w-4" />
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -487,6 +514,25 @@ export default function PagesManagement() {
                             </button>
                         </div>
                     </form>
+                )}
+            </Modal>
+
+            {/* Preview Modal */}
+            <Modal
+                isOpen={!!previewingPage}
+                onClose={() => setPreviewingPage(null)}
+                title={`Preview: ${previewingPage?.title}`}
+                size="2xl"
+            >
+                {previewingPage && (
+                    <div className="w-full h-[600px] bg-white rounded-lg overflow-hidden border border-gray-200 mt-2">
+                        <iframe
+                            src={process.env.NEXT_PUBLIC_FRONTEND_URL ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}${previewingPage.url}` : `http://localhost:3002${previewingPage.url}`}
+                            title={`Preview of ${previewingPage.title}`}
+                            className="w-full h-full border-0"
+                            sandbox="allow-same-origin allow-scripts"
+                        />
+                    </div>
                 )}
             </Modal>
         </div>

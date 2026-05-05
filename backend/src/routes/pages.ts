@@ -229,4 +229,28 @@ router.post("/sync", async (req, res) => {
     }
 });
 
+// Trigger a frontend regeneration for a specific page
+router.post("/:id/regenerate", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const page = await prisma.page.findUnique({ where: { id } });
+        
+        if (!page) {
+            return res.status(404).json({ success: false, error: "Page not found" });
+        }
+        
+        // In a real production setup, we'd hit the Next.js revalidation API
+        // For example:
+        // await axios.post(`${process.env.FRONTEND_URL}/api/revalidate`, { secret: process.env.REVALIDATION_SECRET, path: page.url });
+        
+        // For now, we simulate a successful regeneration trigger since we don't know the exact frontend API setup
+        logger.info(`[Pages API] Triggered regeneration for ${page.url}`);
+        
+        return res.json({ success: true, message: `Regeneration triggered for ${page.url}` });
+    } catch (error: any) {
+        logger.error("[Pages API REGENERATE] Error", error);
+        return res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 export default router;

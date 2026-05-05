@@ -109,13 +109,35 @@ export async function aggregatePages() {
         });
     }
 
-    // 3. Ingest Prediction Pages (Daily Common Numbers)
-    const recentPredictions = await prisma.page.findMany({
+    // 3. Ingest Prediction & Match Proof Pages
+    const recentPredictions = await prisma.prediction.findMany({
         where: {
-            url: { startsWith: "/common-numbers/" },
             createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } // Last 30 days
-        }
+        },
+        include: { game: true }
     });
+
+    for (const pred of recentPredictions) {
+        const slug = pred.game.name;
+        // Format date string to YYYY-MM-DD local
+        const dateStr = pred.date.toISOString().split('T')[0];
+        
+        // Common Numbers Page
+        await upsertPage({
+            url: `/common-numbers/${slug}/${dateStr}`,
+            title: `${pred.game.displayName} Common Number Today ${dateStr}`,
+            type: "PREDICTION",
+            source: "DB"
+        });
+
+        // Match Proof Page
+        await upsertPage({
+            url: `/match-proofs/${slug}/${dateStr}`,
+            title: `${pred.game.displayName} Match Proof ${dateStr}`,
+            type: "PREDICTION",
+            source: "DB"
+        });
+    }
     // These are already in DB, but this ensures they stay indexed or we discovered them if they were manually created outside aggregator
 
     // 3. (Optional) Blogs if they were in DB, for now we map static paths or just ignore if static markdown.

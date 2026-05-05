@@ -160,18 +160,21 @@ export default async function CommonNumbersPage() {
                     </div>
                     <span className="text-[10px] lg:text-[12px] font-medium text-gray-500 pl-11 lg:pl-14">Predicted numbers based on previous results & patterns</span>
                   </div>
-                  <div className="grid gap-6 lg:gap-8">
-                    {todaysNumbers.map((item) => (
-                      <PredictionCard
-                        key={item.id}
-                        game={item.gameName.replace(/Teer|teer/g, "").trim()}
-                        directNumbers={item.directNumbers}
-                        houseNumbers={item.houseNumbers}
-                        endingNumbers={item.endingNumbers}
-                        dateSlug={item.dateSlug} // Triggers URL deep-link without revealing direct hits
-                      />
-                    ))}
-                  </div>
+                    <div className="grid gap-6 lg:gap-8">
+                      {todaysNumbers.map((item) => {
+                        const gameSlug = item.gameName.replace(/Teer|teer/g, "").trim().toLowerCase();
+                        return (
+                          <PredictionCard
+                            key={item.id}
+                            game={item.gameName.replace(/Teer|teer/g, "").trim()}
+                            directNumbers={item.directNumbers}
+                            houseNumbers={item.houseNumbers}
+                            endingNumbers={item.endingNumbers}
+                            reportUrl={`/common-numbers/${gameSlug}/${item.dateSlug}`}
+                          />
+                        );
+                      })}
+                    </div>
                 </div>
 
                 {/* Proof Column */}
@@ -184,20 +187,24 @@ export default async function CommonNumbersPage() {
                     <span className="text-[9px] lg:text-[11px] font-bold text-gray-500 uppercase tracking-wider pl-11 lg:pl-14">Verified Win Record</span>
                   </div>
                   <div className="grid gap-6 lg:gap-8">
-                    {todaysNumbers.map((item) => (
-                      <MatchProofCard
-                        key={`proof-${item.id}`}
-                        date={formattedDate}
-                        game={item.gameName.replace(/Teer|teer/g, "").trim()}
-                        numbers={item.directNumbers}
-                        result={item.actualResult}
-                        matchDetails={{
-                          house: item.houseMatch,
-                          ending: item.endingMatch,
-                          direct: item.directMatch
-                        }}
-                      />
-                    ))}
+                    {todaysNumbers.map((item) => {
+                      const gameSlug = item.gameName.replace(/Teer|teer/g, "").trim().toLowerCase();
+                      return (
+                        <MatchProofCard
+                          key={`proof-${item.id}`}
+                          date={formattedDate}
+                          game={item.gameName.replace(/Teer|teer/g, "").trim()}
+                          numbers={item.directNumbers}
+                          result={item.actualResult}
+                          matchDetails={{
+                            house: item.houseMatch,
+                            ending: item.endingMatch,
+                            direct: item.directMatch
+                          }}
+                          reportUrl={`/match-proofs/${gameSlug}/${item.dateSlug}`}
+                        />
+                      );
+                    })}
                   </div>
                 </div>
               </div>

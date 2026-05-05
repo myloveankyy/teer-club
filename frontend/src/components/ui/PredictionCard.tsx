@@ -9,7 +9,7 @@ interface PredictionCardProps {
     directNumbers: string[];
     houseNumbers: string[];
     endingNumbers: string[];
-    dateSlug?: string;
+    reportUrl?: string;
 }
 
 export const PredictionCard = ({
@@ -17,8 +17,8 @@ export const PredictionCard = ({
     directNumbers,
     houseNumbers,
     endingNumbers,
-    dateSlug
-}: PredictionCardProps) => {
+    reportUrl
+}: PredictionCardProps & { reportUrl?: string }) => {
     const [isRevealed, setIsRevealed] = useState(false);
     const [isCounting, setIsCounting] = useState(false);
     const [timeLeft, setTimeLeft] = useState(10);
@@ -51,7 +51,7 @@ export const PredictionCard = ({
                         <h4 className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
                             Direct Numbers
                         </h4>
-                        {!dateSlug && !isRevealed && !isCounting && (
+                        {!reportUrl && !isRevealed && !isCounting && (
                             <span className="text-[10px] font-bold text-primary flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
                                 Locked
@@ -60,9 +60,9 @@ export const PredictionCard = ({
                     </div>
                     
                     <div className="min-h-[60px]">
-                        {dateSlug ? (
+                        {reportUrl ? (
                             <Link
-                                href={`/common-numbers/${dateSlug}`}
+                                href={reportUrl}
                                 className="flex w-full h-14 items-center justify-center rounded-xl bg-gray-900 text-white font-bold transition-all hover:bg-gray-800 shadow-xl shadow-gray-200 uppercase tracking-widest text-xs"
                                 aria-label={`Unlock full ${game} report`}
                             >

@@ -172,6 +172,7 @@ export const api = {
       fetchAPI<{ success: boolean; data: Page }>(`/pages/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     sync: () => fetchAPI<{ success: boolean; message: string }>("/pages/sync", { method: "POST" }),
     audit: (id: string) => fetchAPI<{ success: boolean; data: any }>(`/pages/${id}/audit`, { method: "POST" }),
+    regenerate: (id: string) => fetchAPI<{ success: boolean; message: string }>(`/pages/${id}/regenerate`, { method: "POST" }),
   },
   settings: {
     get: () => fetchAPI<{ success: boolean; data: any }>("/settings"),

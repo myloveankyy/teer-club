@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
+import Link from "next/link";
 import { Download, Target, Trophy, Flame, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { Card } from "./Card";
 import * as htmlToImage from "html-to-image";
@@ -15,6 +16,7 @@ interface MatchProofCardProps {
         ending?: boolean;
         direct?: boolean;
     };
+    reportUrl?: string;
 }
 
 // ─── Confetti Particle Component ─────────────────────────────────────────────
@@ -151,7 +153,7 @@ const STATUS_CONFIG: Record<MatchStatus, {
 };
 
 // ─── Main Component ──────────────────────────────────────────────────────────
-export const MatchProofCard = ({ date, game, numbers, result, matchDetails }: MatchProofCardProps) => {
+export const MatchProofCard = ({ date, game, numbers, result, matchDetails, reportUrl }: MatchProofCardProps) => {
     const cardRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
@@ -309,7 +311,13 @@ export const MatchProofCard = ({ date, game, numbers, result, matchDetails }: Ma
                     <span>verified by teer.club</span>
                 </div>
                 <div className="text-right">
-                    <p className="text-[11px] font-bold tracking-tight text-gray-200">teer.club</p>
+                    {reportUrl ? (
+                        <Link href={reportUrl} className="text-[10px] uppercase font-black tracking-widest text-blue-500 hover:text-blue-600 transition-colors">
+                            View Proof Details →
+                        </Link>
+                    ) : (
+                        <p className="text-[11px] font-bold tracking-tight text-gray-200">teer.club</p>
+                    )}
                 </div>
             </div>
         </div>
