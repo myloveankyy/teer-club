@@ -150,7 +150,7 @@ export const GameCard = ({ game, customMessages }: GameCardProps) => {
                     <div className={`flex items-center justify-between p-4 rounded-xl border ${roundBoxClasses}`}>
                         <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] flex items-center gap-2 ${labelClasses}`}>
                             F/R
-                            {round1 === "XX" && game.status !== "off" && game.status !== "declared" && (
+                            {round1 === "XX" && game.status !== "declared" && (
                                 <span className="relative flex h-2 w-2" title="Waiting for Live Result">
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -162,7 +162,7 @@ export const GameCard = ({ game, customMessages }: GameCardProps) => {
                     <div className={`flex items-center justify-between p-4 rounded-xl border ${roundBoxClasses}`}>
                         <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] flex items-center gap-2 ${labelClasses}`}>
                             S/R
-                            {round2 === "XX" && game.status !== "off" && game.status !== "declared" && (
+                            {round2 === "XX" && game.status !== "declared" && (
                                 <span className="relative flex h-2 w-2" title="Waiting for Live Result">
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -175,7 +175,7 @@ export const GameCard = ({ game, customMessages }: GameCardProps) => {
                         <div className={`flex items-center justify-between p-4 rounded-xl border ${roundBoxClasses}`}>
                             <span className={`text-[10px] lg:text-xs font-black uppercase tracking-[0.15em] flex items-center gap-2 ${labelClasses}`}>
                                 T/R
-                                {round3 === "XX" && game.status !== "off" && game.status !== "declared" && (
+                                {round3 === "XX" && game.status !== "declared" && (
                                     <span className="relative flex h-2 w-2" title="Waiting for Live Result">
                                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                       <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
