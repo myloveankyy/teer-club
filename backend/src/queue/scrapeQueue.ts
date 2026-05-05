@@ -3,8 +3,11 @@ import { redis } from "../utils/redis";
 import { logger } from "../utils/logger";
 import { scrapeLiveResult } from "../scrapers/liveScraper";
 import { smartUpsertResults } from "../services/smartUpsert";
-import { writeCronLog } from "../cron/cronLogger";
-import { evaluateMatchProofs } from "../services/predictionService";
+import { writeCronLog, cleanupOldLogs } from "../cron/cronLogger";
+import { evaluateMatchProofs, generateDailyPredictions } from "../services/predictionService";
+import { sendBroadcastPush } from "../services/pushService";
+import { InternalCrawler } from "../services/internalCrawler";
+import { SitemapService } from "../services/sitemap.service";
 import { isNonWorkingDay } from "../config/holidays";
 import { getISTNow, getScheduleByGame, parseTime } from "../config/gameSchedule";
 import prisma from "../prisma";
@@ -241,7 +244,6 @@ export function startScrapeWorker() {
     // ── Prediction Engine ────────────────────────────────────────────────
     if (job.name === "daily-prediction") {
       logger.info("[Worker] Running midnight prediction engine...");
-      const { generateDailyPredictions } = require("../services/predictionService");
       await generateDailyPredictions();
       return { status: "success" };
     }
@@ -249,7 +251,6 @@ export function startScrapeWorker() {
     // ── Log Cleanup ──────────────────────────────────────────────────────
     if (job.name === "log-cleanup") {
       logger.info("[Worker] Running weekly log cleanup...");
-      const { cleanupOldLogs } = require("../cron/cronLogger");
       await cleanupOldLogs(14);
       
       // Also cleanup old snapshots (keep last 7 days)
@@ -269,7 +270,6 @@ export function startScrapeWorker() {
     if (job.name === "pre-result-hype") {
       const { gameName, round } = job.data;
       logger.info(`[Worker] Running Pre-Result Hype for ${gameName}...`);
-      const { sendBroadcastPush } = require("../services/pushService");
       
       await sendBroadcastPush(
         `${gameName} Teer Incoming! ⏳`,
@@ -282,12 +282,10 @@ export function startScrapeWorker() {
     // ── SEO Crawl ────────────────────────────────────────────────────────
     if (job.name === "seo-nightly-crawl") {
       logger.info("[Worker] Running Nightly SEO Crawl...");
-      const { InternalCrawler } = require("../services/internalCrawler");
       const result = await InternalCrawler.crawlAll();
 
       // Auto-regenerate sitemap XML files after crawl
       logger.info("[Worker] Regenerating sitemap XML files...");
-      const { SitemapService } = require("../services/sitemap.service");
       const sitemapResult = await SitemapService.generate(prisma);
       logger.info(`[Worker] Sitemap regenerated: ${sitemapResult.totalUrls} URLs across ${3} sub-sitemaps`);
 
@@ -428,7 +426,7 @@ export function startScrapeWorker() {
     }
   }, { 
     connection: redis, 
-    concurrency: 1
+    concurrency: 2
   });
 
   worker.on("completed", (job) => {

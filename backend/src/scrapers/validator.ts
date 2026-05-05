@@ -74,14 +74,6 @@ export function validateAndCleanResult(result: TeerResult): TeerResult | null {
   }
 
   const isToday = normDate === todayIST;
-  const isBeforePublicRelease = istNow.getUTCHours() < 9; // ~2:30 PM IST
-
-  if (isToday && isBeforePublicRelease) {
-    cleaned.round1 = "XX";
-    cleaned.round2 = "XX";
-    cleaned.round3 = "XX";
-    return cleaned;
-  }
 
   // Helper to normalize individual rounds
   const processRound = (val: string | null | undefined) => {

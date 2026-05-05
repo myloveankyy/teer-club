@@ -182,7 +182,7 @@ app.use("/api/admin/seo-dashboard", adminAuth, seoDashboardRouter);
 app.use("/api/admin/validation", adminAuth, validationRouter);
 app.use("/api/growth", adminAuth, growthRouter);
 app.use("/api/analytics", analyticsRouter);
-app.use("/api/analytics", realtimeAnalyticsRouter);
+app.use("/api/analytics/realtime", realtimeAnalyticsRouter);
 // Public comment routes (GET /, POST /) are open; admin routes need auth
 // Admin routes (/admin, /admin/:id) are protected via inline middleware in the router
 app.use("/api/comments", commentsRouter);
@@ -298,15 +298,21 @@ async function start() {
 process.on("SIGINT", async () => {
   logger.info("[Shutdown] SIGINT received. Stopping server...");
   stopAllCrons();
-  await prisma.$disconnect();
-  process.exit(0);
+  server.close(async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10000); // Force exit after 10s
 });
 
 process.on("SIGTERM", async () => {
   logger.info("[Shutdown] SIGTERM received. Graceful shutdown...");
   stopAllCrons();
-  await prisma.$disconnect();
-  process.exit(0);
+  server.close(async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10000); // Force exit after 10s
 });
 
 // ─── Global Error Handlers (prevent silent crashes) ──────────────────────────

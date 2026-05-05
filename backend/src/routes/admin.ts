@@ -164,11 +164,25 @@ router.get('/results', async (req, res) => {
 });
 // ─── Manual Override ─────────────────────────────────────────────────────────
 
+import { z } from "zod";
+
+const overrideSchema = z.object({
+  gameId: z.string().min(1),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format, must be YYYY-MM-DD"),
+  round1: z.string().optional(),
+  round2: z.string().optional(),
+  round3: z.string().optional(),
+});
+
 router.post('/results/override', async (req, res) => {
   try {
-    const { gameId, date, round1, round2, round3 } = req.body;
+    const parseResult = overrideSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({ success: false, error: "Invalid input", details: parseResult.error.format() });
+    }
     
-    const dateObj = new Date(date);
+    const { gameId, date, round1, round2, round3 } = parseResult.data;
+    const dateObj = new Date(date + "T00:00:00Z");
     
     const existing = await prisma.result.findUnique({
       where: { gameId_date: { gameId, date: dateObj } }

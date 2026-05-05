@@ -59,9 +59,48 @@ router.get("/", async (req: Request, res: Response) => {
     }
 });
 
+import { z } from "zod";
+
+const settingsSchema = z.object({
+    youtubeUrl: z.string().nullable().optional(),
+    youtubeEnabled: z.boolean().optional(),
+    whatsappUrl: z.string().nullable().optional(),
+    whatsappEnabled: z.boolean().optional(),
+    telegramUrl: z.string().nullable().optional(),
+    telegramEnabled: z.boolean().optional(),
+    bannerText: z.string().nullable().optional(),
+    bannerVisible: z.boolean().optional(),
+    bannerColor: z.string().nullable().optional(),
+    resultAwaitedText: z.string().nullable().optional(),
+    sundayOffText: z.string().nullable().optional(),
+    primaryColor: z.string().nullable().optional(),
+    accentColor: z.string().nullable().optional(),
+    backgroundColor: z.string().nullable().optional(),
+    textColor: z.string().nullable().optional(),
+    cardStyle: z.string().nullable().optional(),
+    borderRadius: z.string().nullable().optional(),
+    playLiveUrl: z.string().nullable().optional(),
+    playLiveEnabled: z.boolean().optional(),
+    masterScrapeStartTime: z.string().nullable().optional(),
+    masterScrapeEndTime: z.string().nullable().optional(),
+    isMasterScrapeActive: z.boolean().optional(),
+    faviconUrl: z.string().nullable().optional(),
+    appleTouchIconUrl: z.string().nullable().optional(),
+    isAdsEnabled: z.boolean().optional(),
+    googleAdsenseClientId: z.string().nullable().optional(),
+    headerAdUnit: z.string().nullable().optional(),
+    inFeedAdUnit: z.string().nullable().optional(),
+    stickyFooterAdUnit: z.string().nullable().optional(),
+});
+
 // Update site settings (admin only)
 router.post("/", adminAuth, async (req: Request, res: Response) => {
     try {
+        const parseResult = settingsSchema.safeParse(req.body);
+        if (!parseResult.success) {
+            return res.status(400).json({ success: false, error: "Invalid input data", details: parseResult.error.format() });
+        }
+        
         const {
             youtubeUrl,
             youtubeEnabled,
@@ -92,7 +131,7 @@ router.post("/", adminAuth, async (req: Request, res: Response) => {
             headerAdUnit,
             inFeedAdUnit,
             stickyFooterAdUnit,
-        } = req.body;
+        } = parseResult.data;
 
         const settings = await prisma.siteSettings.upsert({
             where: { id: "global" },
