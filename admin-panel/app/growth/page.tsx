@@ -15,11 +15,11 @@ export default function GrowthCommandCenter() {
     setLoading(true);
     try {
       const [dashRes, recRes] = await Promise.all([
-        api.get("/api/growth/dashboard"),
-        api.get("/api/growth/recommendations")
+        api.growth.getDashboard(),
+        api.growth.getRecommendations()
       ]);
-      if (dashRes.data?.success) setDashboard(dashRes.data.data);
-      if (recRes.data?.success) setRecommendations(recRes.data.data);
+      if (dashRes.success) setDashboard(dashRes.data);
+      if (recRes.success) setRecommendations(recRes.data);
     } catch (error) {
       console.error("Failed to load growth data", error);
     } finally {

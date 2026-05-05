@@ -365,6 +365,10 @@ export const api = {
     triggerCrawl: () => fetchAPI<{ success: boolean; message: string }>("/admin/seo-dashboard/crawl", { method: "POST" }),
     fixPage: (id: string) => fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/fix/${encodeURIComponent(id)}`, { method: "POST" }),
     getCrawlStatus: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/crawl-status"),
+  },
+  growth: {
+    getDashboard: () => fetchAPI<{ success: boolean; data: any }>("/growth/dashboard"),
+    getRecommendations: () => fetchAPI<{ success: boolean; data: any[] }>("/growth/recommendations"),
   }
 };
 
