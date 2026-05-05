@@ -522,7 +522,7 @@ export default function PagesManagement() {
                 isOpen={!!previewingPage}
                 onClose={() => setPreviewingPage(null)}
                 title={`Preview: ${previewingPage?.title}`}
-                size="2xl"
+                size="lg"
             >
                 {previewingPage && (
                     <div className="w-full h-[600px] bg-white rounded-lg overflow-hidden border border-gray-200 mt-2">
