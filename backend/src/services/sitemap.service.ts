@@ -274,16 +274,27 @@ export class SitemapService {
         }
         log('INFO', 'Generated 100 number analytics pages');
 
+        // XML-escape special characters in URLs to prevent parser errors
+        const escapeXml = (str: string): string => {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
+        };
+
         // Helper to format XML
         const createXml = (urls: string[]) => {
             const urlEntries = urls.map(url => {
+                const safeUrl = escapeXml(url);
                 const priority = url === BASE_URL + '/' ? '1.0' :
                     url.includes('/live') ? '0.9' :
                     url.includes('/dreams/') ? '0.7' :
                     url.includes('/number/') ? '0.6' : '0.8';
                 const changefreq = url.includes('/live') ? 'hourly' :
                     url.includes('/number/') || url.includes('/dreams/') ? 'weekly' : 'daily';
-                return `  <url>\n    <loc>${url}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+                return `  <url>\n    <loc>${safeUrl}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
             });
             return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urlEntries.join('\n')}\n</urlset>`;
         };
