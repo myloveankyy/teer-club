@@ -20,9 +20,9 @@ export default function CommentsPage() {
     try {
       setLoading(true);
       const res = await api.comments.admin.getAll({ page, limit: 20, status: statusFilter || undefined });
-      if (res.data?.success) {
-        setComments(res.data.data.comments);
-        setTotalPages(res.data.data.pagination.totalPages);
+      if (res.success) {
+        setComments(res.data.comments);
+        setTotalPages(res.data.pagination.totalPages);
       }
     } catch (err: any) {
       setError(err.message || "Failed to load comments");
@@ -34,7 +34,7 @@ export default function CommentsPage() {
   const updateStatus = async (id: string, status: string) => {
     try {
       const res = await api.comments.admin.update(id, { status });
-      if (res.data?.success) {
+      if (res.success) {
         setComments(comments.map(c => c.id === id ? { ...c, status } : c));
       }
     } catch (err: any) {
@@ -46,7 +46,7 @@ export default function CommentsPage() {
     if (!confirm("Are you sure you want to delete this comment?")) return;
     try {
       const res = await api.comments.admin.delete(id);
-      if (res.data?.success) {
+      if (res.success) {
         setComments(comments.filter(c => c.id !== id));
       }
     } catch (err: any) {
