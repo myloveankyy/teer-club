@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { useEffect, useState } from "react";
-import { Game } from "@/lib/api";
+import { TodayGameResult } from "@/lib/api";
 
 export default function WidgetPage() {
     const [theme, setTheme] = useState<"light" | "dark">("dark");
@@ -23,7 +23,7 @@ export default function WidgetPage() {
         refetchInterval: 60000, // Auto-refresh every minute
     });
 
-    const games: Game[] = data?.data?.data?.games || [];
+    const games: TodayGameResult[] = data?.data?.data?.games || [];
 
     // If a specific market is requested, filter it. Otherwise show all live/enabled ones.
     const displayGames = market
@@ -71,17 +71,17 @@ export default function WidgetPage() {
                                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <span className={`text-[10px] font-bold mb-2 tracking-widest uppercase opacity-60`}>F/R (Morning)</span>
                                 <span className="text-4xl sm:text-5xl font-light tracking-tighter" style={{ textShadow: theme === 'dark' ? '0 2px 10px rgba(0,0,0,0.5)' : 'none' }}>
-                                    {game.result_first_round || "XX"}
+                                    {game.result?.round1 || "XX"}
                                 </span>
-                                <span className={`text-[9px] mt-2 font-mono tracking-widest opacity-40`}>{game.first_round_time}</span>
+                                <span className={`text-[9px] mt-2 font-mono tracking-widest opacity-40`}>{game.frTime}</span>
                             </div>
                             <div className="flex-1 p-5 flex flex-col items-center justify-center relative overflow-hidden group">
                                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <span className={`text-[10px] font-bold mb-2 tracking-widest uppercase opacity-60`}>S/R (Evening)</span>
                                 <span className="text-4xl sm:text-5xl font-light tracking-tighter" style={{ textShadow: theme === 'dark' ? '0 2px 10px rgba(0,0,0,0.5)' : 'none' }}>
-                                    {game.result_second_round || "XX"}
+                                    {game.result?.round2 || "XX"}
                                 </span>
-                                <span className={`text-[9px] mt-2 font-mono tracking-widest opacity-40`}>{game.second_round_time}</span>
+                                <span className={`text-[9px] mt-2 font-mono tracking-widest opacity-40`}>{game.srTime}</span>
                             </div>
                         </div>
                     </div>
