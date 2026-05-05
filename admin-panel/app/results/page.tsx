@@ -63,12 +63,12 @@ export default function ResultsPage() {
         api.results.getDashboard({ limit: 1 }), // Just to get game list
       ]);
 
-      setResults(adminRes.data.results);
-      setCurrentPage(adminRes.data.pagination.page);
-      setTotalPages(adminRes.data.pagination.totalPages);
-      setTotalResults(adminRes.data.pagination.total);
-      setStats(statsRes.data);
-      setData(gamesRes.data);
+      setResults(adminRes?.data?.results || []);
+      setCurrentPage(adminRes?.data?.pagination?.page || 1);
+      setTotalPages(adminRes?.data?.pagination?.totalPages || 1);
+      setTotalResults(adminRes?.data?.pagination?.total || 0);
+      setStats(statsRes?.data || null);
+      setData(gamesRes?.data || null);
     } catch (err: any) {
       const errorMsg = err.message || "Failed to fetch data";
       console.error("[Results Error]", errorMsg);
@@ -107,9 +107,9 @@ export default function ResultsPage() {
 
     try {
       const res = await api.admin.triggerBackfill("shillong");
-      setBackfillResult(res.data);
+      setBackfillResult(res?.data || null);
       // Reload after success
-      if (res.data.success) {
+      if (res?.data?.success) {
         await loadData(1);
       }
     } catch (err: any) {
@@ -136,7 +136,7 @@ export default function ResultsPage() {
 
     try {
       const res = await api.admin.debug.triggerResults();
-      setDebugReport(res.data);
+      setDebugReport(res?.data || null);
       // Reload results in background
       loadData(currentPage);
     } catch (err: any) {
@@ -159,7 +159,7 @@ export default function ResultsPage() {
 
     try {
       const res = await api.validation.checkToday();
-      setValidationReport(res.data);
+      setValidationReport(res?.data || null);
       // Reload results in background
       loadData(currentPage);
     } catch (err: any) {

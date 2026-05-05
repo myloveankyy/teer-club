@@ -73,8 +73,8 @@ export default function NotificationSettingsPage() {
     useEffect(() => {
         if (settingsData?.data) {
             setFormData({
-                a2hsEnabled: settingsData.data.a2hsEnabled ?? true,
-                pushEnabled: settingsData.data.pushEnabled ?? false,
+                a2hsEnabled: settingsData?.data?.a2hsEnabled ?? true,
+                pushEnabled: settingsData?.data?.pushEnabled ?? false,
             });
         }
     }, [settingsData]);

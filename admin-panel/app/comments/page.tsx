@@ -21,8 +21,8 @@ export default function CommentsPage() {
       setLoading(true);
       const res = await api.comments.admin.getAll({ page, limit: 20, status: statusFilter || undefined });
       if (res.success) {
-        setComments(res.data.comments);
-        setTotalPages(res.data.pagination.totalPages);
+        setComments(res?.data?.comments || []);
+        setTotalPages(res?.data?.pagination?.totalPages || 1);
       }
     } catch (err: any) {
       setError(err.message || "Failed to load comments");

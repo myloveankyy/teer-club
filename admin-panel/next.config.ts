@@ -1,9 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  /* eslint configuration is handled via CLI now */
   // typescript: {
   //   ignoreBuildErrors: true,
   // },

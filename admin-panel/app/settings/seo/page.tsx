@@ -24,15 +24,15 @@ export default function GlobalSeoSettingsPage() {
     });
 
     useEffect(() => {
-        if (settingsData?.success) {
+        if (settingsData?.success && settingsData?.data) {
             setFormData({
-                defaultMetaTitle: settingsData.data.defaultMetaTitle || "",
-                metaDescription: settingsData.data.metaDescription || "",
-                defaultKeywords: settingsData.data.defaultKeywords || "",
-                canonicalUrlRule: settingsData.data.canonicalUrlRule || "AUTO",
-                indexEnabled: settingsData.data.indexEnabled ?? true,
-                followEnabled: settingsData.data.followEnabled ?? true,
-                structuredDataJson: settingsData.data.structuredDataJson || "",
+                defaultMetaTitle: settingsData?.data?.defaultMetaTitle || "",
+                metaDescription: settingsData?.data?.metaDescription || "",
+                defaultKeywords: settingsData?.data?.defaultKeywords || "",
+                canonicalUrlRule: settingsData?.data?.canonicalUrlRule || "AUTO",
+                indexEnabled: settingsData?.data?.indexEnabled ?? true,
+                followEnabled: settingsData?.data?.followEnabled ?? true,
+                structuredDataJson: settingsData?.data?.structuredDataJson || "",
             });
         }
     }, [settingsData]);

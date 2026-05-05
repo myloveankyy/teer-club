@@ -19,9 +19,9 @@ export default function FaviconSettingsPage() {
     });
 
     useEffect(() => {
-        if (settingsData?.success) {
-            setFaviconUrl(settingsData.data.faviconUrl || "");
-            setAppleTouchIconUrl(settingsData.data.appleTouchIconUrl || "");
+        if (settingsData?.success && settingsData?.data) {
+            setFaviconUrl(settingsData?.data?.faviconUrl || "");
+            setAppleTouchIconUrl(settingsData?.data?.appleTouchIconUrl || "");
         }
     }, [settingsData]);
 

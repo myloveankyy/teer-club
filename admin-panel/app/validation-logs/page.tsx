@@ -30,10 +30,10 @@ export default function ValidationLogsPage() {
             }
 
             const res = await api.validation.getLogs({ page, limit: 50, gameId: gId, status });
-            setLogs(res.data.logs);
-            setCurrentPage(res.data.page);
-            setTotalPages(res.data.totalPages);
-            setTotalLogs(res.data.total);
+            setLogs(res?.data?.logs || []);
+            setCurrentPage(res?.data?.page || 1);
+            setTotalPages(res?.data?.totalPages || 1);
+            setTotalLogs(res?.data?.total || 0);
         } catch (err: any) {
             setError(err.message || "Failed to load validation logs.");
         } finally {

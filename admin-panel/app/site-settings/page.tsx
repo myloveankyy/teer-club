@@ -41,7 +41,7 @@ export default function SiteSettingsPage() {
     });
 
     useEffect(() => {
-        if (settingsData?.success) {
+        if (settingsData?.success && settingsData?.data) {
             setFormData(settingsData.data);
         }
     }, [settingsData]);

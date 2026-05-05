@@ -40,8 +40,10 @@ export default function PagesManagement() {
                 status: statusFilter !== "ALL" ? statusFilter : undefined,
                 type: typeFilter !== "ALL" ? typeFilter : undefined
             });
-            setPages(res.data.pages);
-            setPagination(res.data.pagination);
+            setPages(res?.data?.pages || []);
+            if (res?.data?.pagination) {
+                setPagination(res?.data?.pagination);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -86,9 +88,9 @@ export default function PagesManagement() {
             const res = await api.pages.audit(id);
             if (res.success) {
                 showToast("Audit completed", "success");
-                setPages(prev => prev.map(p => p.id === id ? { ...p, ...res.data, last_audit_at: new Date().toISOString() } : p));
+                setPages(prev => prev.map(p => p.id === id ? { ...p, ...(res?.data || {}), last_audit_at: new Date().toISOString() } : p));
                 if (viewingAudit?.id === id) {
-                    setViewingAudit({ ...viewingAudit, ...res.data, last_audit_at: new Date().toISOString() });
+                    setViewingAudit({ ...viewingAudit, ...(res?.data || {}), last_audit_at: new Date().toISOString() });
                 }
             }
         } catch (err) {

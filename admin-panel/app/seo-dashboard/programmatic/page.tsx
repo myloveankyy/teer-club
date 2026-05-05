@@ -24,8 +24,8 @@ export default function ProgrammaticSeoManager() {
         mutationFn: (data: { templateGroup: string; titlePattern: string; descriptionPattern: string }) => 
             api.seoDashboard.bulkUpdate(data),
         onSuccess: (res) => {
-            if (res.success) {
-                showToast(`Successfully updated ${res.data.updated} pages`, "success");
+            if (res?.success) {
+                showToast(`Successfully updated ${res?.data?.updated || 0} pages`, "success");
                 queryClient.invalidateQueries({ queryKey: ["seoTemplates"] });
                 setTitlePattern("");
                 setDescPattern("");

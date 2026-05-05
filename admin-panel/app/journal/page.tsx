@@ -43,7 +43,7 @@ export default function JournalPage() {
             queryClient.invalidateQueries({ queryKey: ["seo-profiles"] });
             setShowProfileForm(false);
             setNewProfileName("");
-            setSelectedProfileId(res.data.id);
+            setSelectedProfileId(res?.data?.id || null);
             showToast("Profile created successfully", "success");
         },
         onError: () => showToast("Failed to create profile", "error"),

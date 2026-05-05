@@ -221,7 +221,7 @@ export default function AllPagesManager() {
                 {data?.data?.pagination?.totalPages > 1 && (
                     <div className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between">
                         <p className="text-xs text-gray-500">
-                            Page {data.data.pagination.page} of {data.data.pagination.totalPages} <span className="mx-2">|</span> Total Results: {data.data.pagination.total}
+                            Page {data?.data?.pagination?.page} of {data?.data?.pagination?.totalPages} <span className="mx-2">|</span> Total Results: {data?.data?.pagination?.total}
                         </p>
                         <div className="flex gap-2">
                             <button
@@ -232,8 +232,8 @@ export default function AllPagesManager() {
                                 Previous
                             </button>
                             <button
-                                onClick={() => setPage(p => Math.min(data.data.pagination.totalPages, p + 1))}
-                                disabled={page === data.data.pagination.totalPages}
+                                onClick={() => setPage(p => Math.min(data?.data?.pagination?.totalPages || 1, p + 1))}
+                                disabled={page === data?.data?.pagination?.totalPages}
                                 className="px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50 shadow-sm transition-all"
                             >
                                 Next

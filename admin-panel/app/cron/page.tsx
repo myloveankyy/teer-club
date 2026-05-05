@@ -22,10 +22,10 @@ export default function CronDashboard() {
                 api.cron.getLogs({ limit: 20 }),
                 api.cron.getFailedJobs().catch(() => ({ success: false, data: { jobs: [], total: 0 } })),
             ]);
-            if (statusRes.success) setJobs(statusRes.data);
-            if (liveRes.success) setLiveStatuses(liveRes.data);
-            if (logsRes.success) setLogs(logsRes.data.logs);
-            if (failedRes.success) setFailedJobs(failedRes.data.jobs);
+            if (statusRes?.success) setJobs(statusRes?.data || []);
+            if (liveRes?.success) setLiveStatuses(liveRes?.data || []);
+            if (logsRes?.success) setLogs(logsRes?.data?.logs || []);
+            if (failedRes?.success) setFailedJobs(failedRes?.data?.jobs || []);
         } catch (err) {
             console.error("Failed to fetch cron data:", err);
         } finally {

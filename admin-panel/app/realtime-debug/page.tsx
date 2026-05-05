@@ -14,8 +14,8 @@ export default function RealtimeDebugDashboard() {
         api.cron.getDebugStatus(),
         api.cron.getLogs({ limit: 15 })
       ]);
-      if (statusRes.success) setData(statusRes.data);
-      if (logsRes.success) setLogs(logsRes.data.logs);
+      if (statusRes?.success) setData(statusRes?.data || null);
+      if (logsRes?.success) setLogs(logsRes?.data?.logs || []);
     } catch (err) {
       console.error("Failed to fetch debug data:", err);
     } finally {

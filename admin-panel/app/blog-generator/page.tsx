@@ -14,7 +14,7 @@ export default function BlogGeneratorPage() {
     const generateMutation = useMutation({
         mutationFn: (t: string) => api.ai.generateBlog(t),
         onSuccess: (res) => {
-            setDraft(res.data);
+            setDraft(res?.data || null);
             showToast("Blog draft generated!", "success");
         },
         onError: () => showToast("Failed to generate blog", "error"),

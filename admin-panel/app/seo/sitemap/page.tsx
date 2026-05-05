@@ -65,10 +65,10 @@ export default function SitemapPage() {
         onSuccess: (res: any) => {
             setIsUploading(false);
             setPendingFile(null);
-            if (res.success && res.data) {
-                showToast(`Sitemap deployed — ${res.data.totalUrls} URLs`, "success");
-                setLiveLogs(res.data.logs || []);
-                setLastDiff(res.data.diff || null);
+            if (res?.success && res?.data) {
+                showToast(`Sitemap deployed — ${res?.data?.totalUrls || 0} URLs`, "success");
+                setLiveLogs(res?.data?.logs || []);
+                setLastDiff(res?.data?.diff || null);
                 queryClient.invalidateQueries({ queryKey: ["sitemapStatus"] });
             }
         },
@@ -93,10 +93,10 @@ export default function SitemapPage() {
         setLiveLogs([{ level: "INFO", message: "Auto-generating sitemap from database...", timestamp: new Date().toISOString() }]);
         try {
             const res = await api.seo.sitemap.generate();
-            if (res.success && res.data) {
-                showToast(`Sitemap generated — ${res.data.totalUrls} URLs`, "success");
-                setLiveLogs(res.data.logs || []);
-                setLastDiff(res.data.diff || null);
+            if (res?.success && res?.data) {
+                showToast(`Sitemap generated — ${res?.data?.totalUrls || 0} URLs`, "success");
+                setLiveLogs(res?.data?.logs || []);
+                setLastDiff(res?.data?.diff || null);
                 queryClient.invalidateQueries({ queryKey: ["sitemapStatus"] });
             }
         } catch (err: any) {
