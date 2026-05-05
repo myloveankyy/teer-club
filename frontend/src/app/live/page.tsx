@@ -257,7 +257,7 @@ export default async function LiveResultsPage() {
         <Section className="!py-10 bg-white border-t border-gray-100">
           <Container>
             <div className="mx-auto max-w-5xl">
-               <LiveDiscussion date={initialData?.date} />
+               <LiveDiscussion date={initialData?.data?.date} />
             </div>
           </Container>
         </Section>
