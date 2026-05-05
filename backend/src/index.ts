@@ -176,7 +176,7 @@ app.use("/api/admin/cron", adminAuth, cronRouter);
 app.use("/api/admin/import", adminAuth, importRouter);
 app.use("/api/admin/journal", adminAuth, seoJournalRouter);
 app.use("/api/admin/ai", adminAuth, aiRouter);
-app.use("/api/admin/debug", debugRouter);
+app.use("/api/admin/debug", adminAuth, debugRouter);
 app.use("/api/admin/seo", adminAuth, seoRoutes);
 app.use("/api/admin/seo-dashboard", adminAuth, seoDashboardRouter);
 app.use("/api/admin/validation", adminAuth, validationRouter);
@@ -252,6 +252,14 @@ async function seedDefaultData() {
     await aggregatePages();
   } catch (e) {
     logger.error("[Seed] Failed to aggregate pages", e);
+  }
+
+  // Generate sitemap XML files on startup (ensures they exist after deploy)
+  try {
+    const sitemapResult = await SitemapService.generate(prisma);
+    logger.info(`[Seed] Sitemap generated on startup: ${sitemapResult.totalUrls} URLs`);
+  } catch (e) {
+    logger.error("[Seed] Failed to generate sitemap on startup", e);
   }
 
   logger.info("[Seed] Default data seeding complete");

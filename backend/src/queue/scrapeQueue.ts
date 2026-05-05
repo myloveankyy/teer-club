@@ -284,7 +284,14 @@ export function startScrapeWorker() {
       logger.info("[Worker] Running Nightly SEO Crawl...");
       const { InternalCrawler } = require("../services/internalCrawler");
       const result = await InternalCrawler.crawlAll();
-      return { status: "success", result };
+
+      // Auto-regenerate sitemap XML files after crawl
+      logger.info("[Worker] Regenerating sitemap XML files...");
+      const { SitemapService } = require("../services/sitemap.service");
+      const sitemapResult = await SitemapService.generate(prisma);
+      logger.info(`[Worker] Sitemap regenerated: ${sitemapResult.totalUrls} URLs across ${3} sub-sitemaps`);
+
+      return { status: "success", result, sitemap: { totalUrls: sitemapResult.totalUrls } };
     }
 
     // ── Default: Scrape Job ──────────────────────────────────────────────
