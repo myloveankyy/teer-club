@@ -108,6 +108,8 @@ export const api = {
     results: {
         getToday: () =>
             apiClient.get<{ success: boolean; data: { date: string; games: TodayGameResult[] } }>("/results/today"),
+        getByGameAndDate: (gameId: string, date: string) =>
+            apiClient.get<{ success: boolean; data: any }>(`/results/${gameId}/${date}`),
         getDashboard: (params?: { gameId?: string; limit?: number; from?: string; to?: string }) =>
             apiClient.get<{ success: boolean; data: { results: TeerResult[]; games: Game[]; byGame: Record<string, TeerResult[]> } }>("/results/dashboard", { params }),
         getLatest: () => apiClient.get<{ success: boolean; data: { results: TeerResult[] } }>("/results/dashboard", { params: { limit: 20 } }),

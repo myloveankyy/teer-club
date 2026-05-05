@@ -65,7 +65,7 @@ export default async function DateResultPage({ params }: Props) {
   try {
     // Attempt to fetch result for specific game and date
     // Backend accepts gameIdentifier (name or ID)
-    const res = await api.client.get(`/results/${market}/${date}`);
+    const res = await api.results.getByGameAndDate(market, date);
     if (res.data?.success) {
       data = res.data.data;
     }
