@@ -36,7 +36,7 @@ export default function SeoDashboardOverview() {
 
     const fixMutation = useMutation({
         mutationFn: (id: string) => api.seoDashboard.fixPage(id),
-        onSuccess: (res, id) => {
+        onSuccess: (res) => {
             if (res.success) {
                 showToast("Issue fixed successfully", "success");
                 queryClient.invalidateQueries({ queryKey: ["seoDashboardOverview"] });

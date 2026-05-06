@@ -40,7 +40,7 @@ export default function PredictionPages() {
             if (!data.success) throw new Error(data.error);
             return data;
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             showToast(`Successfully generated tasks and SEO page.`, "success");
             queryClient.invalidateQueries({ queryKey: ["admin-prediction-pages"] });
         },

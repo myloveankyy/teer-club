@@ -32,8 +32,8 @@ export default function AdSlot({ slotType, className = "", format = "auto", resp
     if (settings?.isAdsEnabled && settings?.googleAdsenseClientId && adSlotId && adRef.current) {
       if (!adRef.current.getAttribute('data-ad-status')) {
         try {
-          // @ts-ignore
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
         } catch (e) {
           console.error("AdSense error", e);
         }

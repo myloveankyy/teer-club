@@ -363,7 +363,7 @@ export const api = {
       return fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/index-queue${query ? `?${query}` : ""}`);
     },
     triggerCrawl: () => fetchAPI<{ success: boolean; message: string }>("/admin/seo-dashboard/crawl", { method: "POST" }),
-    fixPage: (id: string) => fetchAPI<{ success: boolean; data: any }>(`/admin/seo-dashboard/fix/${encodeURIComponent(id)}`, { method: "POST" }),
+    fixPage: (id: string) => fetchAPI<{ success: boolean; data: any; error?: string; message?: string }>(`/admin/seo-dashboard/fix/${encodeURIComponent(id)}`, { method: "POST" }),
     getCrawlStatus: () => fetchAPI<{ success: boolean; data: any }>("/admin/seo-dashboard/crawl-status"),
   },
   growth: {
