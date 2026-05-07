@@ -69,7 +69,7 @@ export default async function GameDateMatchProofPage({ params }: PageProps) {
 
     try {
         const res = await api.predictions.getByDate(date);
-        if (res.data.success) {
+        if (res.data?.success) {
             // Filter predictions by game
             const allPredictions = res.data.data.predictions;
             prediction = allPredictions.find((p: any) => 

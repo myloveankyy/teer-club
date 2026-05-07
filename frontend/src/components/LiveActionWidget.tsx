@@ -37,7 +37,7 @@ export function LiveActionWidget({
             async function fetchSettings() {
                 try {
                     const res = await api.settings.get();
-                    if (res.data.success) {
+                    if (res.data?.success) {
                         setSettings(res.data.data);
                     }
                 } catch (err) {

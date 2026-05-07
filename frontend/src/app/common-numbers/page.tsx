@@ -99,7 +99,7 @@ export default async function CommonNumbersPage() {
   try {
     const res = await api.predictions.getTodayAll();
 
-    if (res.data.success) {
+    if (res.data?.success) {
       const predData = res.data.data;
       formattedDate = new Date(predData.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
       todaysNumbers = predData.predictions.map((p: any) => ({

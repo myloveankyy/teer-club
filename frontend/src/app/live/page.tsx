@@ -70,10 +70,10 @@ export default async function LiveResultsPage() {
       api.settings.get()
     ]);
 
-    if (resultsRes.data.success) {
+    if (resultsRes.data?.success) {
       initialData = resultsRes.data;
     }
-    if (settingsRes.data.success) {
+    if (settingsRes.data?.success) {
       settings = settingsRes.data.data;
     }
   } catch (err) {

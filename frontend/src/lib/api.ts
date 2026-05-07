@@ -1,14 +1,20 @@
 import axios from "axios";
 import { env } from "./env";
 
-const API_BASE_URL = env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
+// On the server (SSR), prefer the internal URL (localhost) for speed & reliability.
+// On the client (browser), always use the public URL.
+const isServer = typeof window === "undefined";
+const INTERNAL_API_URL = isServer ? process.env.INTERNAL_API_URL : undefined;
+const API_BASE_URL = INTERNAL_API_URL || env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
     headers: {
         "Content-Type": "application/json",
     },
-    timeout: 10000, // 10 seconds timeout control
+    // SSR calls use a short timeout to avoid blocking the render pipeline.
+    // Client-side calls can afford a longer timeout.
+    timeout: isServer ? 5000 : 10000,
 });
 
 // Resiliency: Retry mechanisms and clear API error mapping
@@ -20,10 +26,14 @@ apiClient.interceptors.response.use(
             if (config) config._isRetryAttempt = 0;
         }
 
-        // Retry mechanism: up to 3 times on network errors or 5xx server errors
-        if (config && config._isRetryAttempt < 3 && (!error.response || error.response.status >= 500)) {
+        // On the server (SSR), only retry ONCE with a short delay to avoid blocking rendering.
+        // On the client, retry up to 3 times with exponential backoff.
+        const maxRetries = isServer ? 1 : 3;
+
+        if (config && config._isRetryAttempt < maxRetries && (!error.response || error.response.status >= 500)) {
             config._isRetryAttempt += 1;
-            const delayRetry = new Promise((resolve) => setTimeout(resolve, Math.pow(2, config._isRetryAttempt) * 1000));
+            const delay = isServer ? 500 : Math.pow(2, config._isRetryAttempt) * 1000;
+            const delayRetry = new Promise((resolve) => setTimeout(resolve, delay));
             await delayRetry;
             return apiClient(config);
         }
@@ -203,4 +213,3 @@ export const api = {
 };
 
 export default api;
-

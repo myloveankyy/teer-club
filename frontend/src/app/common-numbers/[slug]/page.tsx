@@ -94,7 +94,7 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
     try {
         if (isDate) {
             const res = await api.predictions.getByDate(slug);
-            if (res.data.success) {
+            if (res.data?.success) {
                 predictions = res.data.data.predictions;
                 formattedDate = new Date(slug).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
             } else {
@@ -102,7 +102,7 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
             }
         } else {
             const res = await api.predictions.getToday(slug);
-            if (res.data.success) {
+            if (res.data?.success) {
                 const singlePrediction = res.data.data;
                 predictions = [singlePrediction];
                 if (singlePrediction.date) {
