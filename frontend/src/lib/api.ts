@@ -4,7 +4,10 @@ import { env } from "./env";
 // On the server (SSR), prefer the internal URL (localhost) for speed & reliability.
 // On the client (browser), always use the public URL.
 const isServer = typeof window === "undefined";
-const INTERNAL_API_URL = isServer ? process.env.INTERNAL_API_URL : undefined;
+let INTERNAL_API_URL: string | undefined = undefined;
+if (isServer && typeof process !== "undefined" && process.env) {
+    INTERNAL_API_URL = process.env.INTERNAL_API_URL;
+}
 const API_BASE_URL = INTERNAL_API_URL || env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
 const apiClient = axios.create({
