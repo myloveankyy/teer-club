@@ -99,7 +99,7 @@ export default async function Home() {
 
   try {
     const res = await api.results.getToday();
-    if (res.data.success) {
+    if (res.data?.success) {
       initialGames = res.data.data.games;
       initialDate = res.data.data.date;
     }
