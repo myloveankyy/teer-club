@@ -8,7 +8,7 @@ import { useToast } from "@/components/Toast";
 import Link from "next/link";
 import { 
     ChevronLeft, RefreshCw, AlertTriangle, CheckCircle2, 
-    ExternalLink, Activity, Type, Link as LinkIcon, Zap, X
+    ExternalLink, Activity, Type, Link as LinkIcon, Zap, X, Search, Globe
 } from "lucide-react";
 
 export default function PageDeepDive() {
