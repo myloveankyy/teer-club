@@ -16,13 +16,13 @@ const jsonLd = {
 };
 
 interface PageProps {
-    params: Promise<{ slug: string }>;
+    params: Promise<{ game: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-    const { slug } = await params;
-    const isDate = /^\d{4}-\d{2}-\d{2}$/.test(slug);
-    const defaultUrl = `/common-numbers/${slug}`;
+    const { game } = await params;
+    const isDate = /^\d{4}-\d{2}-\d{2}$/.test(game);
+    const defaultUrl = `/common-numbers/${game}`;
 
     let pageData = null;
     try {
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     } catch (e) {}
 
     if (isDate) {
-        const formattedDate = new Date(slug).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+        const formattedDate = new Date(game).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
         return {
             title: pageData?.meta_title || `Teer Common Number Today ${formattedDate} - Shillong Khanapara Hit Number`,
             description: pageData?.meta_description || `Get 100% verified Teer Common Number for ${formattedDate} today. Highly accurate Shillong Teer and Khanapara Teer hit numbers, house ending predictions, and live match proofs.`,
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 `Shillong Teer Result`,
             ].join(', '),
             alternates: {
-                canonical: pageData?.canonical_url || `https://teer.club/common-numbers/${slug}`
+                canonical: pageData?.canonical_url || `https://teer.club/common-numbers/${game}`
             },
             robots: {
                 index: pageData?.indexed ?? true,
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             }
         };
     } else {
-        const gameNameDisplay = slug.charAt(0).toUpperCase() + slug.slice(1);
+        const gameNameDisplay = game.charAt(0).toUpperCase() + game.slice(1);
         return {
             title: pageData?.meta_title || `${gameNameDisplay} Teer Common Number Today - Hit Number & Target`,
             description: pageData?.meta_description || `Get the 100% verified ${gameNameDisplay} Teer Common Number today. Find out highly accurate ${gameNameDisplay} hit numbers, house/ending targets, and match proofs.`,
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
                 `${gameNameDisplay} Teer House Ending`,
             ].join(', '),
             alternates: {
-                canonical: pageData?.canonical_url || `https://teer.club/common-numbers/${slug}`
+                canonical: pageData?.canonical_url || `https://teer.club/common-numbers/${game}`
             },
             robots: {
                 index: pageData?.indexed ?? true,
@@ -76,13 +76,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function CommonNumbersDatePage({ params }: PageProps) {
-    const { slug } = await params;
-    const isDate = /^\d{4}-\d{2}-\d{2}$/.test(slug);
+    const { game } = await params;
+    const isDate = /^\d{4}-\d{2}-\d{2}$/.test(game);
 
     let predictions: any[] = [];
     let formattedDate = "";
     
-    const defaultUrl = `/common-numbers/${slug}`;
+    const defaultUrl = `/common-numbers/${game}`;
     let pageData = null;
     try {
         const res = await api.pages.getByUrl(defaultUrl);
@@ -93,15 +93,15 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
 
     try {
         if (isDate) {
-            const res = await api.predictions.getByDate(slug);
+            const res = await api.predictions.getByDate(game);
             if (res.data?.success) {
                 predictions = res.data.data.predictions;
-                formattedDate = new Date(slug).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+                formattedDate = new Date(game).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
             } else {
                 notFound();
             }
         } else {
-            const res = await api.predictions.getToday(slug);
+            const res = await api.predictions.getToday(game);
             if (res.data?.success) {
                 const singlePrediction = res.data.data;
                 predictions = [singlePrediction];
@@ -127,8 +127,8 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
                         "@type": "WebPage",
                         "name": `${formattedDate} Teer Targets - Prediction Report`,
                         "description": `Teer target numbers for ${formattedDate}. Verified house, ending and hit numbers for Shillong and Khanapara.`,
-                        "url": `https://teer.club/common-numbers/${slug}`,
-                        "datePublished": isDate ? slug : new Date().toISOString().split('T')[0],
+                        "url": `https://teer.club/common-numbers/${game}`,
+                        "datePublished": isDate ? game : new Date().toISOString().split('T')[0],
                         "publisher": {
                             "@type": "Organization",
                             "name": "Teer Club"
@@ -141,9 +141,9 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
                     breadcrumbs={[
                         { label: "Home", href: "/" },
                         { label: "Common Numbers", href: "/common-numbers" },
-                        { label: isDate ? formattedDate : `${slug.charAt(0).toUpperCase() + slug.slice(1)} Teer` }
+                        { label: isDate ? formattedDate : `${game.charAt(0).toUpperCase() + game.slice(1)} Teer` }
                     ]}
-                    title={<span dangerouslySetInnerHTML={{ __html: pageData?.title || `${formattedDate || slug.charAt(0).toUpperCase() + slug.slice(1)} <span class="text-indigo-400">Targets</span>` }} />}
+                    title={<span dangerouslySetInnerHTML={{ __html: pageData?.title || `${formattedDate || game.charAt(0).toUpperCase() + game.slice(1)} <span class="text-indigo-400">Targets</span>` }} />}
                     badges={
                         <HeroBadge variant="amber">Historical Database</HeroBadge>
                     }
