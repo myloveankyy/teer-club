@@ -24,14 +24,17 @@ module.exports = {
         },
         {
             name: "teer-frontend",
-            script: "node",
-            args: "server.js",
-            cwd: "./frontend/.next/standalone",
+            script: "npm",
+            args: "run start -- -p 3000",
+            cwd: "./frontend",
+            node_args: "--max-old-space-size=512",
             watch: false,
+            max_restarts: 10,
+            restart_delay: 3000,
             env: {
                 NODE_ENV: "production",
-                PORT: "3000",
-                HOSTNAME: "0.0.0.0",
+                NEXT_PUBLIC_API_URL: "https://api.teer.club/api",
+                INTERNAL_API_URL: "http://localhost:5000/api",
             },
         },
         {

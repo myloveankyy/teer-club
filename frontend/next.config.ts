@@ -4,7 +4,6 @@ const nextConfig: NextConfig = {
   // typescript: {
   //   ignoreBuildErrors: true,
   // },
-  output: "standalone",
   // Performance: Enable compression and optimize output
   compress: true,
 

@@ -167,10 +167,6 @@ jobs:
             echo "Frontend: Using CI-built node_modules (preserving build integrity)..."
             cd ../frontend
 
-            echo "Configuring Next.js Standalone Server..."
-            cp -r public .next/standalone/public
-            cp -r .next/static .next/standalone/.next/static
-
             echo "Admin Panel: Using CI-built node_modules (preserving build integrity)..."
             cd ../admin-panel
 
@@ -180,4 +176,22 @@ jobs:
             pm2 save
             sudo env PATH=$PATH:/usr/bin pm2 startup ubuntu -u $USER --hp /home/$USER || pm2 startup
 
-            echo "Fresh Launch Deployment Complete!"
+            echo "=== DEPLOYMENT HEALTH CHECK ==="
+            sleep 8
+
+            echo "--- PM2 Process Status ---"
+            pm2 list
+
+            echo "--- Frontend Logs (last 30 lines) ---"
+            pm2 logs teer-frontend --nostream --lines 30 || true
+
+            echo "--- API Health Check ---"
+            curl -s -o /dev/null -w "API Status: %{http_code}\n" http://localhost:5000/api/results/today || echo "API: UNREACHABLE"
+
+            echo "--- Frontend Health Check ---"
+            curl -s -o /dev/null -w "Frontend Status: %{http_code}\n" http://localhost:3000/ || echo "Frontend: UNREACHABLE"
+
+            echo "--- Admin Health Check ---"
+            curl -s -o /dev/null -w "Admin Status: %{http_code}\n" http://localhost:3001/ || echo "Admin: UNREACHABLE"
+
+            echo "=== DEPLOYMENT COMPLETE ==="
