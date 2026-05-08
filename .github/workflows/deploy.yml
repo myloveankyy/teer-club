@@ -90,9 +90,7 @@ jobs:
             tar -xzf deployment.tar.gz
             rm deployment.tar.gz
 
-            echo "Force-Purging Server Side Build Cache..."
-            rm -rf frontend/.next/cache || true
-            rm -rf admin-panel/.next/cache || true
+            # (Cache Purge intentionally removed to preserve Next.js 15 ISR and RSC caches)
             # sitemap.xml is now served dynamically — no need to delete
 
 
