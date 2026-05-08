@@ -24,12 +24,14 @@ module.exports = {
         },
         {
             name: "teer-frontend",
-            script: "npm",
-            args: "run start -- -p 3000",
-            cwd: "./frontend",
+            script: "node",
+            args: "server.js",
+            cwd: "./frontend/.next/standalone",
             watch: false,
             env: {
                 NODE_ENV: "production",
+                PORT: "3000",
+                HOSTNAME: "0.0.0.0",
             },
         },
         {

@@ -167,6 +167,10 @@ jobs:
             echo "Frontend: Using CI-built node_modules (preserving build integrity)..."
             cd ../frontend
 
+            echo "Configuring Next.js Standalone Server..."
+            cp -r public .next/standalone/public
+            cp -r .next/static .next/standalone/.next/static
+
             echo "Admin Panel: Using CI-built node_modules (preserving build integrity)..."
             cd ../admin-panel
 
