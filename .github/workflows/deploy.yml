@@ -164,13 +164,11 @@ jobs:
             echo "Force Syncing Database Schema..."
             npx prisma db push --accept-data-loss
 
-            echo "Installing Frontend Production Dependencies..."
+            echo "Frontend: Using CI-built node_modules (preserving build integrity)..."
             cd ../frontend
-            npm install --omit=dev
 
-            echo "Installing Admin Panel Production Dependencies..."
+            echo "Admin Panel: Using CI-built node_modules (preserving build integrity)..."
             cd ../admin-panel
-            npm install --omit=dev
 
             echo "Starting Apps via PM2 Ecosystem..."
             cd /var/www/teer.club
