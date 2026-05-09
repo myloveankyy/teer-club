@@ -139,6 +139,9 @@ export default async function Home() {
           </Container>
         </Section>
 
+        {/* Micro-timestamping for Google Indexing freshness */}
+        <time dateTime={new Date().toISOString()} className="hidden">Last Updated: {new Date().toISOString()}</time>
+
         <TodaysResults initialGames={initialGames} initialDate={initialDate} />
 
         <Container>
@@ -177,8 +180,8 @@ export default async function Home() {
         <MoreByTeerClub />
         <FAQ />
         
-        {/* Mobile Sticky Footer Ad Wrapper */}
-        <div className="fixed bottom-0 left-0 right-0 z-[100] sm:hidden bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        {/* Mobile Sticky Footer Ad Wrapper - Hardcoded min-height to prevent CLS */}
+        <div className="fixed bottom-0 left-0 right-0 z-[100] sm:hidden bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] min-h-[50px]">
             <AdSlot slotType="stickyFooter" format="rectangle" responsive={false} className="!m-0 max-h-[100px]" />
         </div>
       </main>

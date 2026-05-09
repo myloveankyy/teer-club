@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import axios from 'axios';
 import { logger } from '../utils/logger';
 
 const BASE_URL = 'https://teer.club';
@@ -36,6 +37,20 @@ const EMPTY_SITEMAP_XML = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns
 
 export class SitemapService {
     private static isUploading = false;
+
+    /**
+     * Pings Google to notify them of a sitemap update.
+     */
+    static async pingGoogle(): Promise<void> {
+        try {
+            const sitemapUrl = `${BASE_URL}/sitemap.xml`;
+            const pingUrl = `https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`;
+            await axios.get(pingUrl, { timeout: 5000 });
+            logger.info(`[SITEMAP] Successfully pinged Google with new sitemap: ${sitemapUrl}`);
+        } catch (error: any) {
+            logger.error(`[SITEMAP] Failed to ping Google: ${error.message}`);
+        }
+    }
 
     /**
      * Upload and deploy a sitemap.xml from external content.
@@ -142,11 +157,13 @@ export class SitemapService {
 
             log('SUCCESS', `Upload complete — ${newUrls.length} URLs deployed in ${durationMs}ms`);
 
-            // Update logs in metadata after final log entry
-            metadata.logs = logs;
             fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata));
 
             logger.info(`[SITEMAP] Upload complete. URLs: ${newUrls.length} | New: +${added.length} | Removed: -${removed.length}`);
+            
+            // Ping Google asynchronously to accelerate indexing
+            this.pingGoogle().catch(err => logger.error('[SITEMAP] Ping failed on upload', err));
+            
             return metadata;
 
         } catch (error: any) {
@@ -335,6 +352,9 @@ export class SitemapService {
             urls: allUrls,
         };
         fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata));
+
+        // Ping Google asynchronously to accelerate indexing
+        this.pingGoogle().catch(err => logger.error('[SITEMAP] Ping failed on generate', err));
 
         return metadata;
     }

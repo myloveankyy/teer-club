@@ -8,6 +8,7 @@ import { MatchProofCard } from "@/components/ui/MatchProofCard";
 import { Button } from "@/components/ui/Button";
 import { DarkHero, HeroBadge } from "@/components/layout/DarkHero";
 import { TrafficGrid } from "@/components/layout/TrafficGrid";
+import { generateSemanticIntro, generateFAQSchema } from "@/lib/seo-spinner";
 
 const jsonLd = {
     "@context": "https://schema.org",
@@ -135,6 +136,10 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
                     })
                 }}
             />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(generateFAQSchema(isDate ? 'Teer' : game, 'common-numbers', formattedDate)) }}
+            />
             <main className="flex-1">
                 <DarkHero
                     breadcrumbs={[
@@ -147,12 +152,21 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
                         <HeroBadge variant="amber">Historical Database</HeroBadge>
                     }
                 >
+                    {/* Micro-timestamping for Google Indexing freshness */}
+                    <time dateTime={new Date().toISOString()} className="hidden">Last Updated: {new Date().toISOString()}</time>
+
                     {pageData?.content ? (
                         <div className="mt-4 text-sm md:text-base text-indigo-200/80 leading-relaxed max-w-2xl font-medium" dangerouslySetInnerHTML={{ __html: pageData.content }} />
                     ) : (
-                        <p className="mt-4 text-sm md:text-base text-indigo-200/80 leading-relaxed max-w-2xl font-medium">
-                            100% Verified Teer Common Numbers. Daily Shillong, Khanapara, and Juwai Teer hit numbers, house, and ending predictions.
-                        </p>
+                        <div className="mt-4 text-sm md:text-base text-indigo-200/80 leading-relaxed max-w-2xl font-medium" dangerouslySetInnerHTML={{ __html: generateSemanticIntro(isDate ? 'Teer' : game, 'common-numbers', formattedDate) }} />
+                    )}
+
+                    {!pageData?.content && !isDate && (
+                        <div className="mt-4 pt-4 border-t border-indigo-500/30 max-w-2xl">
+                            <p className="text-sm text-indigo-200/80">
+                                Want to verify our predictions? Check the official <a href={`/results/${game}`} className="font-bold text-indigo-300 hover:text-white underline decoration-indigo-400/50 underline-offset-4">{game.charAt(0).toUpperCase() + game.slice(1)} Teer Results</a> archive.
+                            </p>
+                        </div>
                     )}
                 </DarkHero>
 

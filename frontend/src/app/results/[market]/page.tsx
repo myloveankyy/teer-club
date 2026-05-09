@@ -6,6 +6,7 @@ import { Section, Container } from "@/components/ui/Grid";
 import { ResultsList } from "@/components/ResultsList";
 import { DarkHero, HeroBadge } from "@/components/layout/DarkHero";
 import { TrafficGrid } from "@/components/layout/TrafficGrid";
+import { generateSemanticIntro, generateFAQSchema, generateDatasetSchema } from "@/lib/seo-spinner";
 
 export const revalidate = 60;
 
@@ -116,10 +117,36 @@ export default async function ProgrammaticMarketPage({ params }: PageProps) {
     }
 
     const h1Title = pageData?.title || displayTitle;
-    const bodyContent = pageData?.content || `Welcome to the official dataset for ${displayTitle}. Here you can analyze recent outcomes, study long-term patterns, and access our optimized programmatic SEO hub for this specific query.`;
+    
+    // Use SEO spinner if no custom body content is defined
+    const bodyContent = pageData?.content || generateSemanticIntro(market, 'results');
+    
+    // Check if the market is a valid game or if it has custom pageData
+    let isValidGame = false;
+    try {
+        const gamesRes = await api.games.getAll();
+        if (gamesRes.data?.success && gamesRes.data.data) {
+            isValidGame = gamesRes.data.data.some((g: any) => g.name.toLowerCase() === gameId.toLowerCase() || g.id.toLowerCase() === gameId.toLowerCase());
+        }
+    } catch(e) {}
+
+    if (!isValidGame && !pageData) {
+        notFound();
+    }
+
+    const faqSchema = generateFAQSchema(market, 'results');
+    const datasetSchema = generateDatasetSchema(market);
 
     return (
         <PageLayout>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetSchema) }}
+            />
             <main className="flex-1 bg-surface">
                 <DarkHero
                     breadcrumbs={[
@@ -142,8 +169,19 @@ export default async function ProgrammaticMarketPage({ params }: PageProps) {
                         showLiveDot: true,
                     }}
                 >
+                    {/* Micro-timestamping for Google Indexing freshness */}
+                    <time dateTime={new Date().toISOString()} className="hidden">Last Updated: {new Date().toISOString()}</time>
+
                     {bodyContent && (
                         <div className="text-base text-indigo-100 mt-6 max-w-2xl" dangerouslySetInnerHTML={{ __html: bodyContent }} />
+                    )}
+                    
+                    {!pageData?.content && (
+                        <div className="mt-4 pt-4 border-t border-indigo-500/30 max-w-2xl">
+                            <p className="text-sm text-indigo-200/80">
+                                Looking for predictions? Check out our mathematically calculated <a href={`/common-numbers/${gameId}`} className="font-bold text-indigo-300 hover:text-white underline decoration-indigo-400/50 underline-offset-4">{displayTitle} Common Numbers</a> for today.
+                            </p>
+                        </div>
                     )}
                 </DarkHero>
 
