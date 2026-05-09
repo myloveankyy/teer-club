@@ -195,7 +195,7 @@ export default function AllPagesManager() {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Link
-                                                    href={process.env.NEXT_PUBLIC_FRONTEND_URL ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}${p.url}` : `http://localhost:3002${p.url}`}
+                                                    href={process.env.NEXT_PUBLIC_FRONTEND_URL ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}${p.url}` : `https://teer.club${p.url}`}
                                                     target="_blank"
                                                     className="p-2 text-gray-400 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
                                                     title="View Site"

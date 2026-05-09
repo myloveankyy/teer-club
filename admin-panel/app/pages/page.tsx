@@ -290,7 +290,7 @@ export default function PagesManagement() {
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                 <Link
-                                                    href={process.env.NEXT_PUBLIC_FRONTEND_URL ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}${p.url}` : `http://localhost:3002${p.url}`}
+                                                    href={process.env.NEXT_PUBLIC_FRONTEND_URL ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}${p.url}` : `https://teer.club${p.url}`}
                                                     target="_blank"
                                                     className="p-2 text-gray-400 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
                                                     title="View Site"
@@ -529,7 +529,7 @@ export default function PagesManagement() {
                 {previewingPage && (
                     <div className="w-full h-[600px] bg-white rounded-lg overflow-hidden border border-gray-200 mt-2">
                         <iframe
-                            src={process.env.NEXT_PUBLIC_FRONTEND_URL ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}${previewingPage.url}` : `http://localhost:3002${previewingPage.url}`}
+                            src={process.env.NEXT_PUBLIC_FRONTEND_URL ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}${previewingPage.url}` : `https://teer.club${previewingPage.url}`}
                             title={`Preview of ${previewingPage.title}`}
                             className="w-full h-full border-0"
                             sandbox="allow-same-origin allow-scripts"

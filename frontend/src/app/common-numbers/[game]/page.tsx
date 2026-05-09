@@ -112,8 +112,11 @@ export default async function CommonNumbersDatePage({ params }: PageProps) {
                 notFound();
             }
         }
-    } catch (err) {
+    } catch (err: any) {
         console.error("Failed to fetch predictions for parameter:", err);
+        if (err?.status !== 404) {
+            throw new Error(`API Error: ${err.message || 'Failed to fetch predictions'}`);
+        }
         notFound();
     }
 

@@ -128,7 +128,11 @@ export default async function ProgrammaticMarketPage({ params }: PageProps) {
         if (gamesRes.data?.success && gamesRes.data.data) {
             isValidGame = gamesRes.data.data.some((g: any) => g.name.toLowerCase() === gameId.toLowerCase() || g.id.toLowerCase() === gameId.toLowerCase());
         }
-    } catch(e) {}
+    } catch(e: any) {
+        if (e?.status !== 404) {
+            throw new Error(`API Error: ${e.message || 'Failed to validate game existence'}`);
+        }
+    }
 
     if (!isValidGame && !pageData) {
         notFound();

@@ -118,10 +118,10 @@ export default function PredictionPages() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium flex justify-end gap-3">
                                     <button
-                                        onClick={() => { navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000"}${p.url}`); showToast("Copied URL", "success"); }}
+                                        onClick={() => { navigator.clipboard.writeText(`${process.env.NEXT_PUBLIC_FRONTEND_URL || "https://teer.club"}${p.url}`); showToast("Copied URL", "success"); }}
                                         className="text-gray-500 hover:text-indigo-600"
                                     >Copy URL</button>
-                                    <a href={`${process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000"}${p.url}`} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-indigo-600">View Page</a>
+                                    <a href={`${process.env.NEXT_PUBLIC_FRONTEND_URL || "https://teer.club"}${p.url}`} target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-indigo-600">View Page</a>
                                     <button onClick={() => indexMutation.mutate(p.id)} className="text-green-600 hover:text-green-800">Index Manually</button>
                                 </td>
                             </tr>

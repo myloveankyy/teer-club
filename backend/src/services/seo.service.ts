@@ -14,11 +14,14 @@ export class SeoService {
 
             // Simulate expert engine optimizations
             // 1. Meta Title (CTR-focused)
-            let newMetaTitle = page.title;
+            // Strip any existing " | Teer Club" suffix to prevent duplicate appending
+            let cleanTitle = page.title.replace(/\s*\|\s*Teer Club.*$/i, '').trim();
+            let newMetaTitle = cleanTitle;
+            
             if (!newMetaTitle.includes("Teer Club") && !newMetaTitle.includes("Results")) {
-                newMetaTitle = `${page.title} | Teer Club Live Results & Predictions`;
+                newMetaTitle = `${cleanTitle} | Teer Club Live Results & Predictions`;
             } else {
-                newMetaTitle = `${page.title} | Teer Club`;
+                newMetaTitle = `${cleanTitle} | Teer Club`;
             }
             if (newMetaTitle.length > 60) {
                 newMetaTitle = newMetaTitle.substring(0, 57) + "...";

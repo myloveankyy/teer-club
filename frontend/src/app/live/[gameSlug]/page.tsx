@@ -92,8 +92,12 @@ export default async function GamePage({ params }: PageProps) {
         if (res.data?.success && res.data.data) {
             game = res.data.data;
         }
-    } catch {
-        // Game not found
+    } catch (error: any) {
+        if (error?.status !== 404) {
+            // Throwing an error triggers a 500 status (Server Error) rather than a 404.
+            // This prevents Google from de-indexing the page if the backend API times out.
+            throw new Error(`API Error: ${error.message || 'Failed to fetch game'}`);
+        }
     }
 
     if (!game) {
