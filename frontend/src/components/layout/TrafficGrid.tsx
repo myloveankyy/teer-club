@@ -60,6 +60,13 @@ const SparkleIcon = () => (
     </svg>
 );
 
+const TrophyIcon = () => (
+    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 0 0 4 -14 0 0 -4zm2 4l0 8c0 2 2 3 5 3s5 -1 5 -3l0 -8" />
+    </svg>
+);
+
 /**
  * Build the default 4 traffic links. Accepts an optional `gameId` to make
  * the "Live Results" link game-specific.
@@ -81,11 +88,18 @@ export function getDefaultTrafficLinks(gameId?: string): TrafficLink[] {
             color: "violet",
         },
         {
+            href: "/jackpot",
+            label: "Jackpot Proofs",
+            subtitle: "Verified accuracy",
+            icon: <TrophyIcon />,
+            color: "emerald",
+        },
+        {
             href: "/teer-guide",
             label: "Teer Guide",
             subtitle: "Learn how it works",
             icon: <BookIcon />,
-            color: "emerald",
+            color: "indigo",
         },
         {
             href: "/dreams",
@@ -107,8 +121,8 @@ export function TrafficGrid({ links, gameId }: TrafficGridProps) {
 
     return (
         <section className="bg-white border-b border-gray-100">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
                     {items.map((item) => {
                         const colors = colorMap[item.color];
                         return (

@@ -78,6 +78,32 @@ export async function startAllCrons(): Promise<void> {
         });
         logger.info("[CRON] Registered Pre-Result Hype Triggers");
 
+        // 6b. Smart Engagement Loop Notifications (Mon-Sat)
+        // Morning Alert (8:00 AM IST -> 02:30 UTC)
+        await scrapeQueue.add("morning-prediction-alert", {}, {
+            repeat: { pattern: "30 2 * * 1-6" },
+            jobId: "engage-morning"
+        });
+        
+        // Midday Engagement (12:30 PM IST -> 07:00 UTC)
+        await scrapeQueue.add("midday-engagement", {}, {
+            repeat: { pattern: "0 7 * * 1-6" },
+            jobId: "engage-midday"
+        });
+
+        // Post-Result Celebration (6:00 PM IST -> 12:30 UTC)
+        await scrapeQueue.add("post-result-celebration", {}, {
+            repeat: { pattern: "30 12 * * 1-6" },
+            jobId: "engage-post-result"
+        });
+
+        // Evening Return (9:00 PM IST -> 15:30 UTC)
+        await scrapeQueue.add("evening-return", {}, {
+            repeat: { pattern: "30 15 * * 1-6" },
+            jobId: "engage-evening"
+        });
+        logger.info("[CRON] Registered Smart Engagement Loop Triggers");
+
         // 7. Register Nightly SEO Crawl (2:00 AM IST -> 20:30 UTC)
         await scrapeQueue.add("seo-nightly-crawl", {}, {
             repeat: { pattern: "30 20 * * *" },

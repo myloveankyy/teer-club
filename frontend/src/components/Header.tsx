@@ -19,6 +19,7 @@ const navLinks = [
   { href: "/live", label: "Live" },
   { href: "/results", label: "Results" },
   { href: "/common-numbers", label: "Common Numbers" },
+  { href: "/jackpot", label: "Jackpot" },
   { href: "/dreams", label: "Dreams" },
   { href: "/tools/widget", label: "Embed Widget" },
 ];

@@ -3,7 +3,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { Download, Target, Trophy, Flame, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { Card } from "./Card";
 import * as htmlToImage from "html-to-image";
 
 interface MatchProofCardProps {
@@ -17,6 +16,7 @@ interface MatchProofCardProps {
         direct?: boolean;
     };
     reportUrl?: string;
+    compact?: boolean;
 }
 
 // ─── Confetti Particle Component ─────────────────────────────────────────────
@@ -24,13 +24,13 @@ function ConfettiParticles({ active }: { active: boolean }) {
     if (!active) return null;
 
     const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
-    const particles = Array.from({ length: 24 }, (_, i) => ({
+    const particles = Array.from({ length: 12 }, (_, i) => ({
         id: i,
         color: colors[i % colors.length],
         left: `${Math.random() * 100}%`,
         delay: `${Math.random() * 0.6}s`,
         duration: `${1.2 + Math.random() * 1}s`,
-        size: `${4 + Math.random() * 4}px`,
+        size: `${3 + Math.random() * 3}px`,
         rotation: `${Math.random() * 360}deg`,
     }));
 
@@ -57,7 +57,7 @@ function ConfettiParticles({ active }: { active: boolean }) {
                 @keyframes confetti-fall {
                     0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
                     50% { opacity: 1; }
-                    100% { transform: translateY(280px) rotate(720deg) scale(0.3); opacity: 0; }
+                    100% { transform: translateY(200px) rotate(720deg) scale(0.3); opacity: 0; }
                 }
                 .animate-confetti-fall {
                     animation-name: confetti-fall;
@@ -89,71 +89,85 @@ function getMatchStatus(isPending: boolean, matchDetails?: MatchProofCardProps['
 
 const STATUS_CONFIG: Record<MatchStatus, {
     label: string;
+    shortLabel: string;
     icon: React.ReactNode;
     badgeBg: string;
     badgeText: string;
     borderColor: string;
     glowClass: string;
     headerBg: string;
+    accentColor: string;
 }> = {
     jackpot: {
         label: '🔥 JACKPOT HIT',
-        icon: <Flame size={14} className="text-amber-500" />,
+        shortLabel: '🔥 JACKPOT',
+        icon: <Flame size={12} className="text-amber-500" />,
         badgeBg: 'bg-gradient-to-r from-amber-500 to-orange-500',
         badgeText: 'text-white',
-        borderColor: 'border-amber-300',
-        glowClass: 'shadow-lg shadow-amber-200/60 ring-2 ring-amber-400/30',
+        borderColor: 'border-amber-200',
+        glowClass: 'shadow-md shadow-amber-100/60 ring-1 ring-amber-300/30',
         headerBg: 'bg-gradient-to-br from-amber-50 to-orange-50',
+        accentColor: 'text-amber-500',
     },
     multi_win: {
         label: '✅ DOUBLE WIN',
-        icon: <Trophy size={14} className="text-emerald-500" />,
+        shortLabel: '✅ 2x WIN',
+        icon: <Trophy size={12} className="text-emerald-500" />,
         badgeBg: 'bg-gradient-to-r from-emerald-500 to-teal-500',
         badgeText: 'text-white',
-        borderColor: 'border-emerald-300',
-        glowClass: 'shadow-lg shadow-emerald-200/50 ring-2 ring-emerald-400/20',
+        borderColor: 'border-emerald-200',
+        glowClass: 'shadow-md shadow-emerald-100/50 ring-1 ring-emerald-300/20',
         headerBg: 'bg-gradient-to-br from-emerald-50 to-teal-50',
+        accentColor: 'text-emerald-500',
     },
     house_win: {
         label: '✅ HOUSE WIN',
-        icon: <CheckCircle2 size={14} className="text-emerald-500" />,
+        shortLabel: '✅ HOUSE',
+        icon: <CheckCircle2 size={12} className="text-emerald-500" />,
         badgeBg: 'bg-emerald-500',
         badgeText: 'text-white',
         borderColor: 'border-emerald-200',
-        glowClass: 'shadow-md shadow-emerald-100/50',
+        glowClass: 'shadow-sm shadow-emerald-50',
         headerBg: 'bg-emerald-50/50',
+        accentColor: 'text-emerald-500',
     },
     ending_win: {
         label: '✅ ENDING WIN',
-        icon: <CheckCircle2 size={14} className="text-blue-500" />,
+        shortLabel: '✅ ENDING',
+        icon: <CheckCircle2 size={12} className="text-blue-500" />,
         badgeBg: 'bg-blue-500',
         badgeText: 'text-white',
         borderColor: 'border-blue-200',
-        glowClass: 'shadow-md shadow-blue-100/50',
+        glowClass: 'shadow-sm shadow-blue-50',
         headerBg: 'bg-blue-50/50',
+        accentColor: 'text-blue-500',
     },
     missed: {
         label: '✖ MISSED',
-        icon: <XCircle size={14} className="text-red-400" />,
+        shortLabel: '✖ MISS',
+        icon: <XCircle size={12} className="text-red-400" />,
         badgeBg: 'bg-red-50',
         badgeText: 'text-red-500',
         borderColor: 'border-red-100',
         glowClass: '',
         headerBg: 'bg-white',
+        accentColor: 'text-red-400',
     },
     pending: {
         label: '⏳ PENDING',
-        icon: <Clock size={14} className="text-gray-400" />,
+        shortLabel: '⏳ WAIT',
+        icon: <Clock size={12} className="text-gray-400" />,
         badgeBg: 'bg-gray-100',
         badgeText: 'text-gray-500',
         borderColor: 'border-gray-100',
         glowClass: '',
         headerBg: 'bg-white',
+        accentColor: 'text-gray-400',
     },
 };
 
 // ─── Main Component ──────────────────────────────────────────────────────────
-export const MatchProofCard = ({ date, game, numbers, result, matchDetails, reportUrl }: MatchProofCardProps) => {
+export const MatchProofCard = ({ date, game, numbers, result, matchDetails, reportUrl, compact = false }: MatchProofCardProps) => {
     const cardRef = useRef<HTMLDivElement>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
@@ -198,36 +212,155 @@ export const MatchProofCard = ({ date, game, numbers, result, matchDetails, repo
         }
     };
 
+    // ─── Compact Variant (for listing pages) ─────────────────────────────
+    if (compact) {
+        return (
+            <div
+                ref={cardRef}
+                className={`relative overflow-hidden bg-white border transition-all duration-300 ${config.borderColor} ${config.glowClass} rounded-xl`}
+            >
+                <ConfettiParticles active={showConfetti} />
+
+                {/* Compact Header */}
+                <div className={`relative z-10 flex items-center justify-between px-3 py-2.5 ${config.headerBg} border-b border-gray-50`}>
+                    <div className="flex items-center gap-2">
+                        <h3 className="text-xs font-bold tracking-tight text-gray-900">{game} Teer</h3>
+                        <span className="text-[8px] font-semibold text-gray-400">• {date}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[8px] uppercase font-black tracking-wider rounded-md ${config.badgeBg} ${config.badgeText}`}>
+                            {config.icon}
+                            {config.shortLabel}
+                        </span>
+                        <button
+                            onClick={downloadImage}
+                            disabled={isDownloading}
+                            className="download-btn flex items-center justify-center w-6 h-6 rounded-md transition-all bg-white/80 hover:bg-white text-gray-400 hover:text-gray-600 border border-gray-100"
+                            title="Download Proof"
+                        >
+                            <Download size={10} />
+                        </button>
+                    </div>
+                </div>
+
+                {/* Compact Results */}
+                <div className="relative z-10 flex items-center justify-between px-3 py-2.5">
+                    <div className="flex-1">
+                        <p className="text-[8px] uppercase font-black tracking-widest mb-1.5 text-gray-400">Predicted</p>
+                        <div className="flex gap-1">
+                            {isPending ? (
+                                <span className="flex h-7 px-3 items-center justify-center rounded-lg text-[9px] uppercase tracking-widest border border-dashed border-gray-200 text-gray-400 font-bold animate-pulse">
+                                    Awaiting
+                                </span>
+                            ) : (
+                                numbers.slice(0, 5).map((num, idx) => {
+                                    const isMatched = result.includes(num);
+                                    return (
+                                        <span
+                                            key={idx}
+                                            className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black transition-all ${isMatched
+                                                    ? "bg-emerald-500 text-white shadow-sm shadow-emerald-200 scale-110 z-10"
+                                                    : "border border-gray-100 bg-gray-50 text-gray-400"
+                                                }`}
+                                        >
+                                            {num}
+                                        </span>
+                                    )
+                                })
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="pl-3 border-l border-gray-100 text-right">
+                        <p className="text-[8px] uppercase font-black tracking-widest mb-1.5 text-gray-400">Result</p>
+                        {isPending ? (
+                            <span className="text-xl font-black tracking-tighter text-gray-300 animate-pulse">XX</span>
+                        ) : (
+                            <span className={`text-xl font-black tracking-tighter ${config.accentColor}`}>
+                                {result}
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                {/* Compact match badges */}
+                {!isPending && (
+                    <div className="relative z-10 flex flex-wrap gap-1.5 px-3 pb-2.5 border-t border-gray-50 pt-2">
+                        {matchDetails?.direct && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-[8px] font-black uppercase tracking-wider text-amber-600">
+                                <Flame size={9} /> Direct
+                            </span>
+                        )}
+                        {matchDetails?.house && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-200 text-[8px] font-black uppercase tracking-wider text-emerald-600">
+                                <CheckCircle2 size={9} /> House
+                            </span>
+                        )}
+                        {matchDetails?.ending && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 border border-blue-200 text-[8px] font-black uppercase tracking-wider text-blue-600">
+                                <CheckCircle2 size={9} /> Ending
+                            </span>
+                        )}
+                        {status === 'missed' && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-50 border border-red-100 text-[8px] font-black uppercase tracking-wider text-red-400">
+                                <XCircle size={9} /> No Match
+                            </span>
+                        )}
+                        {reportUrl && (
+                            <Link href={reportUrl} className="ml-auto text-[8px] uppercase font-black tracking-widest text-blue-500 hover:text-blue-600 transition-colors self-center">
+                                Details →
+                            </Link>
+                        )}
+                    </div>
+                )}
+                
+                {/* Brand footer — compact */}
+                <div className="relative z-10 px-3 py-1.5 border-t border-gray-50 flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-gray-300">
+                        <Target size={10} />
+                        <span>verified by teer.club</span>
+                    </div>
+                    {!isPending && reportUrl && (
+                        <Link href={reportUrl} className="text-[8px] uppercase font-black tracking-widest text-blue-500 hover:text-blue-600 transition-colors">
+                            View Proof →
+                        </Link>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // ─── Full Variant (for detail pages) ─────────────────────────────────
     return (
         <div
             ref={cardRef}
-            className={`relative flex flex-col border transition-all duration-500 overflow-hidden bg-white ${config.borderColor} ${config.glowClass} p-6 rounded-2xl`}
+            className={`relative flex flex-col border transition-all duration-500 overflow-hidden bg-white ${config.borderColor} ${config.glowClass} p-5 rounded-2xl`}
         >
             {/* Confetti for Jackpot / Multi-Win */}
             <ConfettiParticles active={showConfetti} />
 
             {/* Header */}
-            <div className={`relative z-10 -mx-6 -mt-6 px-6 pt-5 pb-4 mb-5 ${config.headerBg}`}>
+            <div className={`relative z-10 -mx-5 -mt-5 px-5 pt-4 pb-3 mb-4 ${config.headerBg}`}>
                 <div className="flex justify-between items-start">
                     <div>
-                        <h3 className="text-lg lg:text-xl font-bold tracking-tight text-gray-900 mb-1">{game} Teer</h3>
-                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                        <h3 className="text-base lg:text-lg font-bold tracking-tight text-gray-900 mb-0.5">{game} Teer</h3>
+                        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-gray-400">
                             {date}
                         </p>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] uppercase font-black tracking-widest rounded-lg ${config.badgeBg} ${config.badgeText}`}>
+                    <div className="flex items-center gap-1.5">
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 text-[9px] uppercase font-black tracking-widest rounded-lg ${config.badgeBg} ${config.badgeText}`}>
                             {config.icon}
                             {config.label}
                         </span>
                         <button
                             onClick={downloadImage}
                             disabled={isDownloading}
-                            className="download-btn flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300 bg-white/80 hover:bg-white text-gray-400 hover:text-gray-600 border border-gray-100"
+                            className="download-btn flex items-center justify-center w-7 h-7 rounded-lg transition-all duration-300 bg-white/80 hover:bg-white text-gray-400 hover:text-gray-600 border border-gray-100"
                             title="Download Proof Card"
                         >
-                            <Download size={14} />
+                            <Download size={12} />
                         </button>
                     </div>
                 </div>
@@ -235,37 +368,37 @@ export const MatchProofCard = ({ date, game, numbers, result, matchDetails, repo
 
             {/* Match Detail Badges */}
             {!isPending && (
-                <div className="relative z-10 flex flex-wrap gap-3 mb-5">
+                <div className="relative z-10 flex flex-wrap gap-2 mb-4">
                     {matchDetails?.direct && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-50 border border-amber-200 text-[10px] font-black uppercase tracking-widest text-amber-600">
-                            <Flame size={12} /> Direct Number Hit
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-amber-50 border border-amber-200 text-[9px] font-black uppercase tracking-widest text-amber-600">
+                            <Flame size={10} /> Direct Number Hit
                         </span>
                     )}
                     {matchDetails?.house && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-emerald-50 border border-emerald-200 text-[10px] font-black uppercase tracking-widest text-emerald-600">
-                            <CheckCircle2 size={12} /> House Match
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[9px] font-black uppercase tracking-widest text-emerald-600">
+                            <CheckCircle2 size={10} /> House Match
                         </span>
                     )}
                     {matchDetails?.ending && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-blue-50 border border-blue-200 text-[10px] font-black uppercase tracking-widest text-blue-600">
-                            <CheckCircle2 size={12} /> Ending Match
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-blue-50 border border-blue-200 text-[9px] font-black uppercase tracking-widest text-blue-600">
+                            <CheckCircle2 size={10} /> Ending Match
                         </span>
                     )}
                     {status === 'missed' && (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-red-50 border border-red-100 text-[10px] font-black uppercase tracking-widest text-red-400">
-                            <XCircle size={12} /> No Match
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-red-50 border border-red-100 text-[9px] font-black uppercase tracking-widest text-red-400">
+                            <XCircle size={10} /> No Match
                         </span>
                     )}
                 </div>
             )}
 
             {/* Results Display */}
-            <div className="relative z-10 flex items-center justify-between border-t border-gray-100 pt-5 mt-auto">
+            <div className="relative z-10 flex items-center justify-between border-t border-gray-100 pt-4 mt-auto">
                 <div className="flex-1">
-                    <p className="text-[9px] uppercase font-black tracking-[0.2em] mb-3 text-gray-400">Predicted</p>
-                    <div className="flex flex-wrap gap-2">
+                    <p className="text-[8px] uppercase font-black tracking-[0.2em] mb-2 text-gray-400">Predicted</p>
+                    <div className="flex flex-wrap gap-1.5">
                         {isPending ? (
-                            <span className="flex h-10 px-4 items-center justify-center rounded-xl text-[10px] uppercase tracking-widest border border-dashed border-gray-200 text-gray-400 font-bold animate-pulse">
+                            <span className="flex h-8 px-3 items-center justify-center rounded-lg text-[9px] uppercase tracking-widest border border-dashed border-gray-200 text-gray-400 font-bold animate-pulse">
                                 Awaiting Results
                             </span>
                         ) : (
@@ -274,8 +407,8 @@ export const MatchProofCard = ({ date, game, numbers, result, matchDetails, repo
                                 return (
                                     <span
                                         key={idx}
-                                        className={`flex h-10 w-10 items-center justify-center rounded-xl text-base font-black transition-all duration-500 ${isMatched
-                                                ? "bg-emerald-500 text-white border-emerald-400 shadow-lg shadow-emerald-200 scale-110 z-10 ring-2 ring-emerald-300/50"
+                                        className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-black transition-all duration-500 ${isMatched
+                                                ? "bg-emerald-500 text-white border-emerald-400 shadow-md shadow-emerald-200 scale-110 z-10 ring-1 ring-emerald-300/50"
                                                 : "border border-gray-100 bg-gray-50 text-gray-400"
                                             }`}
                                     >
@@ -287,13 +420,13 @@ export const MatchProofCard = ({ date, game, numbers, result, matchDetails, repo
                     </div>
                 </div>
 
-                <div className="pl-6 border-l border-gray-100">
-                    <p className="text-[9px] uppercase font-black tracking-[0.2em] mb-3 text-gray-400 text-right">Result</p>
+                <div className="pl-4 border-l border-gray-100">
+                    <p className="text-[8px] uppercase font-black tracking-[0.2em] mb-2 text-gray-400 text-right">Result</p>
                     <div className="flex items-center justify-center">
                         {isPending ? (
-                            <span className="text-3xl font-black tracking-tighter text-gray-300 animate-pulse">XX</span>
+                            <span className="text-2xl font-black tracking-tighter text-gray-300 animate-pulse">XX</span>
                         ) : (
-                            <span className={`text-3xl lg:text-4xl font-black tracking-tighter ${
+                            <span className={`text-2xl lg:text-3xl font-black tracking-tighter ${
                                 status === 'jackpot' ? 'text-amber-500' :
                                 status === 'missed' ? 'text-red-400' : 'text-gray-900'
                             }`}>
@@ -305,18 +438,18 @@ export const MatchProofCard = ({ date, game, numbers, result, matchDetails, repo
             </div>
 
             {/* Footer Brand */}
-            <div className="relative z-10 mt-5 pt-4 border-t border-gray-50 flex items-center justify-between">
-                <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-gray-300">
-                    <Target size={14} />
+            <div className="relative z-10 mt-4 pt-3 border-t border-gray-50 flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-gray-300">
+                    <Target size={12} />
                     <span>verified by teer.club</span>
                 </div>
                 <div className="text-right">
                     {reportUrl ? (
-                        <Link href={reportUrl} className="text-[10px] uppercase font-black tracking-widest text-blue-500 hover:text-blue-600 transition-colors">
+                        <Link href={reportUrl} className="text-[9px] uppercase font-black tracking-widest text-blue-500 hover:text-blue-600 transition-colors">
                             View Proof Details →
                         </Link>
                     ) : (
-                        <p className="text-[11px] font-bold tracking-tight text-gray-200">teer.club</p>
+                        <p className="text-[10px] font-bold tracking-tight text-gray-200">teer.club</p>
                     )}
                 </div>
             </div>

@@ -10,6 +10,7 @@ import { InternalCrawler } from "../services/internalCrawler";
 import { SitemapService } from "../services/sitemap.service";
 import { isNonWorkingDay } from "../config/holidays";
 import { getISTNow, getScheduleByGame, parseTime } from "../config/gameSchedule";
+import { getRandomTemplate } from "../services/notificationTemplates";
 import prisma from "../prisma";
 
 const CACHE_KEY_TODAY = "cache:today";
@@ -276,6 +277,39 @@ export function startScrapeWorker() {
         `Results will be announced in 5 minutes! Open the app now to watch live.`,
         `/results/${gameName.toLowerCase()}/live`
       );
+      return { status: "success" };
+    }
+
+    // ── Smart Engagement Loop ────────────────────────────────────────────
+    if (job.name === "morning-prediction-alert") {
+      logger.info("[Worker] Running Morning Prediction Alert...");
+      const tpl = getRandomTemplate("morning_prediction");
+      await sendBroadcastPush(tpl.title, tpl.body, tpl.url);
+      return { status: "success" };
+    }
+
+    if (job.name === "midday-engagement") {
+      logger.info("[Worker] Running Midday Engagement...");
+      const tpl = getRandomTemplate("midday_engagement");
+      await sendBroadcastPush(tpl.title, tpl.body, tpl.url);
+      return { status: "success" };
+    }
+
+    if (job.name === "post-result-celebration") {
+      logger.info("[Worker] Running Post-Result Celebration...");
+      const tpl = getRandomTemplate("post_result_celebration", {
+        gameName: "Shillong & Khanapara",
+        fr: "Check",
+        sr: "App"
+      });
+      await sendBroadcastPush(tpl.title, tpl.body, tpl.url);
+      return { status: "success" };
+    }
+
+    if (job.name === "evening-return") {
+      logger.info("[Worker] Running Evening Return...");
+      const tpl = getRandomTemplate("evening_preview");
+      await sendBroadcastPush(tpl.title, tpl.body, tpl.url);
       return { status: "success" };
     }
 

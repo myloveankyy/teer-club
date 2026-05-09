@@ -121,8 +121,8 @@ export default function NotificationPrompt() {
             }
         };
 
-        // Delay prompt slightly to ensure rendering completes
-        setTimeout(setupPush, 2000);
+        // Delay prompt to 5s to ensure user has engaged with the page first
+        setTimeout(setupPush, 5000);
     }, [settings?.pushEnabled]);
 
     const subscribeUser = async (swRegistration?: ServiceWorkerRegistration) => {
@@ -234,22 +234,43 @@ export default function NotificationPrompt() {
 
     if (showPushPermission && !showA2HS) {
         return (
-            <div className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 w-[90%] sm:w-[420px] z-[9999] p-5 bg-white border border-gray-200 rounded-2xl shadow-xl flex items-center gap-4 animate-in slide-in-from-top-10 fade-in duration-500">
-                <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center shrink-0">
-                    <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
+            <div className="fixed bottom-0 sm:bottom-auto sm:top-6 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:w-[420px] z-[9999] p-5 sm:p-6 bg-white sm:rounded-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.1)] sm:shadow-[0_20px_40px_rgba(0,0,0,0.15)] border border-gray-100 flex flex-col gap-5 animate-in slide-in-from-bottom-10 sm:slide-in-from-top-10 fade-in duration-700 ease-out rounded-t-3xl">
+                <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50 rounded-2xl flex items-center justify-center shrink-0 shadow-inner">
+                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 className="text-gray-900 font-black text-base tracking-tight mb-1">Never Miss a Target</h4>
+                        <p className="text-[13px] text-gray-500 leading-relaxed font-medium">Join 10,000+ players getting instant alerts for live results and daily common numbers.</p>
+                    </div>
                 </div>
-                <div className="flex-1">
-                    <h4 className="text-gray-900 font-semibold text-sm">Enable Notifications</h4>
-                    <p className="text-xs text-gray-500 mt-0.5 leading-snug">Get live Teer results delivered to your device instantly.</p>
+
+                {/* Benefits Preview Container */}
+                <div className="bg-gray-50 rounded-2xl p-3 border border-gray-100 flex flex-col gap-2">
+                    <div className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm">
+                        <div className="w-6 h-6 bg-emerald-100 rounded-md flex items-center justify-center text-emerald-600 shrink-0">🎯</div>
+                        <div>
+                            <p className="text-[10px] font-bold text-gray-900">Today's Targets Ready</p>
+                            <p className="text-[9px] text-gray-500">Morning predictions are live</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-3 bg-white p-2.5 rounded-xl border border-gray-100 shadow-sm">
+                        <div className="w-6 h-6 bg-amber-100 rounded-md flex items-center justify-center text-amber-600 shrink-0">🔥</div>
+                        <div>
+                            <p className="text-[10px] font-bold text-gray-900">Shillong Result is OUT!</p>
+                            <p className="text-[9px] text-gray-500">F/R: 45 | S/R: 82</p>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex flex-col gap-2 shrink-0">
-                    <button onClick={handleAcceptPush} className="px-4 py-2 bg-gray-900 text-white text-xs font-semibold rounded-lg hover:bg-gray-800 transition-colors">
-                        Allow
+
+                <div className="flex flex-col sm:flex-row gap-3 mt-1">
+                    <button onClick={handleAcceptPush} className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-bold rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg shadow-blue-200 active:scale-[0.98]">
+                        Yes, send me updates
                     </button>
-                    <button onClick={handleDismissPush} className="text-[10px] text-gray-400 hover:text-gray-600 font-semibold uppercase transition-colors text-center">
-                        Skip
+                    <button onClick={handleDismissPush} className="w-full sm:w-auto py-3.5 px-6 text-[11px] text-gray-400 hover:text-gray-600 hover:bg-gray-50 font-bold uppercase tracking-widest rounded-xl transition-all">
+                        Maybe Later
                     </button>
                 </div>
             </div>
