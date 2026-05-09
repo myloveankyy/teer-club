@@ -6,6 +6,7 @@ import { Container, Section } from "@/components/ui/Grid";
 import { MatchProofCard } from "@/components/ui/MatchProofCard";
 import { Button } from "@/components/ui/Button";
 import { DarkHero, HeroBadge } from "@/components/layout/DarkHero";
+import { generateSemanticIntro } from "@/lib/seo-spinner";
 
 interface PageProps {
     params: Promise<{ game: string; date: string }>;
@@ -123,12 +124,13 @@ export default async function GameDateMatchProofPage({ params }: PageProps) {
                         <HeroBadge variant="emerald">Verified Accuracy</HeroBadge>
                     }
                 >
+                    {/* Micro-timestamping for Google Indexing freshness */}
+                    <time dateTime={new Date().toISOString()} className="hidden">Last Updated: {new Date().toISOString()}</time>
+
                     {pageData?.content ? (
                         <div className="mt-6 text-sm md:text-base text-green-100/80 leading-relaxed max-w-2xl font-medium" dangerouslySetInnerHTML={{ __html: pageData.content }} />
                     ) : (
-                        <p className="mt-6 text-sm md:text-base text-green-100/80 leading-relaxed max-w-2xl font-medium">
-                            Transparent verification of our daily {gameNameDisplay} Teer common numbers against official results. Check our accuracy rate below.
-                        </p>
+                        <div className="mt-6 text-sm md:text-base text-green-100/80 leading-relaxed max-w-2xl font-medium" dangerouslySetInnerHTML={{ __html: generateSemanticIntro(isDate ? 'Teer' : game, 'match-proofs', formattedDate) }} />
                     )}
                 </DarkHero>
 

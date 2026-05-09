@@ -1,4 +1,4 @@
-export function generateSemanticIntro(market: string, type: 'results' | 'common-numbers', date?: string): string {
+export function generateSemanticIntro(market: string, type: 'results' | 'common-numbers' | 'match-proofs', date?: string): string {
     const marketCapitalized = market.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ');
     
     // Entity variations
@@ -26,7 +26,15 @@ export function generateSemanticIntro(market: string, type: 'results' | 'common-
             `100% Verified <strong>${marketCapitalized} targets</strong> for ${todayStr}. Don't rely on guesswork for the ${random(entities.archery)}. We provide data-backed ${random(entities.prediction)} generated from verified ${random(entities.region)} records.`
         ];
         return templates[Math.floor(Math.random() * templates.length)];
+    } else if (type === 'match-proofs') {
+        const templates = [
+            `View the verified match proof for <strong>${marketCapitalized}</strong> on ${todayStr}. We believe in absolute transparency for the ${random(entities.archery)}. Compare our predicted targets with the official ${random(entities.region)} results.`,
+            `Did our <strong>${marketCapitalized}</strong> common numbers hit on ${todayStr}? Check our live verification dashboard. We log all ${random(entities.prediction)} and cross-reference them with ${random(entities.results)} from Meghalaya.`,
+            `Transparent verification of our daily <strong>${marketCapitalized}</strong> targets against official records for ${todayStr}. See our accuracy rate for direct hits, house, and ending numbers.`
+        ];
+        return templates[Math.floor(Math.random() * templates.length)];
     }
+    return '';
 }
 
 export function generateFAQSchema(market: string, type: 'results' | 'common-numbers', date?: string) {

@@ -67,7 +67,7 @@ export async function aggregatePages() {
     // 2. Ingest Dynamic Game Pages
     const games = await prisma.game.findMany({ where: { isEnabled: true } });
     for (const game of games) {
-        const slug = game.name;
+        const slug = game.name.trim().replace(/\s+/g, '-').toLowerCase();
 
         // Results Landing page
         await upsertPage({
@@ -118,7 +118,7 @@ export async function aggregatePages() {
     });
 
     for (const pred of recentPredictions) {
-        const slug = pred.game.name;
+        const slug = pred.game.name.trim().replace(/\s+/g, '-').toLowerCase();
         // Format date string to YYYY-MM-DD local
         const dateStr = pred.date.toISOString().split('T')[0];
         
