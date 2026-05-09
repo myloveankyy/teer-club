@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
 import { logger } from '../utils/logger';
+import { IndexingService } from './indexing.service';
+import { IndexingWorker } from '../workers/indexingWorker';
 
 const BASE_URL = 'https://teer.club';
 // Write to frontend/public since nextjs serves from there
@@ -353,8 +355,25 @@ export class SitemapService {
         };
         fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata));
 
-        // Ping Google asynchronously to accelerate indexing
+        // Ping Google asynchronously to accelerate indexing (Legacy ping)
         this.pingGoogle().catch(err => logger.error('[SITEMAP] Ping failed on generate', err));
+
+        // NEW: Queue newly discovered URLs into the robust Google Indexing API system
+        if (added.length > 0) {
+            log('INFO', `Queuing ${added.length} new URLs for the Google Indexing API...`);
+            // We only queue up to 50 URLs at a time from sitemap to prevent queue flooding
+            const toQueue = added.slice(0, 50);
+            for (const newUrl of toQueue) {
+                try {
+                    // Try to find a matching page ID. If none, pass an empty string (the worker/routes handle shadow records)
+                    await IndexingService.queueUrl(newUrl, "SITEMAP_AUTO", "AUTO");
+                } catch (e) {
+                    logger.error(`[SITEMAP] Failed to queue ${newUrl} for Indexing API:`, e);
+                }
+            }
+            // Trigger the worker to start processing
+            IndexingWorker.processQueue().catch(e => logger.error('[SITEMAP] Failed to trigger indexing worker:', e));
+        }
 
         return metadata;
     }

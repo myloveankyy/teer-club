@@ -35,8 +35,10 @@ import commentsRouter from "./routes/comments";
 import growthRouter from "./routes/growth";
 import { debugRouter } from "./routes/debug";
 import dreamRoutes from "./routes/dreamRoutes";
+import indexingRoutes from "./routes/indexing.routes";
 import { startAllCrons, stopAllCrons } from "./cron/cronScheduler";
 import { SitemapService } from "./services/sitemap.service";
+import { IndexingWorker } from "./workers/indexingWorker";
 
 const app: Express = express();
 const server = http.createServer(app);
@@ -187,6 +189,7 @@ app.use("/api/analytics/realtime", realtimeAnalyticsRouter);
 // Admin routes (/admin, /admin/:id) are protected via inline middleware in the router
 app.use("/api/comments", commentsRouter);
 app.use("/api/dreams", dreamRoutes);
+app.use("/api/indexing", adminAuth, indexingRoutes);
 
 
 // ─── Seed Default Data ───────────────────────────────────────────────────────
@@ -282,6 +285,7 @@ async function start() {
 
     await seedDefaultData();
     startAllCrons();
+    IndexingWorker.init();
 
     server.listen(PORT, "0.0.0.0", () => {
       logger.info(`[Server] Running on http://localhost:${PORT}`);

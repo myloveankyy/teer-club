@@ -369,6 +369,18 @@ export const api = {
   growth: {
     getDashboard: () => fetchAPI<{ success: boolean; data: any }>("/growth/dashboard"),
     getRecommendations: () => fetchAPI<{ success: boolean; data: any[] }>("/growth/recommendations"),
+  },
+  indexing: {
+    getStats: () => fetchAPI<{ success: boolean; data: any }>("/indexing/stats"),
+    getLogs: (params?: { page?: number; limit?: number }) => {
+      const searchParams = new URLSearchParams();
+      if (params?.page) searchParams.append("page", params.page.toString());
+      if (params?.limit) searchParams.append("limit", params.limit.toString());
+      const query = searchParams.toString();
+      return fetchAPI<{ success: boolean; data: any }>(`/indexing/logs${query ? `?${query}` : ""}`);
+    },
+    submitUrl: (data: { url: string; type?: string; priority?: boolean }) =>
+      fetchAPI<{ success: boolean; data: any; message?: string; error?: string }>("/indexing/submit", { method: "POST", body: JSON.stringify(data) }),
   }
 };
 
