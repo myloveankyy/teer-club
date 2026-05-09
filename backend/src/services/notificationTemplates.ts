@@ -1,5 +1,4 @@
 // backend/src/services/notificationTemplates.ts
-import { format } from "date-fns";
 
 export type NotificationCategory = 
   | 'morning_prediction'
