@@ -162,6 +162,8 @@ export const api = {
         },
         getTodayAll: () =>
             apiClient.get<{ success: boolean; data: { date: string; predictions: any[] } }>("/predictions/today/all"),
+        getJackpot: (params?: { page?: number; limit?: number }) =>
+            apiClient.get<{ success: boolean; data: { predictions: any[]; pagination: any } }>("/predictions/jackpot", { params }),
         getHistory: (params?: { page?: number; limit?: number }) =>
             apiClient.get<{ success: boolean; data: { history: any[]; pagination: any } }>("/predictions/history", { params }),
         getByDate: (date: string) =>

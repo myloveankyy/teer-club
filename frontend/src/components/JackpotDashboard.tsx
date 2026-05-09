@@ -37,17 +37,16 @@ export const JackpotDashboard = () => {
     const limit = 20;
 
     const { data, isLoading, isError } = useQuery({
-        queryKey: ["predictions", "history", page, limit],
+        queryKey: ["predictions", "jackpot", page, limit],
         queryFn: async () => {
-            const res = await api.predictions.getHistory({ page, limit });
+            const res = await api.predictions.getJackpot({ page, limit });
             if (!res.data.success) throw new Error("Failed to fetch");
             return res.data.data;
         },
     });
 
-    // Calculate aggregated stats from currently loaded data (or we could fetch this separately from backend)
-    // For now, we'll calculate based on the first page of history if it's large enough, or just show the history list
-    const history = data?.history || [];
+    // Calculate aggregated stats from currently loaded data
+    const history = data?.predictions || [];
     const pagination = data?.pagination;
 
     // Derived stats from current view

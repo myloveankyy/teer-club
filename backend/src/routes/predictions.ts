@@ -83,6 +83,44 @@ router.get("/history", async (req, res) => {
     }
 });
 
+// GET /api/predictions/jackpot -> Gets paginated predictions across all games for the jackpot dashboard
+router.get("/jackpot", async (req, res) => {
+    try {
+        const result = paginationSchema.safeParse(req.query);
+        if (!result.success) return res.status(400).json({ success: false, error: "Invalid pagination" });
+        const { page, limit: take } = result.data;
+        const skip = (page - 1) * take;
+
+        const [predictions, totalCount] = await Promise.all([
+            prisma.prediction.findMany({
+                where: { status: "PUBLISHED" },
+                orderBy: { date: 'desc' },
+                take,
+                skip,
+                include: { game: { select: { name: true, displayName: true } } }
+            }),
+            prisma.prediction.count({
+                where: { status: "PUBLISHED" }
+            })
+        ]);
+
+        return res.json({
+            success: true,
+            data: {
+                predictions,
+                pagination: {
+                    total: totalCount,
+                    page,
+                    limit: take,
+                    totalPages: Math.ceil(totalCount / take)
+                }
+            }
+        });
+    } catch (err: any) {
+        return res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 // GET /api/predictions/by-date/:date -> Gets predictions for a specific date
 router.get("/by-date/:date", async (req, res) => {
     try {
