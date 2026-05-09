@@ -19,7 +19,7 @@ export function generateSemanticIntro(market: string, type: 'results' | 'common-
             `Get real-time updates and historical records for <strong>${marketCapitalized}</strong>. This ${random(entities.archery)} is a daily phenomenon in the ${random(entities.region)}. Our platform aggregates ${random(entities.results)} to help you build reliable statistical models.`
         ];
         return templates[Math.floor(Math.random() * templates.length)];
-    } else {
+    } else if (type === 'common-numbers') {
         const templates = [
             `Looking for the best <strong>${marketCapitalized} Common Numbers</strong> for ${todayStr}? Our system utilizes deep historical analysis to provide ${random(entities.prediction)}. Maximize your chances in this ${random(entities.region)} ${random(entities.archery)} by using our 100% verified targets.`,
             `Access today's (${todayStr}) highly accurate <strong>${marketCapitalized}</strong> ${random(entities.prediction)}. We mathematically analyze past ${random(entities.archery)} outcomes from the ${random(entities.region)} to bring you the most reliable hit numbers, house, and ending targets.`,
