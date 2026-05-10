@@ -54,7 +54,7 @@ export default function PageDeepDive() {
                     <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">{p.title || 'Untitled'}</h1>
                     <div className="flex items-center gap-3 mt-1">
                         <span className="text-sm text-gray-500 font-mono">{p.url}</span>
-                        <Link href={process.env.NEXT_PUBLIC_FRONTEND_URL ? `${process.env.NEXT_PUBLIC_FRONTEND_URL}${p.url}` : `https://teer.club${p.url}`} target="_blank" className="text-blue-600 hover:text-blue-800">
+                        <Link href={`${process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://teer.club'}${p.url}`} target="_blank" className="text-blue-600 hover:text-blue-800">
                             <ExternalLink className="h-3 w-3" />
                         </Link>
                     </div>

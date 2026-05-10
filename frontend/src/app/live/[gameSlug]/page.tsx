@@ -93,10 +93,17 @@ export default async function GamePage({ params }: PageProps) {
             game = res.data.data;
         }
     } catch (error: any) {
-        if (error?.status !== 404) {
-            // Throwing an error triggers a 500 status (Server Error) rather than a 404.
-            // This prevents Google from de-indexing the page if the backend API times out.
-            throw new Error(`API Error: ${error.message || 'Failed to fetch game'}`);
+        if (error?.status === 404) {
+            game = null;
+        } else {
+            // Fallback object to allow client-side hydration and prevent 500s
+            game = {
+                id: gameSlug,
+                name: gameSlug,
+                displayName: gameSlug.split("-").map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(" "),
+                status: "waiting",
+                isEnabled: true
+            };
         }
     }
 

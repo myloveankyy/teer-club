@@ -250,7 +250,7 @@ export const GameCard = ({ game, customMessages }: GameCardProps) => {
             <div className="download-btn mt-5">
                 <Button
                     variant="outline"
-                    href={`/results/${game.name.toLowerCase()}/live`}
+                    href={`/live/${game.name.toLowerCase()}`}
                     fullWidth
                     className={`text-[11px] font-bold uppercase tracking-widest py-3 rounded-lg border-current shadow-none ${game.status === 'declared' ? 'text-white border-white/20 hover:bg-white/10' : 'text-primary border-primary/20 hover:bg-primary/5'}`}
                 >

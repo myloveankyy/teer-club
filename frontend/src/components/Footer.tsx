@@ -12,10 +12,10 @@ const quickLinks = [
 ];
 
 const games = [
-  { href: "/results/shillong/live", label: "Shillong Teer" },
-  { href: "/results/khanapara/live", label: "Khanapara Teer" },
-  { href: "/results/juwai/live", label: "Juwai Teer" },
-  { href: "/results/laitlyngkot/live", label: "Laitlyngkot Teer" },
+  { href: "/live/shillong", label: "Shillong Teer" },
+  { href: "/live/khanapara", label: "Khanapara Teer" },
+  { href: "/live/juwai", label: "Juwai Teer" },
+  { href: "/live/laitlyngkot", label: "Laitlyngkot Teer" },
 ];
 
 const legal = [

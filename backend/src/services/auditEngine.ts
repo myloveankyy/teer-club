@@ -17,7 +17,7 @@ export interface AuditReport {
 }
 
 export class AuditEngine {
-    private static FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || "http://localhost:3000";
+    private static FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || "https://teer.club";
 
     /**
      * Audits a specific page by its ID

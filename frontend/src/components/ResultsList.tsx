@@ -94,7 +94,7 @@ export function ResultsList() {
             </div>
             <Button
               variant="ghost"
-              href={`/results/${(game?.name || "unknown").toLowerCase()}/live`}
+              href={`/results/${(game?.name || "unknown").toLowerCase()}/previous-results`}
               className="text-[10px] font-bold border border-border/20 hover:bg-surface-secondary"
             >
               VIEW HISTORY →

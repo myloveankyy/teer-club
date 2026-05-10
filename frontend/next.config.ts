@@ -38,6 +38,22 @@ const nextConfig: NextConfig = {
       }
     ];
   },
+
+  // Consolidate duplicate routing to prevent SEO indexation issues
+  async redirects() {
+    return [
+      {
+        source: "/results/:market/live",
+        destination: "/live/:market",
+        permanent: true, // 301 Redirect for SEO consolidation
+      },
+      {
+        source: "/:marketSlug/previous-results",
+        destination: "/results/:marketSlug/previous-results",
+        permanent: true,
+      }
+    ];
+  },
   // Headers: Security, caching, and performance
   async headers() {
     return [

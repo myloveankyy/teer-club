@@ -238,13 +238,13 @@ export function DynamicGamePage({ gameName, initialGame, initialResults }: Dynam
                     <div className="mx-auto max-w-4xl text-center">
                         <h3 className="text-xs font-bold uppercase tracking-widest text-foreground/40 mb-6">Explore Other Teer Markets</h3>
                         <div className="flex flex-wrap justify-center gap-4">
-                            <Link href="/results/shillong/live" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
+                            <Link href="/live/shillong" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
                                 Shillong Teer Live
                             </Link>
-                            <Link href="/results/khanapara/live" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
+                            <Link href="/live/khanapara" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
                                 Khanapara Teer Live
                             </Link>
-                            <Link href="/results/juwai/live" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
+                            <Link href="/live/juwai" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">
                                 Juwai Teer Live
                             </Link>
                             <Link href="/results" className="text-sm font-semibold text-primary hover:underline bg-white px-4 py-2 rounded-lg border border-border shadow-sm">

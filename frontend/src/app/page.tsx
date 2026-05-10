@@ -44,10 +44,10 @@ export async function generateMetadata(): Promise<Metadata> {
       const page = res.data.data;
       return {
         ...defaultMeta,
-        title: page.meta_title || defaultMeta.title,
+        title: (page.meta_title || defaultMeta.title as string).replace(/\s*\|\s*Teer Club/i, ''),
         description: page.meta_description || defaultMeta.description,
         openGraph: {
-          title: (page.meta_title || defaultMeta.title) as string,
+          title: (page.meta_title || defaultMeta.title as string).replace(/\s*\|\s*Teer Club/i, ''),
           description: (page.meta_description || defaultMeta.description) as string,
           type: "website",
           locale: "en_IN",
@@ -59,7 +59,7 @@ export async function generateMetadata(): Promise<Metadata> {
         },
         twitter: {
           card: "summary_large_image" as const,
-          title: (page.meta_title || defaultMeta.title) as string,
+          title: (page.meta_title || defaultMeta.title as string).replace(/\s*\|\s*Teer Club/i, ''),
           description: (page.meta_description || defaultMeta.description) as string,
           images: page.featured_image ? [page.featured_image] : ["https://teer.club/images/og-default.png"],
         },
