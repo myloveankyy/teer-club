@@ -136,6 +136,9 @@ jobs:
             echo 'GEMINI_API_KEY="AIzaSyCgbeb-VdLad2ITeEkwSIB4bz4l96-LZSQ"' >> backend/.env
             echo 'GOOGLE_CLIENT_EMAIL="teer-club-indexing@teer-club.iam.gserviceaccount.com"' >> backend/.env
             echo 'GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDaqr9/78W4tiFN\nN7SS43CbbJEYNJDv4UdAMaxYNjrynO1whvApzFyNAoOUIiqnCkmKlDF1JXd310yg\nHehlpqhIcXHfu5joW7EXuX5I2+jF472vRTJn2A/5LDzFsFqXWg9zU4hNA5UgzEW2\n59dj2S7ZZR6JsCf5lQTm71BC3vdDrUShLcL6KF+yOrSHcNrMB9SQ+s4rawoOtxW8\nftTyChoj3zJ/3+erzaV3xFhcbIPF1ifwkKXmi4iebsaC9wfdqPhnUwcZFwckosK8\nQaCEgUjMJtOl6qkp3w/aNdR7L2cf1yiStLv2kOFB3Oy48QnvpvW1RiYxPp9xqf5q\nOciiw8qhAgMBAAECggEAR2YPZ1/MKLbXgtYYkQnQn/9AFS480Qa29CAEDT2P294f\nrWlyC8PdyHE0s27AjJBQWP5wc7bLHodfTrzVQDO9qQHZ09r2X5Bo770ynemoRM1L\nB2rJvZyQAqVOJqKhwd+3QcnZrIPp8q6gaMukycaFhJh+8yhgtR7SXfFwPJV/GUpk\ncb/ZwtwS4zDwDFIvzbtIIhe2Qe2MnE7K+cEqtpTFCGNOh7mDOyKZ1uOIuimaHGNB\nSE5MC6aEme4JI/uxBjcUM6SiBGLMyF7Obx3PTzBO8/OXq4z32BH7z1OecdI/iw3C\nZtiytWxlya92OleHswyIB5iyWNsKTktKMHD2VAuHHQKBgQD5MCCGuHKFWkRLkPQQ\nsM883rryqMsIE5+L1UL0nJaE5D4a0GEb2U4qtWvLPgR2HanP1xTmFD2pl1j5T9mw\naXygQuJosZIXSJU7k5E82H/2vQ/mDuf7iHM4nEya203EG3lrP+wTmQ46OcuA2yUH\nA7g226rNdbD+hYOvWc4Q7CU8fwKBgQDgpQc2N/+MkV0ru3JFuQnLUysAX4PymQ+U\nbJ8hEc5Q/Brj/gVk95LodKP+4VesKDwRVKV18AOTraD+BWrTt2ewSlRLRaRKWNVs\nSmLpJSMLBLwh0cQVCi9SDVXdjPimSpYd1cR2w7XjYn6lbG/Pi3iDMznrT5Gog9wJ\nIXFLk//o3wKBgBOXzibpn8+ObmpGpnodfN37YVWtIfGroVLcXNxg55DhZWS0V75Z\n0sSW6Tfc03r6EB0Qe0sv8j1AcjWAKsytLqhnOegjdiowgdNiYfwXxc//w51CNMlZ\nTD36RCe08KNnyZ8+MnDECxNW8gJauMmZaEWf9gkbpOQOWXFTLVm1R6Q/AoGBALeb\nippxCIieoxVEXrDH/U5XCpWCe/kDyy0X3rQLtqKQe3YPP993TnZ6JzQCgELwm6/a\njGYppvLD/grA6MBkbfYzulPPdulhVAbvgYpnVQ4Db7UAmxBLQ8P/rEepme1oluuJ\ntcsQSRCxhyuzxmtO5k/txZAjd7zRET3RPKV2MLrnAoGBAOXjfeU0cGXAIApOtFZc\nFH/EZuIO6n2Gwa6JDC2ZFYLpJkuWv4dw193mYvci3JngBebxXUoQ8/5qcvrYxjoZ\nKiNBH1FN9TiknVIlRu3XcOCZAaSiqQsSAtiFNYecXBrBfddpSDKxsWoJWlqSoSrg\nPCRY1fW+C5DPMlMreYRmL7te\n-----END PRIVATE KEY-----\n"' >> backend/.env
+            echo 'GA4_PROPERTY_ID="469586125"' >> backend/.env
+            echo 'REDIS_URL="redis://localhost:6379"' >> backend/.env
+            echo 'DATABASE_URL="postgresql://teerclub:TeerClub_Prod_2026!@localhost:5432/teer_club?schema=public"' >> backend/.env
             
             echo "NEXT_PUBLIC_API_URL=https://api.teer.club/api" > frontend/.env
             echo "INTERNAL_API_URL=http://localhost:5000/api" >> frontend/.env
@@ -155,6 +158,7 @@ jobs:
             npx playwright install chromium --with-deps || true
             
             echo "Generating Prisma Client..."
+            export DATABASE_URL="postgresql://teerclub:TeerClub_Prod_2026!@localhost:5432/teer_club?schema=public"
             npx prisma generate
             
             echo "Force Syncing Database Schema..."
