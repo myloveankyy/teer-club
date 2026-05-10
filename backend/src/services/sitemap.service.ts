@@ -159,8 +159,6 @@ export class SitemapService {
 
             log('SUCCESS', `Upload complete — ${newUrls.length} URLs deployed in ${durationMs}ms`);
 
-            fs.writeFileSync(METADATA_PATH, JSON.stringify(metadata));
-
             logger.info(`[SITEMAP] Upload complete. URLs: ${newUrls.length} | New: +${added.length} | Removed: -${removed.length}`);
             
             // Ping Google asynchronously to accelerate indexing

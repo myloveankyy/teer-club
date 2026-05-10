@@ -39,7 +39,7 @@ export function Footer() {
             </p>
           </div>
 
-          <div>
+          <nav aria-label="Quick Links">
             <h3 className="mb-4 text-[10px] font-bold text-foreground/40 uppercase tracking-widest">
               Quick Links
             </h3>
@@ -55,9 +55,9 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
+          <nav aria-label="Teer Games">
             <h3 className="mb-4 text-[10px] font-bold text-foreground/40 uppercase tracking-widest">
               Teer Games
             </h3>
@@ -73,9 +73,9 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
-          <div>
+          <nav aria-label="Legal">
             <h3 className="mb-4 text-[10px] font-bold text-foreground/40 uppercase tracking-widest">
               Legal
             </h3>
@@ -91,12 +91,12 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
         </div>
 
         <div className="mt-12 border-t border-border pt-8 text-center sm:flex sm:items-center sm:justify-between">
           <p className="text-sm text-foreground/40 font-medium">
-            © 2026 teer.club — Professional Results & Analytics
+            © {new Date().getFullYear()} teer.club — Professional Results & Analytics
           </p>
           <div className="mt-4 flex justify-center space-x-6 sm:mt-0">
             <span className="text-[10px] font-bold text-foreground/20 uppercase tracking-widest">Official Result Feed</span>

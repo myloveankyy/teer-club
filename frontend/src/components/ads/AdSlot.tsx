@@ -46,7 +46,7 @@ export default function AdSlot({ slotType, className = "", format = "auto", resp
   }
 
   return (
-    <div className={`flex justify-center items-center overflow-hidden my-4 ${className}`}>
+    <div className={`flex justify-center items-center overflow-hidden my-4 ${className}`} role="complementary" aria-label="Advertisement">
       <ins
         ref={adRef}
         className="adsbygoogle"

@@ -1,36 +1,31 @@
 import { MetadataRoute } from 'next'
-import api from '@/lib/api'
 
-export default async function manifest(): Promise<MetadataRoute.Manifest> {
-    let faviconUrl = '/favicon.ico';
-    try {
-        const res = await api.settings.get();
-        if (res.data?.success && res.data.data.faviconUrl) {
-            faviconUrl = res.data.data.faviconUrl;
-        }
-    } catch (e) { }
-
-    const isIco = faviconUrl.toLowerCase().endsWith('.ico');
-    const iconType = isIco ? 'image/x-icon' : 'image/png';
-
+export default function manifest(): MetadataRoute.Manifest {
     return {
-        name: 'Teer Club',
+        name: 'Teer Club — Official Teer Results',
         short_name: 'Teer Club',
-        description: 'The leading platform for fastest Teer Result Today.',
+        description: 'The leading platform for fastest Teer Result Today. Live Shillong, Khanapara & Juwai results.',
         start_url: '/',
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#0f172a',
+        orientation: 'portrait-primary',
+        categories: ['entertainment', 'news'],
         icons: [
             {
-                src: faviconUrl,
-                sizes: '192x192',
-                type: iconType,
+                src: '/favicon.ico',
+                sizes: '48x48',
+                type: 'image/x-icon',
             },
             {
-                src: faviconUrl,
+                src: '/images/icon-192.png',
+                sizes: '192x192',
+                type: 'image/png',
+            },
+            {
+                src: '/images/icon-512.png',
                 sizes: '512x512',
-                type: iconType,
+                type: 'image/png',
             }
         ],
     }

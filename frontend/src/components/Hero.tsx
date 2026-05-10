@@ -8,7 +8,6 @@ import { Button } from "./ui/Button";
 import { Badge } from "./ui/Badge";
 import { ProofCard } from "./ProofCard";
 import { Download } from "lucide-react";
-import * as htmlToImage from "html-to-image";
 
 interface MatchProofWidgetProps {
   initialGames?: TodayGameResult[];
@@ -44,6 +43,7 @@ function MatchProofWidget({ initialGames }: MatchProofWidgetProps) {
       const btn = cardRef.current.querySelector(".download-btn") as HTMLElement;
       if (btn) btn.style.display = "none";
 
+      const htmlToImage = await import("html-to-image");
       const dataUrl = await htmlToImage.toPng(cardRef.current, {
         quality: 1,
         pixelRatio: 2,

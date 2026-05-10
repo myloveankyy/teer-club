@@ -10,7 +10,7 @@ export default function GlobalError({
     reset: () => void;
 }) {
     useEffect(() => {
-        console.error("Global UI Error Caught:", error);
+        // Error captured by Next.js error reporting via digest property
     }, [error]);
 
     return (

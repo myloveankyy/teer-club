@@ -14,25 +14,6 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://teer.club"),
-  title: "Teer Result Today | Official Shillong, Khanapara & Juwai Results",
-  description: "The leading platform for Teer Result Today. Get real-time Shillong, Khanapara and Juwai results, expert common numbers, and previous result history archives.",
-  keywords: ["Teer Result Today", "Official Teer Results", "Live Teer Feed", "Shillong Teer Result"],
-  authors: [{ name: "Teer Club" }],
-  openGraph: {
-    title: "Teer Result Today | Official Shillong, Khanapara & Juwai Results",
-    description: "The leading platform for Teer Result Today. Get real-time Shillong, Khanapara and Juwai results.",
-    type: "website",
-    locale: "en_US",
-    siteName: "Teer Club",
-    url: "https://teer.club",
-    images: [{ url: "https://teer.club/images/og-default.png", width: 1200, height: 630, alt: "Teer Result Today - Official Live Results" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Teer Result Today | Official Shillong, Khanapara & Juwai Results",
-    description: "The leading platform for Teer Result Today.",
-    images: ["https://teer.club/images/og-default.png"],
-  },
   robots: {
     index: true,
     follow: true,
@@ -56,12 +37,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://api.teer.club" />
+        <meta name="theme-color" content="#0f172a" />
       </head>
       <body
         className="min-h-screen flex flex-col bg-white text-gray-900 overflow-x-hidden"
-        suppressHydrationWarning
       >
         <a
           href="#main-content"
@@ -75,6 +55,12 @@ export default function RootLayout({
           <RealtimeTracker />
           {children}
         </Providers>
+        <noscript>
+          <div style={{ padding: '2rem', textAlign: 'center', fontFamily: 'sans-serif' }}>
+            <h1>Teer Club — Official Teer Results</h1>
+            <p>Please enable JavaScript to view live results, common numbers, and predictions.</p>
+          </div>
+        </noscript>
       </body>
     </html>
   );

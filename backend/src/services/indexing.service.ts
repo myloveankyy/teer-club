@@ -8,21 +8,24 @@ const BASE_URL = 'https://teer.club';
 export class IndexingService {
     private static jwtClient: any;
 
-    /**
-     * Initializes the Google API JWT Client using credentials from .env
-     */
+    private static authError: string | null = null;
+
     private static async getClient() {
         if (this.jwtClient) return this.jwtClient;
 
         const email = process.env.GOOGLE_CLIENT_EMAIL;
-        const key = process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+        let key = process.env.GOOGLE_PRIVATE_KEY;
 
         if (!email || !key) {
-            logger.warn("[IndexingService] Missing Google Indexing credentials (GOOGLE_CLIENT_EMAIL or GOOGLE_PRIVATE_KEY).");
+            this.authError = "Missing Google Indexing credentials (GOOGLE_CLIENT_EMAIL or GOOGLE_PRIVATE_KEY).";
+            logger.warn(`[IndexingService] ${this.authError}`);
             return null;
         }
 
         try {
+            // Robust parsing: strip quotes if present, replace literal \n with real newlines
+            key = key.replace(/^"|"$/g, '').replace(/\\n/g, '\n');
+
             this.jwtClient = new google.auth.JWT(
                 email,
                 undefined,
@@ -32,8 +35,10 @@ export class IndexingService {
 
             await this.jwtClient.authorize();
             logger.info("[IndexingService] Google Indexing API authenticated successfully.");
+            this.authError = null;
             return this.jwtClient;
-        } catch (error) {
+        } catch (error: any) {
+            this.authError = error?.message || "Failed to authenticate Google Indexing API.";
             logger.error("[IndexingService] Failed to authenticate Google Indexing API:", error);
             this.jwtClient = null;
             return null;
@@ -67,7 +72,7 @@ export class IndexingService {
     static async submitUrl(url: string, type: 'URL_UPDATED' | 'URL_DELETED' = 'URL_UPDATED') {
         const client = await this.getClient();
         if (!client) {
-            throw new Error("Indexing API not configured or authenticated.");
+            throw new Error(`Indexing API not configured or authenticated: ${this.authError || "Unknown error"}`);
         }
 
         const indexing = google.indexing({ version: 'v3', auth: client });

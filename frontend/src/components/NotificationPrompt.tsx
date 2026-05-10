@@ -117,7 +117,7 @@ export default function NotificationPrompt() {
                     await subscribeUser(reg);
                 }
             } catch (error) {
-                console.error("Service Worker registration failed:", error);
+                // Service Worker registration failed silently
             }
         };
 
@@ -147,7 +147,7 @@ export default function NotificationPrompt() {
                 const vapidRes = await api.settings.notifications.getVapid();
                 vapidPublicKey = vapidRes.data.data.publicKey;
             } catch (err) {
-                console.error("Failed to fetch VAPID key:", err);
+                // VAPID key fetch failed — push subscription cannot proceed
                 return;
             }
 
@@ -164,7 +164,7 @@ export default function NotificationPrompt() {
                 os: detectOS()
             });
         } catch (err) {
-            console.error("Push subscription failed:", err);
+            // Push subscription failed silently
         }
     };
 
@@ -181,7 +181,7 @@ export default function NotificationPrompt() {
             deferredPrompt.prompt();
             const choiceResult = await deferredPrompt.userChoice;
             if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the A2HS prompt');
+                // User accepted A2HS
             } else {
                 localStorage.setItem("a2hs_dismissed", "true");
             }

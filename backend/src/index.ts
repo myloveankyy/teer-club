@@ -70,7 +70,7 @@ const subClient = pubClient.duplicate();
 io.adapter(createAdapter(pubClient, subClient));
 
 io.on("connection", (socket) => {
-  logger.info(`[Socket.IO] Client connected: ${socket.id}`);
+  logger.debug(`[Socket.IO] Client connected: ${socket.id}`);
   
   // Clients will emit "join_game" to listen to a specific game's live comments
   socket.on("join_game", (gameId: string) => {

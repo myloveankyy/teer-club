@@ -174,7 +174,7 @@ export default async function ProgrammaticMarketPage({ params }: PageProps) {
                     }}
                 >
                     {/* Micro-timestamping for Google Indexing freshness */}
-                    <time dateTime={new Date().toISOString()} className="hidden">Last Updated: {new Date().toISOString()}</time>
+                    <time dateTime={new Date().toISOString().split('T')[0]} className="hidden">Last Updated</time>
 
                     {bodyContent && (
                         <div className="text-base text-indigo-100 mt-6 max-w-2xl" dangerouslySetInnerHTML={{ __html: bodyContent }} />
