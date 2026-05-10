@@ -125,25 +125,25 @@ jobs:
             echo "Recreating environment variables..."
             echo "PORT=5000" > backend/.env
             echo "NODE_ENV=production" >> backend/.env
-            echo "ADMIN_API_KEY=${{ secrets.ADMIN_API_KEY }}" >> backend/.env
-            echo "DB_USER=${{ secrets.DB_USER }}" >> backend/.env
+            echo "ADMIN_API_KEY=teer-admin-prod-2026-X9k2mP" >> backend/.env
+            echo "DB_USER=teerclub" >> backend/.env
             echo "DB_HOST=localhost" >> backend/.env
-            echo "DB_NAME=${{ secrets.DB_NAME }}" >> backend/.env
-            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> backend/.env
+            echo "DB_NAME=teer_club" >> backend/.env
+            echo "DB_PASSWORD=TeerClub_Prod_2026!" >> backend/.env
             echo "DB_PORT=5432" >> backend/.env
             echo "DB_SSL=false" >> backend/.env
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> backend/.env
-            echo "GA4_PROPERTY_ID=${{ secrets.GA4_PROPERTY_ID }}" >> backend/.env
+            echo "JWT_SECRET=super_secret_teer_club_jwt_key_2026_PRODUCTION_V3" >> backend/.env
+            echo "GA4_PROPERTY_ID=469586125" >> backend/.env
             echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" >> backend/.env
             echo "GOOGLE_CLIENT_EMAIL=${{ secrets.GOOGLE_CLIENT_EMAIL }}" >> backend/.env
             echo "GOOGLE_PRIVATE_KEY=\"${{ secrets.GOOGLE_PRIVATE_KEY }}\"" >> backend/.env
             echo "REDIS_URL=redis://localhost:6379" >> backend/.env
-            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> backend/.env
+            echo "DATABASE_URL=postgresql://teerclub:TeerClub_Prod_2026!@localhost:5432/teer_club?schema=public" >> backend/.env
             
             echo "NEXT_PUBLIC_API_URL=https://api.teer.club/api" > frontend/.env
             echo "INTERNAL_API_URL=http://localhost:5000/api" >> frontend/.env
             echo "NEXT_PUBLIC_API_URL=https://api.teer.club/api" > admin-panel/.env
-            echo "NEXT_PUBLIC_API_KEY=${{ secrets.ADMIN_API_KEY }}" >> admin-panel/.env
+            echo "NEXT_PUBLIC_API_KEY=teer-admin-prod-2026-X9k2mP" >> admin-panel/.env
             echo "INTERNAL_API_URL=http://localhost:5000/api" >> admin-panel/.env
 
             echo "Ensuring Redis is running..."
