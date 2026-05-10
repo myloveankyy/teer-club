@@ -101,7 +101,6 @@ export default async function GamePage({ params }: PageProps) {
                 id: gameSlug,
                 name: gameSlug,
                 displayName: gameSlug.split("-").map((s: string) => s.charAt(0).toUpperCase() + s.slice(1)).join(" "),
-                status: "waiting",
                 isEnabled: true
             };
         }
