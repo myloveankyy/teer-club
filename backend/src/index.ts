@@ -119,12 +119,18 @@ const serveSitemap = (req: Request, res: Response) => {
     }
 
     const xml = SitemapService.readXml(filename);
-    res.set("Content-Type", "application/xml");
+    
+    // CRITICAL: Google requires these exact headers for reliable sitemap fetching
+    res.set("Content-Type", "application/xml; charset=utf-8");
     res.set("Cache-Control", "public, s-maxage=3600, stale-while-revalidate=600");
+    res.set("X-Robots-Tag", "noindex"); // Sitemaps should not be indexed as pages
+    res.set("X-Content-Type-Options", "nosniff"); // Prevent MIME type sniffing
     res.status(200).send(xml);
   } catch (err) {
     logger.error("[SITEMAP] Failed to serve sitemap", err);
-    res.set("Content-Type", "application/xml");
+    // Even on error, return valid empty XML (never HTML error page)
+    res.set("Content-Type", "application/xml; charset=utf-8");
+    res.set("X-Robots-Tag", "noindex");
     res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>`);
   }
 };

@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
   // Consolidate duplicate routing to prevent SEO indexation issues
   async redirects() {
     return [
+      // ── Core route consolidation ──
       {
         source: "/results/:market/live",
         destination: "/live/:market",
@@ -51,7 +52,34 @@ const nextConfig: NextConfig = {
         source: "/:marketSlug/previous-results",
         destination: "/results/:marketSlug/previous-results",
         permanent: true,
-      }
+      },
+
+      // ── Fix ghost market URLs (bare /{MarketName} has no page.tsx → 404) ──
+      // These were in old sitemaps and GSC discovered them. Must 301 to valid pages.
+      { source: "/Shillong", destination: "/live/shillong", permanent: true },
+      { source: "/shillong", destination: "/live/shillong", permanent: true },
+      { source: "/Khanapara", destination: "/live/khanapara", permanent: true },
+      { source: "/khanapara", destination: "/live/khanapara", permanent: true },
+      { source: "/Arunachal", destination: "/live/arunachal", permanent: true },
+      { source: "/arunachal", destination: "/live/arunachal", permanent: true },
+      { source: "/Ladrymbai", destination: "/live/jowai-ladrymbai", permanent: true },
+      { source: "/ladrymbai", destination: "/live/jowai-ladrymbai", permanent: true },
+      { source: "/Juwai", destination: "/live/juwai", permanent: true },
+      { source: "/juwai", destination: "/live/juwai", permanent: true },
+      { source: "/Laitlyngkot", destination: "/live/laitlyngkot", permanent: true },
+      { source: "/laitlyngkot", destination: "/live/laitlyngkot", permanent: true },
+      { source: "/Manipur", destination: "/live/manipur", permanent: true },
+      { source: "/manipur", destination: "/live/manipur", permanent: true },
+      { source: "/Bhutan", destination: "/live/bhutan-day", permanent: true },
+      { source: "/bhutan", destination: "/live/bhutan-day", permanent: true },
+      { source: "/bhutan-day", destination: "/live/bhutan-day", permanent: true },
+
+      // ── Fix legacy broken paths from old sitemap ──
+      { source: "/dream-numbers", destination: "/dreams", permanent: true },
+
+      // ── Fix case-sensitivity: uppercase result paths → lowercase ──
+      { source: "/results/Shillong/:path*", destination: "/results/shillong/:path*", permanent: true },
+      { source: "/results/Khanapara/:path*", destination: "/results/khanapara/:path*", permanent: true },
     ];
   },
   // Headers: Security, caching, and performance

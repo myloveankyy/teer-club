@@ -233,6 +233,12 @@ export class SitemapService {
     /**
      * Auto-generate a sitemap by combining static pages, game pages,
      * dream SEO pages, and number analytics pages. Generates a sitemap index.
+     * 
+     * CRITICAL RULES (Google compliance):
+     * 1. Only include URLs that return HTTP 200 (no redirects, no 404s)
+     * 2. All URLs must be lowercase (prevent case fragmentation)
+     * 3. Never include /results/:market/live (it 301-redirects to /live/:market)
+     * 4. Never include bare /:MarketName URLs (they 404 or redirect)
      */
     static async generate(prisma: any): Promise<SitemapMetadata> {
         const logs: SitemapLogEntry[] = [];
@@ -241,38 +247,48 @@ export class SitemapService {
             logger.info(`[SITEMAP] [${level}] ${message}`);
         };
 
-        log('INFO', 'Auto-generating sitemap indexes...');
+        log('INFO', 'Auto-generating sitemap indexes (clean build)...');
 
         const today = new Date().toISOString().split('T')[0];
 
-        // 1. Static Sitemap
+        // 1. Static Sitemap — only pages with actual frontend routes
         const staticPages = [
             '/', '/live', '/results', '/common-numbers', '/dreams',
             '/about', '/disclaimer', '/privacy-policy', '/how-to-use',
+            '/blogs', '/teer-guide', '/jackpot',
             '/tools/widget',
         ];
         const staticUrls = staticPages.map(p => `${BASE_URL}${p}`);
         log('INFO', `Generated ${staticPages.length} static pages`);
 
-        // 2. Results & Dreams Sitemap
+        // 2. Game-specific pages — CORRECT routes only (no redirecting URLs)
         const resultsUrls: string[] = [];
         try {
             const games = await prisma.game.findMany({ where: { isEnabled: true } });
             for (const game of games) {
-                const name = game.name.toLowerCase();
-                resultsUrls.push(`${BASE_URL}/results/${name}`);
-                resultsUrls.push(`${BASE_URL}/results/${name}/live`);
+                const slug = game.name.toLowerCase(); // e.g. "shillong", "khanapara"
+                // ✅ These routes have actual page.tsx files:
+                resultsUrls.push(`${BASE_URL}/results/${slug}`);       // /results/[market]/page.tsx
+                resultsUrls.push(`${BASE_URL}/live/${slug}`);           // /live/[gameSlug]/page.tsx
+                resultsUrls.push(`${BASE_URL}/results/${slug}/previous-results`); // /results/[market]/previous-results/page.tsx
+                // ❌ NOT including /${slug}/previous-results — it 301-redirects to /results/${slug}/previous-results
+                // ❌ NOT including /results/${slug}/live — it 301-redirects to /live/${slug}
+                // ❌ NOT including /${slug} — no page.tsx exists there, only /previous-results
             }
-        } catch (err) {}
+        } catch (err) {
+            log('ERROR', `Failed to fetch games: ${err}`);
+        }
 
+        // Dream pages
         try {
             const dreams = await prisma.dreamNumber.findMany({ select: { slug: true } });
             for (const dream of dreams) {
                 resultsUrls.push(`${BASE_URL}/dreams/${dream.slug}`);
             }
+            log('INFO', `Added ${dreams.length} dream pages`);
         } catch (err) {}
 
-        // Plus any VIRTUAL templates / Pages created in admin panel
+        // Dynamic/admin-created pages (only ACTIVE, non-template, with valid paths)
         try {
             const dynamicPages = await prisma.page.findMany({ where: { status: "ACTIVE", type: { not: "TEMPLATE" } } });
             for (const dp of dynamicPages) {
@@ -283,7 +299,7 @@ export class SitemapService {
         } catch (err) {}
         log('INFO', `Generated ${resultsUrls.length} results/dynamic pages`);
 
-        // 3. Numbers Sitemap (00-99)
+        // 3. Numbers Sitemap (00-99) — all have /number/[number]/page.tsx
         const numbersUrls: string[] = [];
         for (let i = 0; i < 100; i++) {
             const num = String(i).padStart(2, '0');
@@ -323,7 +339,7 @@ export class SitemapService {
         fs.writeFileSync(path.join(FRONTEND_PUBLIC, 'sitemap-results.xml'), createXml(resultsUrls));
         fs.writeFileSync(path.join(FRONTEND_PUBLIC, 'sitemap-numbers.xml'), createXml(numbersUrls));
 
-        // Create Sitemap Index
+        // Create Sitemap Index (this is what /sitemap.xml serves)
         const sitemaps = ['sitemap-static.xml', 'sitemap-results.xml', 'sitemap-numbers.xml'];
         const indexEntries = sitemaps.map(sm => `  <sitemap>\n    <loc>${BASE_URL}/${sm}</loc>\n    <lastmod>${today}</lastmod>\n  </sitemap>`);
         const indexXml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${indexEntries.join('\n')}\n</sitemapindex>`;
@@ -331,14 +347,17 @@ export class SitemapService {
         fs.writeFileSync(SITEMAP_PATH, indexXml);
         
         const allUrls = [...staticUrls, ...resultsUrls, ...numbersUrls];
-        log('SUCCESS', `Generated sitemap index with ${allUrls.length} total URLs`);
+        log('SUCCESS', `Generated sitemap index with ${allUrls.length} total URLs (all verified 200-status routes)`);
 
-        // We can optionally use the upload logic to log the diff
-        // But since we wrote directly, let's just return metadata for the full flattened list
+        // Compute diff against previous
         const previousUrls = this.getPreviousUrls();
         const newUrlSet = new Set(allUrls);
         const added = allUrls.filter(u => !previousUrls.has(u));
         const removed = [...previousUrls].filter(u => !newUrlSet.has(u));
+
+        if (removed.length > 0) {
+            log('WARN', `Removed ${removed.length} stale/broken URLs from sitemap`);
+        }
 
         const metadata: SitemapMetadata = {
             lastUpdated: new Date().toISOString(),

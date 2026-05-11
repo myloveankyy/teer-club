@@ -29,7 +29,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const siteName = "Teer Club";
   const title = `${displayName} Teer Live Result Today | ${displayName} Teer Result`;
   const description = `Check today's ${displayName} Teer live result including first round and second round numbers. Also browse previous ${displayName} Teer results history.`;
-  const url = `https://teer.club/results/${market}/live`;
+  // Canonical must point to redirect destination (/live/:market), not this path
+  const url = `https://teer.club/live/${market}`;
 
   return {
     title,
@@ -89,7 +90,7 @@ export default async function GameLivePage({ params }: PageProps) {
     "@type": "WebPage",
     name: `${gameName} Teer Live Result Today`,
     description: `Check today's ${gameName} Teer live result including first round and second round numbers.`,
-    url: `https://teer.club/results/${market}/live`,
+    url: `https://teer.club/live/${market}`,
     mainEntity: {
       "@type": "Event",
       name: `${gameName} Teer Today`,
@@ -97,7 +98,7 @@ export default async function GameLivePage({ params }: PageProps) {
       eventStatus: "https://schema.org/EventScheduled",
       location: {
         "@type": "VirtualLocation",
-        url: `https://teer.club/results/${market}/live`,
+        url: `https://teer.club/live/${market}`,
       },
     },
   };
@@ -108,7 +109,7 @@ export default async function GameLivePage({ params }: PageProps) {
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: "https://teer.club" },
       { "@type": "ListItem", position: 2, name: "Live Results", item: "https://teer.club/live" },
-      { "@type": "ListItem", position: 3, name: `${gameName} Live`, item: `https://teer.club/results/${market}/live` },
+      { "@type": "ListItem", position: 3, name: `${gameName} Live`, item: `https://teer.club/live/${market}` },
     ],
   };
 

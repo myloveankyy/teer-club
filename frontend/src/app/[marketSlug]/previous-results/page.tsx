@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             type: "website",
             locale: "en_IN",
             siteName: "Teer Club",
-            url: `https://teer.club/${marketSlug}/previous-results`,
+            url: `https://teer.club/results/${marketSlug}/previous-results`,
         },
         twitter: {
             card: "summary_large_image",
@@ -65,7 +65,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
             description,
         },
         alternates: {
-            canonical: `https://teer.club/${marketSlug}/previous-results`,
+            // Canonical must point to the redirect destination, not this path
+            canonical: `https://teer.club/results/${marketSlug}/previous-results`,
         },
     };
 }
@@ -82,7 +83,7 @@ export default async function Page({ params }: PageProps) {
         itemListElement: [
             { "@type": "ListItem", position: 1, name: "Home", item: "https://teer.club" },
             { "@type": "ListItem", position: 2, name: "Results", item: "https://teer.club/results" },
-            { "@type": "ListItem", position: 3, name: `${gameName} Previous Results`, item: `https://teer.club/${marketSlug}/previous-results` },
+            { "@type": "ListItem", position: 3, name: `${gameName} Previous Results`, item: `https://teer.club/results/${marketSlug}/previous-results` },
         ],
     };
 
@@ -92,7 +93,7 @@ export default async function Page({ params }: PageProps) {
         "@type": "Dataset",
         name: `${gameName} Teer Result History`,
         description: `Complete verified archive of ${gameName} Teer results including First Round and Second Round numbers.`,
-        url: `https://teer.club/${marketSlug}/previous-results`,
+        url: `https://teer.club/results/${marketSlug}/previous-results`,
         creator: { "@type": "Organization", name: "Teer Club", url: "https://teer.club" },
         temporalCoverage: "2020/..",
         license: "https://teer.club/disclaimer",

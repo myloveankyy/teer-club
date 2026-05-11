@@ -12,6 +12,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {
         title: `${name} Previous Results History | Teer Club`,
         description: `Check the complete historical results of ${name}. View date-wise first and second round numbers.`,
+        alternates: {
+            canonical: `https://teer.club/results/${market}/previous-results`,
+        },
     };
 }
 

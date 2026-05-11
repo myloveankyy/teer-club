@@ -19,6 +19,9 @@ export const metadata: Metadata = {
     "Teer Prediction",
     "Common Numbers",
   ],
+  alternates: {
+    canonical: "/blogs",
+  },
   openGraph: {
     title: "Teer Blog | Latest Insights, Strategies & Guides",
     description:
@@ -26,6 +29,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     siteName: "Teer Club",
+    url: "https://teer.club/blogs",
   },
 };
 

@@ -15,6 +15,12 @@ export default function robots(): MetadataRoute.Robots {
                 ],
             },
         ],
-        sitemap: "https://teer.club/sitemap.xml",
+        // Reference ALL sitemaps — if the index fails, Google still finds sub-sitemaps
+        sitemap: [
+            "https://teer.club/sitemap.xml",
+            "https://teer.club/sitemap-static.xml",
+            "https://teer.club/sitemap-results.xml",
+            "https://teer.club/sitemap-numbers.xml",
+        ],
     };
 }
