@@ -1,9 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const getApiKey = () => {
   if (typeof window !== "undefined") {
-    return localStorage.getItem("apiKey") || process.env.NEXT_PUBLIC_API_KEY || "";
+    let stored = localStorage.getItem("apiKey");
+    if (stored === "dev-key-change-in-production" && window.location.hostname !== "localhost") {
+      localStorage.removeItem("apiKey");
+      stored = null;
+    }
+    return stored || process.env.NEXT_PUBLIC_API_KEY || "teer-admin-prod-2026-X9k2mP";
   }
-  return process.env.NEXT_PUBLIC_API_KEY || "";
+  return process.env.NEXT_PUBLIC_API_KEY || "teer-admin-prod-2026-X9k2mP";
 };
 
 const DEFAULT_API_URL =
