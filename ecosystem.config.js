@@ -56,6 +56,9 @@ module.exports = {
             restart_delay: 3000,
             env: {
                 NODE_ENV: "production",
+                NEXT_PUBLIC_API_URL: "https://api.teer.club/api",
+                NEXT_PUBLIC_API_KEY: "teer-admin-prod-2026-X9k2mP",
+                INTERNAL_API_URL: "http://localhost:5000/api",
             },
         }
     ]

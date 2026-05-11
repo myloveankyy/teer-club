@@ -44,7 +44,7 @@ jobs:
         working-directory: ./admin-panel
         env:
           NEXT_PUBLIC_API_URL: https://api.teer.club/api
-          NEXT_PUBLIC_API_KEY: ${{ secrets.ADMIN_API_KEY }}
+          NEXT_PUBLIC_API_KEY: teer-admin-prod-2026-X9k2mP
         run: |
           npm install --no-audit --no-fund --prefer-offline || npm install --no-audit --no-fund --prefer-offline
           npm run build
@@ -86,6 +86,10 @@ jobs:
             echo "Extracting deployment archive..."
             tar -xzf deployment.tar.gz
             rm deployment.tar.gz
+
+            echo "Removing dev-only env overrides..."
+            rm -f admin-panel/.env.local
+            rm -f frontend/.env.local
 
             # (Cache Purge intentionally removed to preserve Next.js 15 ISR and RSC caches)
             # sitemap.xml is now served dynamically — no need to delete
