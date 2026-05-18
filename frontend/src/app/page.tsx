@@ -8,6 +8,8 @@ import { TelegramBanner } from "@/components/TelegramBanner";
 import dynamic from "next/dynamic";
 import { TrafficGrid } from "@/components/layout/TrafficGrid";
 import AdSlot from "@/components/ads/AdSlot";
+import { ShareToUnlock } from "@/components/growth/ShareToUnlock";
+import { SunkCostStreak } from "@/components/growth/SunkCostStreak";
 
 // Code splitting for below-the-fold heavy components
 const MoreByTeerClub = dynamic(() => import("@/components/MoreByTeerClub").then((mod) => mod.MoreByTeerClub));
@@ -120,6 +122,14 @@ export default async function Home() {
       />
       <main id="main-content" className="flex-1 bg-surface pb-28 sm:pb-0">
         <Hero initialGames={initialGames} />
+
+        {/* Viral Growth Features Section */}
+        <Container>
+          <div className="flex flex-col lg:flex-row gap-6 my-8 items-center justify-center">
+            <ShareToUnlock />
+            <SunkCostStreak />
+          </div>
+        </Container>
 
         <TrafficGrid />
         <Section className="!py-10 border-b border-border/50">

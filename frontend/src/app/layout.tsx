@@ -5,6 +5,7 @@ import Providers from "@/components/Providers";
 import { Tracker } from "@/components/shared/Tracker";
 import NotificationPrompt from "@/components/NotificationPrompt";
 import { RealtimeTracker } from "@/components/shared/RealtimeTracker";
+import { LiveActivityToasts } from "@/components/growth/LiveActivityToasts";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,6 +54,7 @@ export default function RootLayout({
           <Tracker />
           <NotificationPrompt />
           <RealtimeTracker />
+          <LiveActivityToasts />
           {children}
         </Providers>
         <noscript>
