@@ -100,7 +100,27 @@ export class IndexingService {
             if (page) return page.id;
         }
 
-        return null;
+        // Create shadow page record to ensure URL gets indexed
+        try {
+            const targetUrl = pathOnly || url;
+            const slug = targetUrl.replace(/^\/+/, '').replace(/\//g, '-') || 'home';
+            const newPage = await prisma.page.upsert({
+                where: { url: targetUrl },
+                update: {},
+                create: {
+                    url: targetUrl,
+                    slug: slug,
+                    title: `Auto-Discovered Page: ${targetUrl}`,
+                    type: 'STATIC',
+                    status: 'ACTIVE',
+                    indexed: true
+                }
+            });
+            return newPage.id;
+        } catch (e) {
+            logger.error(`[IndexingService] Failed to create shadow page record for ${url}:`, e);
+            return null;
+        }
     }
 
     /**

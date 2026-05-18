@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { PreviousResultsPage } from "@/components/PreviousResultsPage";
 import api from "@/lib/api";
 
@@ -66,7 +67,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         },
         alternates: {
             // Canonical must point to the redirect destination, not this path
-            canonical: `https://teer.club/results/${marketSlug}/previous-results`,
+            canonical: `/results/${marketSlug}/previous-results`,
         },
     };
 }
@@ -74,6 +75,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function Page({ params }: PageProps) {
     const { marketSlug } = await params;
     const marketId = marketSlug.replace("-teer", "");
+
+    // Validate if it's a real game to prevent soft-404s on the catch-all route
+    let isValidGame = false;
+    try {
+        const gamesRes = await api.games.getAll();
+        if (gamesRes.data?.success && gamesRes.data.data) {
+            isValidGame = gamesRes.data.data.some((g: any) => g.name.toLowerCase() === marketId.toLowerCase() || g.id.toLowerCase() === marketId.toLowerCase());
+        }
+    } catch {
+        // Fallback or handle API down
+    }
+
+    if (!isValidGame) {
+        notFound();
+    }
 
     // JSON-LD: BreadcrumbList
     const gameName = marketId.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" ");

@@ -37,6 +37,9 @@ jobs:
           NEXT_PUBLIC_API_URL: https://api.teer.club/api
         run: |
           npm install --no-audit --no-fund --prefer-offline || npm install --no-audit --no-fund --prefer-offline
+          echo "Setting up PWA icons automatically..."
+          cp public/images/og-default.png public/images/icon-192.png
+          cp public/images/og-default.png public/images/icon-512.png
           npm run build
 
       # ---- BUILD ADMIN PANEL ----
@@ -167,6 +170,9 @@ jobs:
             
             echo "Force Syncing Database Schema..."
             npx prisma db push
+
+            echo "Enabling Push Notifications Globally in Database..."
+            sudo -u postgres psql -d teer_club -c "INSERT INTO \"NotificationSettings\" (id, \"a2hsEnabled\", \"pushEnabled\") VALUES ('global', true, true) ON CONFLICT (id) DO UPDATE SET \"pushEnabled\" = true, \"a2hsEnabled\" = true;" || true
 
             echo "Frontend: Using CI-built node_modules (preserving build integrity)..."
             cd ../frontend

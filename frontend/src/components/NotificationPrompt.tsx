@@ -49,6 +49,13 @@ export default function NotificationPrompt() {
     const [showA2HS, setShowA2HS] = useState(false);
     const [showPushPermission, setShowPushPermission] = useState(false);
     const [isIOS, setIsIOS] = useState(false);
+    const [timePassed, setTimePassed] = useState(false);
+    const [pushError, setPushError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setTimePassed(true), 5000);
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -101,7 +108,7 @@ export default function NotificationPrompt() {
 
     // Push Notifications Logic (Service Worker + VAPID)
     useEffect(() => {
-        if (!settings?.pushEnabled || typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+        if (!timePassed || !settings?.pushEnabled || typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
 
         const setupPush = async () => {
             try {
@@ -112,7 +119,9 @@ export default function NotificationPrompt() {
                 const permission = Notification.permission;
                 if (permission === 'default') {
                     const dismissed = localStorage.getItem("push_dismissed");
-                    if (!dismissed) setShowPushPermission(true);
+                    if (!dismissed || Date.now() > parseInt(dismissed)) {
+                        setShowPushPermission(true);
+                    }
                 } else if (permission === 'granted') {
                     await subscribeUser(reg);
                 }
@@ -121,9 +130,8 @@ export default function NotificationPrompt() {
             }
         };
 
-        // Delay prompt to 5s to ensure user has engaged with the page first
-        setTimeout(setupPush, 5000);
-    }, [settings?.pushEnabled]);
+        setupPush();
+    }, [timePassed, settings?.pushEnabled]);
 
     const subscribeUser = async (swRegistration?: ServiceWorkerRegistration) => {
         try {
@@ -147,7 +155,7 @@ export default function NotificationPrompt() {
                 const vapidRes = await api.settings.notifications.getVapid();
                 vapidPublicKey = vapidRes.data.data.publicKey;
             } catch (err) {
-                // VAPID key fetch failed — push subscription cannot proceed
+                setPushError("Failed to connect to notification server. Please try again later.");
                 return;
             }
 
@@ -195,18 +203,19 @@ export default function NotificationPrompt() {
     };
 
     const handleAcceptPush = async () => {
-        setShowPushPermission(false);
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
             await subscribeUser();
+            if (!pushError) setShowPushPermission(false);
         } else {
-            localStorage.setItem("push_dismissed", "true");
+            setShowPushPermission(false);
+            localStorage.setItem("push_dismissed", (Date.now() + 7 * 24 * 60 * 60 * 1000).toString());
         }
     };
 
     const handleDismissPush = () => {
         setShowPushPermission(false);
-        localStorage.setItem("push_dismissed", "true");
+        localStorage.setItem("push_dismissed", (Date.now() + 7 * 24 * 60 * 60 * 1000).toString());
     };
 
     // Render A2HS banner (prioritize over push if both trigger)
@@ -273,6 +282,11 @@ export default function NotificationPrompt() {
                         Maybe Later
                     </button>
                 </div>
+                {pushError && (
+                    <div className="text-red-500 text-xs font-semibold text-center mt-2 animate-in fade-in">
+                        {pushError}
+                    </div>
+                )}
             </div>
         );
     }

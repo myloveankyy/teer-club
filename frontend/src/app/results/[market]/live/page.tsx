@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       canonical: url,
     },
     robots: {
-      index: true,
+      index: false,
       follow: true,
     },
     openGraph: {

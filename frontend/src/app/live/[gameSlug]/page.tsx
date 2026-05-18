@@ -10,7 +10,19 @@ interface PageProps {
     params: Promise<{ gameSlug: string }>;
 }
 
-// ─── Dynamic SEO Metadata ────────────────────────────────────────────────────
+// Helper: Convert "3:30 PM" → "15:30" for ISO datetime in structured data
+function convertTo24h(timeStr: string): string {
+    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM|am|pm)?/i);
+    if (!match) return '15:30';
+    let hours = parseInt(match[1], 10);
+    const mins = match[2];
+    const modifier = match[3]?.toUpperCase();
+    if (modifier === 'PM' && hours < 12) hours += 12;
+    if (modifier === 'AM' && hours === 12) hours = 0;
+    return `${String(hours).padStart(2, '0')}:${mins}`;
+}
+
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { gameSlug } = await params;
     const displayName = gameSlug
@@ -139,13 +151,19 @@ export default async function GamePage({ params }: PageProps) {
         // Silent fail — client will fetch
     }
 
-    // JSON-LD: SportsEvent Schema
-    const sportsEventJsonLd = {
+    // JSON-LD: Event Schema (Google-compliant with ALL required fields)
+    const todayISO = new Date().toISOString().split('T')[0]; // e.g. "2026-05-18"
+    const eventJsonLd = {
         "@context": "https://schema.org",
-        "@type": "SportsEvent",
+        "@type": "Event",
         name: `${game.displayName} Teer Result Today`,
-        description: `Live ${game.displayName} Teer Result with FR and SR updates.`,
+        description: `Live ${game.displayName} Teer archery result with First Round and Second Round updates.`,
         url: `https://teer.club/live/${gameSlug}`,
+        startDate: `${todayISO}T${game.frTime ? convertTo24h(game.frTime) : '15:30'}:00+05:30`,
+        endDate: `${todayISO}T${game.srTime ? convertTo24h(game.srTime) : '17:00'}:00+05:30`,
+        eventStatus: "https://schema.org/EventScheduled",
+        eventAttendanceMode: "https://schema.org/MixedEventAttendanceMode",
+        image: ["https://teer.club/images/og-default.png"],
         location: {
             "@type": "Place",
             name: game.location || "North East India",
@@ -159,6 +177,18 @@ export default async function GamePage({ params }: PageProps) {
             "@type": "Organization",
             name: "Teer Club",
             url: "https://teer.club",
+        },
+        performer: {
+            "@type": "Organization",
+            name: `${game.displayName} Teer Association`,
+        },
+        offers: {
+            "@type": "Offer",
+            price: "0",
+            priceCurrency: "INR",
+            availability: "https://schema.org/InStock",
+            url: `https://teer.club/live/${gameSlug}`,
+            validFrom: `${todayISO}T00:00:00+05:30`,
         },
     };
 
@@ -192,7 +222,7 @@ export default async function GamePage({ params }: PageProps) {
         <>
             <script
                 type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(sportsEventJsonLd) }}
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
             />
             <script
                 type="application/ld+json"
