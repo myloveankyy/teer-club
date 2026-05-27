@@ -1,207 +1,61 @@
-name: Deploy to DigitalOcean
-run-name: Deploying to ${{ github.sha }}
+name: Continuous Deployment (Teer.club Live)
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository Code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      # ---- BUILD BACKEND (TypeScript & Prisma) ----
-      - name: Install & Build Backend
-        working-directory: ./backend
-        env:
-          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
-        run: |
-          npm install --no-audit --no-fund --prefer-offline || npm install --no-audit --no-fund --prefer-offline
-          npx prisma generate
-          npm run build
-          
-      # ---- BUILD FRONTEND ----
-      - name: Install & Build Frontend
-        working-directory: ./frontend
-        env:
-          NEXT_PUBLIC_API_URL: https://api.teer.club/api
-        run: |
-          npm install --no-audit --no-fund --prefer-offline || npm install --no-audit --no-fund --prefer-offline
-          echo "Setting up PWA icons automatically..."
-          cp public/images/og-default.png public/images/icon-192.png
-          cp public/images/og-default.png public/images/icon-512.png
-          npm run build
-
-      # ---- BUILD ADMIN PANEL ----
-      - name: Install & Build Admin Panel
-        working-directory: ./admin-panel
-        env:
-          NEXT_PUBLIC_API_URL: https://api.teer.club/api
-          NEXT_PUBLIC_API_KEY: teer-admin-prod-2026-X9k2mP
-        run: |
-          npm install --no-audit --no-fund --prefer-offline || npm install --no-audit --no-fund --prefer-offline
-          npm run build
-
-      # ---- COMPRESS ARTIFACTS BEFORE SCP ----
-      - name: Compress project
-        run: |
-          tar --exclude='./deployment.tar.gz' --exclude='./.git' --ignore-failed-read -czf deployment.tar.gz . 2>/dev/null
-
-      # ---- COPY ARCHIVE TO SERVER ----
-      - name: Copy files via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.DO_HOST }}
-          username: ${{ secrets.DO_USERNAME }}
-          password: ${{ secrets.DO_PASSWORD }}
-          source: "deployment.tar.gz"
-          target: "/var/www/teer.club"
-          rm: false
-
-      # ---- SERVER-SIDE: Extract, Install & Restart ----
-      - name: Extract, Database Sync, & Restart PM2
+      - name: Execute Automated Remote Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.DO_HOST }}
           username: ${{ secrets.DO_USERNAME }}
           password: ${{ secrets.DO_PASSWORD }}
+          # Alternatively, if you use SSH Keys (highly recommended):
+          # key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          timeout: 40m
+          command_timeout: 40m
           script: |
-            set -e
-            mkdir -p /var/www/teer.club
-            cd /var/www/teer.club
+            echo "==== 🚀 CD Pipeline Started ===="
             
-            echo "Clean Slate Protocol: Purging target directory..."
-            # Move archive to temp, clear dir, move back
-            mv deployment.tar.gz ../deployment_backup.tar.gz
-            rm -rf ./* || true
-            mv ../deployment_backup.tar.gz ./deployment.tar.gz
-
-            echo "Extracting deployment archive..."
-            tar -xzf deployment.tar.gz
-            rm deployment.tar.gz
-
-            echo "Removing dev-only env overrides..."
-            rm -f admin-panel/.env.local
-            rm -f frontend/.env.local
-
-            # (Cache Purge intentionally removed to preserve Next.js 15 ISR and RSC caches)
-            # sitemap.xml is now served dynamically — no need to delete
-
-
-            # --- TOTAL ISOLATION PROTOCOL ---
-            echo "Shutting down application layers to isolate registry..."
-            pm2 delete all || true
-            sleep 2
-
-            # --- INFRASTRUCTURE SOVEREIGNTY (PORT RECOVERY) ---
-            echo "Neutralizing potential environment conflicts (Docker/Port 5432)..."
-            if command -v docker &> /dev/null; then
-              sudo docker stop teer-club-db 2>/dev/null || true
-              sudo docker rm teer-club-db 2>/dev/null || true
+            # Install git on the host if not present (safeguard)
+            if ! command -v git &> /dev/null; then
+              sudo apt-get update && sudo apt-get install -y git
             fi
             
-            sudo apt-get install -y psmisc || true
-            sudo fuser -k 5432/tcp || true
-
-            # CRITICAL: Postgres Validation
-            echo "Re-establishing Registry Engine Sovereignty..."
-            sudo systemctl start postgresql
-            sudo systemctl enable postgresql
-            sleep 5 
+            # 1. Self-Healing Clone: Setup project if running on a fresh VM
+            if [ ! -d "/var/www/teer.club/.git" ]; then
+              echo "[CD] 🟢 Fresh Droplet detected! Provisioning server packages..."
+              sudo mkdir -p /var/www
+              sudo chown -R $USER:$USER /var/www
+              rm -rf /var/www/teer.club
+              
+              # Clone securely using GitHub Actions temporary access token
+              git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/myloveankyy/teer-club.git /var/www/teer.club
+              
+              cd /var/www/teer.club
+              chmod +x setup-server.sh build-and-run.sh
+              
+              # Automatically configure database, Redis, Node, Firewalls, and Nginx Proxy
+              sudo ./setup-server.sh
+            else
+              cd /var/www/teer.club
+              git config --global --add safe.directory /var/www/teer.club
+              git fetch --all
+              git reset --hard origin/main
+              chmod +x setup-server.sh build-and-run.sh
+            fi
             
-            echo "Synchronizing Local Database Sovereignty..."
-            sudo -u postgres psql -tAc "SELECT 1 FROM pg_roles WHERE rolname='teerclub'" | grep -q 1 || sudo -u postgres psql -c "CREATE USER teerclub WITH PASSWORD 'TeerClub_Prod_2026!';"
+            # 2. Run TypeScript compiles, PM2 workers, and database syncs
+            ./build-and-run.sh
             
-            echo "Purging legacy database to ensure a 100% fresh Prisma slate..."
-            # Removed destructive DROP DATABASE to preserve production data
-            sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = 'teer_club'" | grep -q 1 || sudo -u postgres psql -c "CREATE DATABASE teer_club OWNER teerclub;"
-            sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE teer_club TO teerclub;"
-            sudo -u postgres psql -d teer_club -c "ALTER SCHEMA public OWNER TO teerclub;"
-
-            # Recreate environment variables
-            echo "Recreating environment variables..."
-            echo "PORT=5000" > backend/.env
-            echo "NODE_ENV=production" >> backend/.env
-            echo "ADMIN_API_KEY=teer-admin-prod-2026-X9k2mP" >> backend/.env
-            echo "DB_USER=teerclub" >> backend/.env
-            echo "DB_HOST=localhost" >> backend/.env
-            echo "DB_NAME=teer_club" >> backend/.env
-            echo "DB_PASSWORD=TeerClub_Prod_2026!" >> backend/.env
-            echo "DB_PORT=5432" >> backend/.env
-            echo "DB_SSL=false" >> backend/.env
-            echo "JWT_SECRET=super_secret_teer_club_jwt_key_2026_PRODUCTION_V3" >> backend/.env
-            echo 'GEMINI_API_KEY="AIzaSyCgbeb-VdLad2ITeEkwSIB4bz4l96-LZSQ"' >> backend/.env
-            echo 'GOOGLE_CLIENT_EMAIL="teer-club-indexing@teer-club.iam.gserviceaccount.com"' >> backend/.env
-            echo 'GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDaqr9/78W4tiFN\nN7SS43CbbJEYNJDv4UdAMaxYNjrynO1whvApzFyNAoOUIiqnCkmKlDF1JXd310yg\nHehlpqhIcXHfu5joW7EXuX5I2+jF472vRTJn2A/5LDzFsFqXWg9zU4hNA5UgzEW2\n59dj2S7ZZR6JsCf5lQTm71BC3vdDrUShLcL6KF+yOrSHcNrMB9SQ+s4rawoOtxW8\nftTyChoj3zJ/3+erzaV3xFhcbIPF1ifwkKXmi4iebsaC9wfdqPhnUwcZFwckosK8\nQaCEgUjMJtOl6qkp3w/aNdR7L2cf1yiStLv2kOFB3Oy48QnvpvW1RiYxPp9xqf5q\nOciiw8qhAgMBAAECggEAR2YPZ1/MKLbXgtYYkQnQn/9AFS480Qa29CAEDT2P294f\nrWlyC8PdyHE0s27AjJBQWP5wc7bLHodfTrzVQDO9qQHZ09r2X5Bo770ynemoRM1L\nB2rJvZyQAqVOJqKhwd+3QcnZrIPp8q6gaMukycaFhJh+8yhgtR7SXfFwPJV/GUpk\ncb/ZwtwS4zDwDFIvzbtIIhe2Qe2MnE7K+cEqtpTFCGNOh7mDOyKZ1uOIuimaHGNB\nSE5MC6aEme4JI/uxBjcUM6SiBGLMyF7Obx3PTzBO8/OXq4z32BH7z1OecdI/iw3C\nZtiytWxlya92OleHswyIB5iyWNsKTktKMHD2VAuHHQKBgQD5MCCGuHKFWkRLkPQQ\nsM883rryqMsIE5+L1UL0nJaE5D4a0GEb2U4qtWvLPgR2HanP1xTmFD2pl1j5T9mw\naXygQuJosZIXSJU7k5E82H/2vQ/mDuf7iHM4nEya203EG3lrP+wTmQ46OcuA2yUH\nA7g226rNdbD+hYOvWc4Q7CU8fwKBgQDgpQc2N/+MkV0ru3JFuQnLUysAX4PymQ+U\nbJ8hEc5Q/Brj/gVk95LodKP+4VesKDwRVKV18AOTraD+BWrTt2ewSlRLRaRKWNVs\nSmLpJSMLBLwh0cQVCi9SDVXdjPimSpYd1cR2w7XjYn6lbG/Pi3iDMznrT5Gog9wJ\nIXFLk//o3wKBgBOXzibpn8+ObmpGpnodfN37YVWtIfGroVLcXNxg55DhZWS0V75Z\n0sSW6Tfc03r6EB0Qe0sv8j1AcjWAKsytLqhnOegjdiowgdNiYfwXxc//w51CNMlZ\nTD36RCe08KNnyZ8+MnDECxNW8gJauMmZaEWf9gkbpOQOWXFTLVm1R6Q/AoGBALeb\nippxCIieoxVEXrDH/U5XCpWCe/kDyy0X3rQLtqKQe3YPP993TnZ6JzQCgELwm6/a\njGYppvLD/grA6MBkbfYzulPPdulhVAbvgYpnVQ4Db7UAmxBLQ8P/rEepme1oluuJ\ntcsQSRCxhyuzxmtO5k/txZAjd7zRET3RPKV2MLrnAoGBAOXjfeU0cGXAIApOtFZc\nFH/EZuIO6n2Gwa6JDC2ZFYLpJkuWv4dw193mYvci3JngBebxXUoQ8/5qcvrYxjoZ\nKiNBH1FN9TiknVIlRu3XcOCZAaSiqQsSAtiFNYecXBrBfddpSDKxsWoJWlqSoSrg\nPCRY1fW+C5DPMlMreYRmL7te\n-----END PRIVATE KEY-----\n"' >> backend/.env
-            echo 'GA4_PROPERTY_ID="469586125"' >> backend/.env
-            echo 'REDIS_URL="redis://localhost:6379"' >> backend/.env
-            echo 'DATABASE_URL="postgresql://teerclub:TeerClub_Prod_2026!@localhost:5432/teer_club?schema=public"' >> backend/.env
-            
-            echo "NEXT_PUBLIC_API_URL=https://api.teer.club/api" > frontend/.env
-            echo "INTERNAL_API_URL=http://localhost:5000/api" >> frontend/.env
-            echo "NEXT_PUBLIC_API_URL=https://api.teer.club/api" > admin-panel/.env
-            echo "NEXT_PUBLIC_API_KEY=teer-admin-prod-2026-X9k2mP" >> admin-panel/.env
-            echo "INTERNAL_API_URL=http://localhost:5000/api" >> admin-panel/.env
-
-            echo "Ensuring Redis is running..."
-            sudo apt-get install -y redis-server || true
-            sudo systemctl start redis-server || true
-            
-            echo "Installing Backend Dependencies..."
-            cd backend
-            npm install --omit=dev
-            
-            echo "Provisioning Headless Scraping Engines..."
-            npx playwright install chromium --with-deps || true
-            
-            echo "Generating Prisma Client..."
-            export DATABASE_URL="postgresql://teerclub:TeerClub_Prod_2026!@localhost:5432/teer_club?schema=public"
-            npx prisma generate
-            
-            echo "Force Syncing Database Schema..."
-            npx prisma db push
-
-            echo "Enabling Push Notifications Globally in Database..."
-            sudo -u postgres psql -d teer_club -c "INSERT INTO \"NotificationSettings\" (id, \"a2hsEnabled\", \"pushEnabled\") VALUES ('global', true, true) ON CONFLICT (id) DO UPDATE SET \"pushEnabled\" = true, \"a2hsEnabled\" = true;" || true
-
-            echo "Frontend: Using CI-built node_modules (preserving build integrity)..."
-            cd ../frontend
-
-            echo "Admin Panel: Using CI-built node_modules (preserving build integrity)..."
-            cd ../admin-panel
-
-            echo "Starting Apps via PM2 Ecosystem..."
-            cd /var/www/teer.club
-            pm2 start ecosystem.config.js
-            pm2 save
-            sudo env PATH=$PATH:/usr/bin pm2 startup ubuntu -u $USER --hp /home/$USER || pm2 startup
-
-            echo "=== DEPLOYMENT HEALTH CHECK ==="
-            sleep 8
-
-            echo "--- PM2 Process Status ---"
-            pm2 list
-
-            echo "--- Frontend Logs (last 30 lines) ---"
-            pm2 logs teer-frontend --nostream --lines 30 || true
-
-            echo "--- API Health Check ---"
-            curl -s -o /dev/null -w "API Status: %{http_code}\n" http://localhost:5000/api/results/today || echo "API: UNREACHABLE"
-
-            echo "--- Frontend Health Check ---"
-            curl -s -o /dev/null -w "Frontend Status: %{http_code}\n" http://localhost:3000/ || echo "Frontend: UNREACHABLE"
-
-            echo "--- Admin Health Check ---"
-            curl -s -o /dev/null -w "Admin Status: %{http_code}\n" http://localhost:3001/ || echo "Admin: UNREACHABLE"
-
-            echo "=== DEPLOYMENT COMPLETE ==="
+            echo "==== 🎉 Deployment and VM Setup Finished Successfully! ===="
